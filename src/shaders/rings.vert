@@ -11,11 +11,6 @@ out vec4 vPosition;
 out vec3 vNormal;
 out vec2 vUv;
 
-#ifdef USE_VERTEX_COLOR
-  in vec4 color;
-  out vec4 vColor;
-#endif
-
 uniform float time;
 uniform vec2 resolution;
 uniform mat4 projectionMatrix;
@@ -56,10 +51,6 @@ void main() {
   gl_Position = outPos;
 
   vPosition.w = outPos.z / outPos.w;
-
-#ifdef USE_VERTEX_COLOR
-  vColor = color;
-#endif
 
   vUv = uv;
 }
