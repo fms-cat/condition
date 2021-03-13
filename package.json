@@ -1,0 +1,32 @@
+{
+  "name": "revision-2021",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "webpack-cli serve --mode development",
+    "build": "webpack --mode production && ruby pnginator.rb ./dist/bundle.js ./dist/out.png.html"
+  },
+  "devDependencies": {
+    "@fms-cat/automaton": "^4.1.0",
+    "@fms-cat/automaton-fxs": "^4.1.0",
+    "@fms-cat/automaton-with-gui": "^4.1.1",
+    "@fms-cat/experimental": "^0.5.0",
+    "@fms-cat/glcat-ts": "^0.14.0",
+    "@types/webpack-env": "^1.16.0",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "eslint": "^7.21.0",
+    "glslify-loader": "^2.0.0",
+    "html-webpack-plugin": "^5.3.0",
+    "loader-utils": "^2.0.0",
+    "raw-loader": "^4.0.2",
+    "schema-utils": "^3.0.0",
+    "tempy": "^1.0.0",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.2.3",
+    "webpack": "^5.24.4",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
