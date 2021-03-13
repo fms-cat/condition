@@ -40,7 +40,8 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 normalMatrix;
-uniform sampler2D samplerCompute;
+uniform sampler2D samplerCompute0;
+uniform sampler2D samplerCompute1;
 uniform sampler2D samplerRandomStatic;
 
 // -------------------------------------------------------------------------------------------------
@@ -64,15 +65,12 @@ mat2 rotate2D( float _t ) {
 // -------------------------------------------------------------------------------------------------
 
 void main() {
-  vec2 puv = vec2( computeUV );
-  vec2 dppix = vec2( 1.0 ) / resolutionCompute;
-
   // == fetch texture ==============================================================================
-  vec4 tex0 = texture( samplerCompute, puv );
-  vec4 tex1 = texture( samplerCompute, puv + dppix * vec2( 1.0, 0.0 ) );
+  vec4 tex0 = texture( samplerCompute0, computeUV );
+  vec4 tex1 = texture( samplerCompute1, computeUV );
 
   // == assign varying variables ===================================================================
-  vDice = random( puv.xy * 182.92 );
+  vDice = random( computeUV.xy * 182.92 );
 
   vColor.xyz = 0.8 * mix( catColor( 2.0 + 40.0 * vDice.x ), vec3( 0.9 ), 0.0 );
   vColor.xyz = vec3( 0.2 );
@@ -103,6 +101,4 @@ void main() {
   gl_Position = outPos;
 
   vPosition.w = outPos.z / outPos.w;
-
-  // gl_PointSize = resolution.y * size / outPos.z;
 }

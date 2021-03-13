@@ -11,19 +11,20 @@ const float TAU = 6.283185307;
 #define lofi(i,m) (floor((i)/(m))*(m))
 #define lofir(i,m) (floor((i)/(m)+.5)*(m))
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragCompute0;
+layout (location = 1) out vec4 fragCompute1;
 
 uniform bool init;
 uniform float time;
 uniform float beat;
 uniform float particlesSqrt;
-uniform float ppp;
 uniform float totalFrame;
 uniform float deltaTime;
 uniform float noiseScale;
 uniform float noisePhase;
 uniform vec2 resolution;
-uniform sampler2D samplerCompute;
+uniform sampler2D samplerCompute0;
+uniform sampler2D samplerCompute1;
 uniform sampler2D samplerRandom;
 // uniform float velScale;
 // uniform float genRate;
@@ -105,18 +106,15 @@ vec3 randomBox( inout vec4 seed ) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution;
-  vec2 puv = vec2( ( floor( gl_FragCoord.x / ppp ) * ppp + 0.5 ) / resolution.x, uv.y );
-  float pixId = mod( gl_FragCoord.x, ppp );
-  vec2 dpix = vec2( 1.0 ) / resolution;
 
   float dt = deltaTime;
 
   // == prepare some vars ==========================================================================
-  vec4 seed = texture( samplerRandom, puv );
+  vec4 seed = texture( samplerRandom, uv );
   prng( seed );
 
-  vec4 tex0 = texture( samplerCompute, puv );
-  vec4 tex1 = texture( samplerCompute, puv + dpix * vec2( 1.0, 0.0 ) );
+  vec4 tex0 = texture( samplerCompute0, uv );
+  vec4 tex1 = texture( samplerCompute1, uv );
 
   vec3 pos = tex0.xyz;
   float life = tex0.w;
@@ -125,7 +123,7 @@ void main() {
   float timing = mix(
     0.0,
     PARTICLE_LIFE_LENGTH,
-    ( floor( puv.x * particlesSqrt ) / particlesSqrt + floor( puv.y * particlesSqrt ) ) / particlesSqrt
+    ( floor( uv.x * particlesSqrt ) / particlesSqrt + floor( uv.y * particlesSqrt ) ) / particlesSqrt
   );
   timing += lofi( time, PARTICLE_LIFE_LENGTH );
 
@@ -174,8 +172,6 @@ void main() {
   pos += vel * dt;
   life -= dt / PARTICLE_LIFE_LENGTH;
 
-  fragColor = (
-    pixId < 1.0 ? vec4( pos, life ) :
-    vec4( vel, 1.0 )
-  );
+  fragCompute0 = vec4( pos, life );
+  fragCompute1 = vec4( vel, 1.0 );
 }

@@ -11,25 +11,20 @@ const float TAU = 6.283185307;
 #define lofi(i,m) (floor((i)/(m))*(m))
 #define lofir(i,m) (floor((i)/(m)+.5)*(m))
 
-// ------
+layout (location = 0) out vec4 fragCompute0;
+layout (location = 1) out vec4 fragCompute1;
 
-out vec4 fragColor;
-
+uniform bool init;
 uniform float time;
 uniform float beat;
-
 uniform float trails;
 uniform float trailLength;
-uniform float ppp;
-
 uniform float totalFrame;
-uniform bool init;
 uniform float deltaTime;
 uniform vec2 resolution;
-
-uniform sampler2D samplerCompute;
+uniform sampler2D samplerCompute0;
+uniform sampler2D samplerCompute1;
 uniform sampler2D samplerRandom;
-
 uniform float noiseScale;
 uniform float noisePhase;
 // uniform float velScale;
@@ -122,40 +117,36 @@ vec3 uneune3( float i, float p ) {
 
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution;
-  vec2 puv = vec2( ( floor( gl_FragCoord.x / ppp ) * ppp + 0.5 ) / resolution.x, uv.y );
-  float pixId = mod( gl_FragCoord.x, ppp );
-  vec2 dpix = vec2( 1.0 ) / resolution;
 
   float dt = deltaTime;
 
   // == if it is not head of particles =============================================================
-  if ( ppp < gl_FragCoord.x ) {
-    puv.x -= ppp / resolution.x;
-    vec4 tex0 = texture( samplerCompute, puv );
-    vec4 tex1 = texture( samplerCompute, puv + dpix * vec2( 1.0, 0.0 ) );
+  if ( 1.0 < gl_FragCoord.x ) {
+    uv.x -= 1.0 / resolution.x;
+    vec4 tex0 = texture( samplerCompute0, uv );
+    vec4 tex1 = texture( samplerCompute1, uv );
 
     tex0.w = saturate( tex0.w - 1.0 / trailLength ); // decrease the life
 
-    fragColor = (
-      pixId < 1.0 ? tex0 :
-      tex1
-    );
+    fragCompute0 = tex0;
+    fragCompute1 = tex1;
+
     return;
   }
 
   // == prepare some vars ==========================================================================
-  vec4 seed = texture( samplerRandom, puv );
+  vec4 seed = texture( samplerRandom, uv );
   prng( seed );
 
-  vec4 tex0 = texture( samplerCompute, puv );
-  vec4 tex1 = texture( samplerCompute, puv + dpix * vec2( 1.0, 0.0 ) );
+  vec4 tex0 = texture( samplerCompute0, uv );
+  vec4 tex1 = texture( samplerCompute1, uv );
 
   vec3 pos = tex0.xyz;
   float life = tex0.w;
   vec3 vel = tex1.xyz;
   float jumpFlag = tex1.w;
 
-  float timing = mix( 0.0, PARTICLE_LIFE_LENGTH, floor( puv.y * trails ) / trails );
+  float timing = mix( 0.0, PARTICLE_LIFE_LENGTH, floor( uv.y * trails ) / trails );
   timing += lofi( time, PARTICLE_LIFE_LENGTH );
 
   if ( time - deltaTime + PARTICLE_LIFE_LENGTH < timing ) {
@@ -211,8 +202,6 @@ void main() {
   pos += v * dt;
   life -= dt / PARTICLE_LIFE_LENGTH;
 
-  fragColor = (
-    pixId < 1.0 ? vec4( pos, life ) :
-    vec4( vel, jumpFlag )
-  );
+  fragCompute0 = vec4( pos, life );
+  fragCompute1 = vec4( vel, jumpFlag );
 }

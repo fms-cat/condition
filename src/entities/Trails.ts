@@ -18,8 +18,6 @@ export interface TrailsOptions {
 }
 
 export class Trails {
-  private static __ppp = 2;
-
   public get entity(): Entity {
     return this.__gpuParticles.entity;
   }
@@ -39,9 +37,9 @@ export class Trails {
       materialCompute: this.__createMaterialCompute( options ),
       geometryRender: this.__createGeometryRender( options ),
       materialRender: this.__createMaterialRender( options ),
-      computeWidth: Trails.__ppp * options.trailLength,
+      computeWidth: options.trailLength,
       computeHeight: options.trails,
-      computeNumBuffers: 1,
+      computeNumBuffers: 2,
       namePrefix: process.env.DEV && 'Trails',
     } );
   }
@@ -50,7 +48,6 @@ export class Trails {
     const material = new Material( quadVert, trailsComputeFrag );
     material.addUniform( 'trails', '1f', options.trails );
     material.addUniform( 'trailLength', '1f', options.trailLength );
-    material.addUniform( 'ppp', '1f', Trails.__ppp );
     material.addUniformTexture( 'samplerRandom', options.textureRandom );
 
     if ( process.env.DEV ) {
@@ -71,7 +68,7 @@ export class Trails {
     bufferComputeU.setVertexbuffer( ( () => {
       const ret = new Float32Array( options.trailLength * 3 );
       for ( let i = 0; i < options.trailLength; i ++ ) {
-        const u = ( Trails.__ppp * i + 0.5 ) / ( Trails.__ppp * options.trailLength );
+        const u = ( 0.5 + i ) / options.trailLength;
         ret[ i * 3 + 0 ] = u;
         ret[ i * 3 + 1 ] = u;
         ret[ i * 3 + 2 ] = u;
@@ -159,7 +156,6 @@ export class Trails {
       },
     );
     material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniform( 'ppp', '1f', Trails.__ppp );
     material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
 
     if ( process.env.DEV ) {

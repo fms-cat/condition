@@ -18,8 +18,6 @@ export interface SphereParticlesOptions {
 }
 
 export class SphereParticles {
-  private static __ppp = 2;
-
   public get entity(): Entity {
     return this.__gpuParticles.entity;
   }
@@ -39,9 +37,9 @@ export class SphereParticles {
       materialCompute: this.__createMaterialCompute( options ),
       geometryRender: this.__createGeometryRender( options ),
       materialRender: this.__createMaterialRender( options ),
-      computeWidth: SphereParticles.__ppp * options.particlesSqrt,
+      computeWidth: options.particlesSqrt,
       computeHeight: options.particlesSqrt,
-      computeNumBuffers: 1,
+      computeNumBuffers: 2,
       namePrefix: process.env.DEV && 'SphereParticles',
     } );
   }
@@ -53,7 +51,6 @@ export class SphereParticles {
     const material = new Material( quadVert, sphereParticleComputeFrag );
     material.addUniform( 'particlesSqrt', '1f', particlesSqrt );
     material.addUniform( 'particles', '1f', particles );
-    material.addUniform( 'ppp', '1f', SphereParticles.__ppp );
     material.addUniformTexture( 'samplerRandom', options.textureRandom );
 
     if ( process.env.DEV ) {
@@ -85,10 +82,8 @@ export class SphereParticles {
       for ( let iy = 0; iy < particlesSqrt; iy ++ ) {
         for ( let ix = 0; ix < particlesSqrt; ix ++ ) {
           const i = ix + iy * particlesSqrt;
-          const s = ( SphereParticles.__ppp * ix + 0.5 )
-            / ( SphereParticles.__ppp * particlesSqrt );
-          const t = ( iy + 0.5 )
-            / ( particlesSqrt );
+          const s = ( ix + 0.5 ) / particlesSqrt;
+          const t = ( iy + 0.5 ) / particlesSqrt;
           ret[ i * 2 + 0 ] = s;
           ret[ i * 2 + 1 ] = t;
         }
@@ -122,7 +117,6 @@ export class SphereParticles {
       },
     );
     material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniform( 'ppp', '1f', SphereParticles.__ppp );
     material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
 
     if ( process.env.DEV ) {
