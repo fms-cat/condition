@@ -2,6 +2,14 @@
 
 precision highp float;
 
+const float OFFSET1 = 1.411764705882353;
+const float OFFSET2 = 3.2941176470588234;
+const float OFFSET3 = 5.176470588235294;
+const float CONTRIBUTION0 = 0.1964825501511404;
+const float CONTRIBUTION1 = 0.2969069646728344;
+const float CONTRIBUTION2 = 0.09447039785044732;
+const float CONTRIBUTION3 = 0.010381362401148057;
+
 in vec2 vUv;
 
 out vec4 fragColor;
@@ -21,15 +29,19 @@ void main() {
   vec2 bv = halfTexel * ( isVert ? vec2( 0.0, 1.0 ) : vec2( 1.0, 0.0 ) );
   vec4 sum = vec4( 0.0 );
 
-  sum += 0.2270270270 * texture( sampler0, vUv );
-  vec2 suv = clamp( vUv - bv * 1.3846153846, clampMin, clampMax );
-  sum += 0.3162162162 * texture( sampler0, suv );
-  suv = clamp( vUv + bv * 1.3846153846, clampMin, clampMax );
-  sum += 0.3162162162 * texture( sampler0, suv );
-  suv = clamp( vUv - bv * 3.2307692308, clampMin, clampMax );
-  sum += 0.0702702703 * texture( sampler0, suv );
-  suv = clamp( vUv + bv * 3.2307692308, clampMin, clampMax );
-  sum += 0.0702702703 * texture( sampler0, suv );
+  sum += CONTRIBUTION0 * texture( sampler0, vUv );
+  vec2 suv = clamp( vUv - bv * OFFSET1, clampMin, clampMax );
+  sum += CONTRIBUTION1 * texture( sampler0, suv );
+  suv = clamp( vUv + bv * OFFSET1, clampMin, clampMax );
+  sum += CONTRIBUTION1 * texture( sampler0, suv );
+  suv = clamp( vUv - bv * OFFSET2, clampMin, clampMax );
+  sum += CONTRIBUTION2 * texture( sampler0, suv );
+  suv = clamp( vUv + bv * OFFSET2, clampMin, clampMax );
+  sum += CONTRIBUTION2 * texture( sampler0, suv );
+  suv = clamp( vUv - bv * OFFSET3, clampMin, clampMax );
+  sum += CONTRIBUTION3 * texture( sampler0, suv );
+  suv = clamp( vUv + bv * OFFSET3, clampMin, clampMax );
+  sum += CONTRIBUTION3 * texture( sampler0, suv );
 
   fragColor = vec4( sum.xyz, 1.0 );
 }
