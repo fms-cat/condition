@@ -1,13 +1,18 @@
 #version 300 es
 
-const float MODE_RECT = 0.0;
-const float MODE_GRID = 1.0;
-const float MODE_CIRCLE = 2.0;
-const float MODES = 3.0;
+const int MODE_RECT = 0;
+const int MODE_GRID = 1;
+const int MODE_CIRCLE = 2;
+const int MODE_TAMBO = 3;
+const int MODE_C = 4;
+const int MODE_THEREFORE = 5;
+const int MODE_SPEEN = 6;
+const int MODES = 7;
 const float HUGE = 9E16;
 const float PI = 3.14159265;
 const float TAU = 6.283185307;
 
+#define fs(i) (fract(sin((i)*114.514)*1919.810))
 #define saturate(i) clamp(i,0.,1.)
 #define lofi(i,m) (floor((i)/(m))*(m))
 #define lofir(i,m) (floor((i+0.5)/(m))*(m))
@@ -22,6 +27,7 @@ out float vMode;
 out vec2 vUv;
 out vec3 vNormal;
 out vec4 vPosition;
+out vec4 vDice;
 
 uniform vec2 resolution;
 uniform vec2 resolutionCompute;
@@ -46,8 +52,11 @@ void main() {
   vec4 tex0 = texture( samplerCompute0, computeUV );
 
   // == assign varying variables ===================================================================
-  vec4 dice = random( computeUV.xy * 182.92 );
-  vMode = floor( float( MODES ) * dice.w );
+  vDice = fs( random( computeUV.xy * 88.92 + 0.42 ) ); // precision matters,,,?
+
+  vec4 dice = fs( random( computeUV.xy * 182.92 ) );
+  int mode = int( float( MODES ) * dice.w );
+  vMode = float( mode );
 
   vUv = 0.5 + 0.5 * position;
 
@@ -60,14 +69,17 @@ void main() {
 
   vec2 size;
 
-  if ( vMode == MODE_RECT ) {
+  if ( mode == MODE_RECT ) {
     size = 1.0 * dice.xy;
 
-  } else if ( vMode == MODE_GRID ) {
-    size = vec2( 0.25 + 0.25 * dice.x );
+  } else if ( mode == MODE_GRID ) {
+    size = vec2( 0.25 );
 
-  } else if ( vMode == MODE_CIRCLE ) {
-    size = vec2( 1.0 * dice.x );
+  } else if ( mode == MODE_CIRCLE ) {
+    size = vec2( 3.0 * dice.x * dice.x );
+
+  } else if ( mode == MODE_TAMBO || mode == MODE_C || mode == MODE_THEREFORE || mode == MODE_SPEEN ) {
+    size = vec2( 0.2 * dice.x );
 
   }
 
