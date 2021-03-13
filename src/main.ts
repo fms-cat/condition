@@ -22,6 +22,7 @@ import { Glitch } from './entities/Glitch';
 import { Rings } from './entities/Rings';
 import { RTInspector } from './entities/RTInspector';
 import { Component } from './heck/components/Component';
+import { FlickyParticles } from './entities/FlickyParticles';
 
 // == gl ===========================================================================================
 const { canvas, glCat } = DISPLAY;
@@ -216,6 +217,13 @@ dog.root.children.push( trails.entity );
 
 const rings = new Rings();
 dog.root.children.push( rings.entity );
+
+const flickyParticles = new FlickyParticles( {
+  particlesSqrt: 8,
+  textureRandom: randomTexture.texture,
+  textureRandomStatic: randomTextureStatic.texture
+} );
+dog.root.children.push( flickyParticles.entity );
 
 const raymarcher = new Raymarcher( {
   textureRandom: randomTexture.texture,
