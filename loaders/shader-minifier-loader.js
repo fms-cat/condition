@@ -74,11 +74,20 @@ function sanitizeContent( content ) {
  */
 module.exports = async function( content ) {
   const callback = this.async();
+
+  const name = path.basename( this.resourcePath );
+
+  if ( content.includes( '#pragma shader_minifier_loader bypass' ) ) {
+    this.emitWarning( `#pragma shader_minifier_loader detected in ${ name }. Bypassing shader minifier` );
+
+    callback( null, content );
+
+    return;
+  }
+
   const options = getOptions( this );
 
   const minifierOptions = buildMinifierOptionsString( options );
-
-  const name = path.basename( this.resourcePath );
 
   const contentSanitized = sanitizeContent( content );
 
