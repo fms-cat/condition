@@ -37,6 +37,33 @@ export class BufferRenderTarget extends RenderTarget {
     return this.__numBuffers;
   }
 
+  private __name?: string;
+  public get name(): string | undefined {
+    return this.__name;
+  }
+  public set name( name: string | undefined ) {
+    if ( process.env.DEV ) {
+      // remove previous one from the nameMap
+      if ( this.__name != null ) {
+        BufferRenderTarget.nameMap.delete( this.__name );
+      }
+
+      this.__name = name;
+
+      // set the current one to the nameMap
+      if ( name != null ) {
+        if ( BufferRenderTarget.nameMap.has( name ) ) {
+          console.warn( `Duplicated BufferRenderTarget name, ${ name }` );
+          return;
+        }
+
+        BufferRenderTarget.nameMap.set( name, this );
+      } else {
+        console.warn( 'BufferRenderTarget without name' );
+      }
+    }
+  }
+
   public constructor( options: BufferRenderTargetOptions ) {
     super();
 
@@ -54,16 +81,7 @@ export class BufferRenderTarget extends RenderTarget {
     this.__numBuffers = options.numBuffers || 1;
 
     if ( process.env.DEV ) {
-      if ( options.name ) {
-        if ( BufferRenderTarget.nameMap.has( options.name ) ) {
-          console.warn( `Duplicated BufferRenderTarget name, ${ options.name }` );
-          return;
-        }
-
-        BufferRenderTarget.nameMap.set( options.name, this );
-      } else {
-        console.warn( 'BufferRenderTarget created without name' );
-      }
+      this.name = options?.name;
     }
   }
 

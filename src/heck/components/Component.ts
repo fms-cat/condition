@@ -112,6 +112,8 @@ export class Component {
         }
 
         Component.nameMap.set( name, this );
+      } else {
+        console.warn( 'Component without name' );
       }
     }
   }
@@ -125,10 +127,6 @@ export class Component {
     if ( process.env.DEV ) {
       this.name = options?.name;
       this.ignoreBreakpoints = options?.ignoreBreakpoints;
-
-      if ( !this.name ) {
-        console.warn( 'Component created without name' );
-      }
 
       Component.gpuTimer = new GPUTimer();
     }

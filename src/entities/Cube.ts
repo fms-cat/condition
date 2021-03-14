@@ -43,6 +43,7 @@ export class Cube {
         );
       },
       visible: false,
+      name: process.env.DEV && 'Cube/speen',
     } ) );
   }
 

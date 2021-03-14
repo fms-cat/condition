@@ -1,12 +1,9 @@
 import { Entity } from '../heck/Entity';
-import { Material } from '../heck/Material';
-import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
-import returnFrag from '../shaders/return.frag';
-import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME } from '../config-hot';
+import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME, RTINSPECTOR_MULTIPLE } from '../config-hot';
 import { gl } from '../heck/canvas';
+import { Blit } from '../heck/components/Blit';
 
 export interface RTInspectorOptions {
   target: RenderTarget;
@@ -14,25 +11,72 @@ export interface RTInspectorOptions {
 
 export class RTInspector {
   public entity: Entity;
-  public material: Material;
+  public entitySingle: Entity;
+  public entityMultiple: Entity;
+  public blitSingle: Blit;
+  public blitsMultiple: Blit[];
 
   public constructor( options: RTInspectorOptions ) {
     this.entity = new Entity();
 
-    this.material = new Material(
-      quadVert,
-      returnFrag,
-    );
+    // -- single -----------------------------------------------------------------------------------
+    this.entitySingle = new Entity();
+    this.entity.children.push( this.entitySingle );
 
-    this.entity.components.push( new Quad( {
-      target: options.target,
-      material: this.material,
-      name: process.env.DEV && 'RTInspector/quad',
-      ignoreBreakpoints: true,
-    } ) );
+    this.blitSingle = new Blit( {
+      dst: options.target,
+      name: process.env.DEV && 'RTInspector/blitSingle',
+    } );
+    this.entitySingle.components.push( this.blitSingle );
 
+    // -- multiple ---------------------------------------------------------------------------------
+    this.entityMultiple = new Entity();
+    this.entity.children.push( this.entityMultiple );
+
+    // count first?
+    let count = 0;
+    for ( const src of BufferRenderTarget.nameMap.values() ) {
+      count += src.numBuffers;
+    }
+
+    // grid
+    const grid = Math.ceil( Math.sqrt( count ) );
+    const width = Math.floor( options.target.width / grid );
+    const height = Math.floor( options.target.height / grid );
+
+    // then add blits
+    let iBlit = 0;
+    this.blitsMultiple = [];
+    for ( const src of BufferRenderTarget.nameMap.values() ) {
+      for ( let iAttachment = 0; iAttachment < src.numBuffers; iAttachment ++ ) {
+        const x = iBlit % grid;
+        const y = grid - 1 - Math.floor( iBlit / grid );
+        const dstRect: [ number, number, number, number ] = [
+          width * x,
+          height * y,
+          width * ( x + 1.0 ),
+          height * ( y + 1.0 ),
+        ];
+
+        const blit = new Blit( {
+          src,
+          dst: options.target,
+          attachment: gl.COLOR_ATTACHMENT0 + iAttachment,
+          dstRect,
+          name: `RTInspector/blitsMultiple/${ src.name }/${ iAttachment }`,
+        } );
+
+        this.blitsMultiple.push( blit );
+        this.entityMultiple.components.push( blit );
+
+        iBlit ++;
+      }
+    }
+
+    // -- see the config ---------------------------------------------------------------------------
     this.__updateTarget();
 
+    // -- hot hot hot hot hot ----------------------------------------------------------------------
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../config-hot', () => {
@@ -43,21 +87,31 @@ export class RTInspector {
   }
 
   private __updateTarget(): void {
-    if ( RTINSPECTOR_CAPTURE_NAME != null ) {
+    if ( RTINSPECTOR_MULTIPLE ) {
+      this.entityMultiple.active = true;
+      this.entitySingle.active = false;
+    } else if ( RTINSPECTOR_CAPTURE_NAME != null ) {
+      this.entityMultiple.active = false;
+
       const target = BufferRenderTarget.nameMap.get( RTINSPECTOR_CAPTURE_NAME ?? '' ) ?? null;
       const attachment = gl.COLOR_ATTACHMENT0 + ( RTINSPECTOR_CAPTURE_INDEX ?? 0 );
-      const texture = target?.getTexture( attachment );
 
-      if ( texture ) {
-        this.material.addUniformTexture( 'sampler0', texture );
-        this.entity.active = true;
+      if ( !target ) {
+        if ( process.env.DEV ) {
+          console.warn( `RTInspector: Cannot retrieve a render target texture, RTINSPECTOR_CAPTURE_NAME: ${ RTINSPECTOR_CAPTURE_NAME }, RTINSPECTOR_CAPTURE_INDEX: ${ RTINSPECTOR_CAPTURE_INDEX }` );
+        }
+
+        this.entitySingle.active = false;
         return;
-      } else {
-        console.warn( `RTInspector: Cannot retrieve a render target texture, RTINSPECTOR_CAPTURE_NAME: ${ RTINSPECTOR_CAPTURE_NAME }, RTINSPECTOR_CAPTURE_INDEX: ${ RTINSPECTOR_CAPTURE_INDEX }` );
       }
-    }
 
-    // fallback to not render it
-    this.entity.active = false;
+      this.blitSingle.src = target;
+      this.blitSingle.attachment = attachment;
+      this.entitySingle.active = true;
+    } else {
+      // fallback to not render it
+      this.entityMultiple.active = false;
+      this.entitySingle.active = false;
+    }
   }
 }

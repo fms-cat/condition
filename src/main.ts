@@ -204,20 +204,20 @@ const environmentMap = new EnvironmentMap();
 dog.root.children.push( environmentMap.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-// const sphereParticles = new SphereParticles( {
-//   particlesSqrt: 256,
-//   textureRandom: randomTexture.texture,
-//   textureRandomStatic: randomTextureStatic.texture
-// } );
-// dog.root.children.push( sphereParticles.entity );
+const sphereParticles = new SphereParticles( {
+  particlesSqrt: 256,
+  textureRandom: randomTexture.texture,
+  textureRandomStatic: randomTextureStatic.texture
+} );
+dog.root.children.push( sphereParticles.entity );
 
-// const trails = new Trails( {
-//   trails: 4096,
-//   trailLength: 64,
-//   textureRandom: randomTexture.texture,
-//   textureRandomStatic: randomTextureStatic.texture
-// } );
-// dog.root.children.push( trails.entity );
+const trails = new Trails( {
+  trails: 4096,
+  trailLength: 64,
+  textureRandom: randomTexture.texture,
+  textureRandomStatic: randomTextureStatic.texture
+} );
+dog.root.children.push( trails.entity );
 
 const rings = new Rings();
 dog.root.children.push( rings.entity );
@@ -232,11 +232,11 @@ const flickyParticles = new FlickyParticles( {
 } );
 dog.root.children.push( flickyParticles.entity );
 
-// const raymarcher = new Raymarcher( {
-//   textureRandom: randomTexture.texture,
-//   textureRandomStatic: randomTextureStatic.texture
-// } );
-// dog.root.children.push( raymarcher.entity );
+const raymarcher = new Raymarcher( {
+  textureRandom: randomTexture.texture,
+  textureRandomStatic: randomTextureStatic.texture
+} );
+dog.root.children.push( raymarcher.entity );
 
 // -- things that is not an "object" ---------------------------------------------------------------
 const swapOptions = {

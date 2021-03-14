@@ -69,7 +69,7 @@ vec3 haha( vec3 L ) {
   bool circ = dot( L, normalize( vec3( 1.0, 3.0, 3.0 ) ) ) > 0.9;
   vec3 c = circ ? 0.01 * vec3( 0.1, 0.1, 1.0 ) : vec3( 0.0 );
 
-  bool ring = abs( dot( L, vec3( 0.0, 1.0, 0.0 ) ) ) < 0.1;
+  bool ring = abs( dot( L, vec3( -0.3, 1.0, 0.3 ) ) ) < 0.1;
   c += ring ? 10.0 * vec3( 0.1, 1.0, 0.3 ) : vec3( 0.0 );
 
   return c;
