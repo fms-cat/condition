@@ -8,6 +8,7 @@ const int MTL_PBR = 2;
 const int MTL_GRADIENT = 3;
 const int MTL_IRIDESCENT = 4;
 const int AO_ITER = 8;
+const float ENV_UV_MARGIN = 0.9;
 const float AO_BIAS = 0.0;
 const float AO_RADIUS = 0.5;
 const float PI = 3.14159265359;
@@ -36,7 +37,7 @@ uniform sampler2D sampler1; // normal.xyz (yes, this is not good)
 uniform sampler2D sampler2; // color.rgba (what is a though????)
 uniform sampler2D sampler3; // materialParams.xyz, materialId
 uniform sampler2D samplerShadow;
-uniform sampler2D samplerBRDFLUT;
+uniform sampler2D samplerIBLLUT;
 uniform sampler2D samplerEnv;
 uniform sampler2D samplerAo;
 uniform sampler2D samplerRandom;
@@ -83,6 +84,21 @@ vec3 blurpleGradient( float t ) {
       linearstep( 0.33, 0.67, t )
     ),
     linearstep( 0.0, 0.33, t )
+  );
+}
+
+vec4 sampleEnvNearest( vec2 uv, float lv ) {
+  float p = pow( 0.5, float( lv ) );
+  vec2 uvt = ENV_UV_MARGIN * ( uv - 0.5 ) + 0.5;
+  uvt = mix( vec2( 1.0 - p ), vec2( 1.0 - 0.5 * p ), uvt );
+  return texture( samplerEnv, uvt );
+}
+
+vec4 sampleEnvLinear( vec2 uv, float lv ) {
+  return mix(
+    sampleEnvNearest( uv, floor( lv ) ),
+    sampleEnvNearest( uv, floor( lv + 1.0 ) ),
+    fract( lv )
   );
 }
 
@@ -188,16 +204,18 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   vec3 color = shade;
 
 #ifdef IS_FIRST_LIGHT
-//   vec3 refl = reflect( aI.V, isect.normal );
-//   vec2 envCoord = vec2(
-//     0.5 + atan( refl.z, refl.x ) / TAU,
-//     0.5 + atan( refl.y, length( refl.zx ) ) / PI
-//   );
-//   vec2 brdf = texture( samplerBRDFLUT, vec2( aI.dotNV, 1.0 - roughness ) ).xy;
+  vec3 refl = reflect( aI.V, isect.normal );
+  vec2 envUv = vec2(
+    0.5 + atan( refl.x, -refl.z ) / TAU,
+    0.5 + atan( refl.y, length( refl.zx ) ) / PI
+  );
 
-//   vec3 texEnv = 0.2 * pow( texture( samplerEnv, envCoord ).rgb, vec3( 2.2 ) );
-//   color += PI * texEnv * ( brdf.x * F0 + brdf.y );
+  // reflective ibl
+  vec2 brdf = texture( samplerIBLLUT, vec2( aI.dotNV, 1.0 - roughness ) ).xy;
+  vec3 texEnv = 0.2 * sampleEnvLinear( envUv, 5.0 * roughness ).rgb;
+  color += PI * ao * texEnv * ( brdf.x * F0 + brdf.y );
 
+  // emissive
   color += emissive * aI.dotNV * isect.albedo;
 #endif // IS_FIRST_LIGHT
 

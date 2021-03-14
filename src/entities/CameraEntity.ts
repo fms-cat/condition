@@ -17,6 +17,8 @@ export interface CameraEntityOptions {
   root: Entity;
   target: RenderTarget;
   lights: LightEntity[];
+  textureIBLLUT: GLCatTexture<WebGL2RenderingContext>;
+  textureEnv: GLCatTexture<WebGL2RenderingContext>;
   textureRandom: GLCatTexture<WebGL2RenderingContext>;
 }
 
@@ -185,6 +187,8 @@ export class CameraEntity {
       shadingMaterial.blend = [ gl.ONE, gl.ONE ];
       shadingMaterial.addUniformTexture( 'samplerAo', aoTarget.texture );
       shadingMaterial.addUniformTexture( 'samplerShadow', light.shadowMap.texture );
+      shadingMaterial.addUniformTexture( 'samplerIBLLUT', options.textureIBLLUT );
+      shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
       shadingMaterial.addUniformTexture( 'samplerRandom', options.textureRandom );
 
       const shadingQuad = new Quad( {

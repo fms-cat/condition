@@ -70,7 +70,7 @@ void main() {
   }
 
   vec3 normal = normalFunc( rayPos, 1E-4 );
-  vec4 color = vec4( 0.1, 0.2, 0.4, 1.0 );
+  vec4 color = vec4( 0.4, 0.7, 0.9, 1.0 );
 
   vec4 projPos = projectionMatrix * viewMatrix * vec4( rayPos, 1.0 ); // terrible
   float depth = projPos.z / projPos.w;
@@ -79,5 +79,5 @@ void main() {
   fragPosition = vec4( rayPos, depth );
   fragNormal = vec4( normal, 1.0 );
   fragColor = color;
-  fragWTF = vec4( vec3( 2.0, 0.9, 0.9 ), MTL_IRIDESCENT );
+  fragWTF = vec4( vec3( 0.8, 0.8, 0.0 ), MTL_PBR );
 }

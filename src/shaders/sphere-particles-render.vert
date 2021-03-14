@@ -83,15 +83,15 @@ void main() {
   size *= sin( PI * saturate( vLife ) );
 
   vec3 shape = position * size;
-  shape.yz = rotate2D( 7.0 * vPosition.x ) * shape.yz;
-  shape.zx = rotate2D( 7.0 * vPosition.y ) * shape.zx;
+  shape.yz = rotate2D( 7.0 * ( vPosition.x + vDice.z ) ) * shape.yz;
+  shape.zx = rotate2D( 7.0 * ( vPosition.y + vDice.w ) ) * shape.zx;
 
   vPosition.xyz += shape;
 
   // == compute normals ============================================================================
   vNormal = ( normalMatrix * vec4( normal, 1.0 ) ).xyz;
-  vNormal.yz = rotate2D( 7.0 * vPosition.x ) * vNormal.yz;
-  vNormal.zx = rotate2D( 7.0 * vPosition.y ) * vNormal.zx;
+  vNormal.yz = rotate2D( 7.0 * ( vPosition.x + vDice.z ) ) * vNormal.yz;
+  vNormal.zx = rotate2D( 7.0 * ( vPosition.y + vDice.w ) ) * vNormal.zx;
 
   // == send the vertex position ===================================================================
   vPosition = modelMatrix * vPosition;

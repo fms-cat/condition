@@ -24,6 +24,8 @@ import { RTInspector } from './entities/RTInspector';
 import { Component } from './heck/components/Component';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { PixelSorter } from './entities/PixelSorter';
+import { IBLLUT } from './entities/IBLLUT';
+import { EnvironmentMap } from './entities/EnvironmentMap';
 
 // == music ========================================================================================
 const audio = new AudioContext();
@@ -193,6 +195,13 @@ dog.root.components.push( new Lambda( {
   name: process.env.DEV && 'main/update',
 } ) );
 
+// -- bake -----------------------------------------------------------------------------------------
+const ibllut = new IBLLUT();
+dog.root.children.push( ibllut.entity );
+
+const environmentMap = new EnvironmentMap();
+dog.root.children.push( environmentMap.entity );
+
 // -- "objects" ------------------------------------------------------------------------------------
 const sphereParticles = new SphereParticles( {
   particlesSqrt: 256,
@@ -201,13 +210,13 @@ const sphereParticles = new SphereParticles( {
 } );
 dog.root.children.push( sphereParticles.entity );
 
-const trails = new Trails( {
-  trails: 4096,
-  trailLength: 64,
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
-} );
-dog.root.children.push( trails.entity );
+// const trails = new Trails( {
+//   trails: 4096,
+//   trailLength: 64,
+//   textureRandom: randomTexture.texture,
+//   textureRandomStatic: randomTextureStatic.texture
+// } );
+// dog.root.children.push( trails.entity );
 
 const rings = new Rings();
 dog.root.children.push( rings.entity );
@@ -219,11 +228,11 @@ const flickyParticles = new FlickyParticles( {
 } );
 dog.root.children.push( flickyParticles.entity );
 
-const raymarcher = new Raymarcher( {
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
-} );
-dog.root.children.push( raymarcher.entity );
+// const raymarcher = new Raymarcher( {
+//   textureRandom: randomTexture.texture,
+//   textureRandomStatic: randomTextureStatic.texture
+// } );
+// dog.root.children.push( raymarcher.entity );
 
 // -- things that is not an "object" ---------------------------------------------------------------
 const swapOptions = {
@@ -249,7 +258,7 @@ const light = new LightEntity( {
   shadowMapFar: 20.0,
   namePrefix: process.env.DEV && 'light1',
 } );
-light.color = [ 60.0, 60.0, 60.0 ];
+light.color = [ 40.0, 40.0, 40.0 ];
 light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
 dog.root.children.push( light.entity );
 
@@ -271,6 +280,8 @@ const camera = new CameraEntity( {
     light,
     // light2
   ],
+  textureIBLLUT: ibllut.texture,
+  textureEnv: environmentMap.texture,
   textureRandom: randomTexture.texture
 } );
 camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
