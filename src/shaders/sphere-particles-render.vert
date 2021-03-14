@@ -72,8 +72,7 @@ void main() {
   // == assign varying variables ===================================================================
   vDice = random( computeUV.xy * 182.92 );
 
-  vColor.xyz = 0.8 * mix( catColor( 2.0 + 40.0 * vDice.x ), vec3( 0.9 ), 0.0 );
-  vColor.xyz = vec3( 0.2 );
+  vColor.xyz = vec3( 0.8 );
 
   vLife = tex0.w;
 

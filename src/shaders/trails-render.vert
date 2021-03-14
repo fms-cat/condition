@@ -3,6 +3,7 @@
 const float HUGE = 9E16;
 const float PI = 3.14159265;
 const float TAU = 6.283185307;
+const float COLOR_VAR = 0.1;
 
 #define saturate(x) clamp(x,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
@@ -90,10 +91,10 @@ void main() {
 
   vColor.xyz = (
     vRandom.y < 0.8
-    ? pow( catColor( TAU * ( ( vRandom.x * 2.0 - 1.0 ) * colorVar + 0.6 + colorOffset ) ), vec3( 2.0 ) )
+    ? pow( catColor( TAU * ( ( vRandom.x * 2.0 - 1.0 ) * COLOR_VAR + 0.0 ) ), vec3( 2.0 ) )
     : vec3( 0.4 )
   );
-  vColor.xyz = blurpleGradient( vLife );
+  // vColor.xyz = blurpleGradient( vLife );
   // vColor.xyz = catColor( 3.0 + 4.0 * vLife );
 
   vColor.w = ( velp.w < 0.5 && vel.w < 0.5 && 0.0 < vLife ) ? 1.0 : -1.0;

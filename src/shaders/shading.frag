@@ -266,7 +266,8 @@ void main() {
 #ifdef IS_FIRST_LIGHT
   // color = 0.5 + 0.5 * isect.normal;
   // color = vec3( calcDepth( tex0.xyz ) );
-  // color = vec3( 0.8 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
+  // color = vec3( 0.5, 0.9, 0.6 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
+  // color = vec3( 0.5, 0.9, 0.6 ) * ( texture( samplerAo, isect.screenUv ).xyz );
 #endif
   // xfdA = shadeGradient( isect );
 

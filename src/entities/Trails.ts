@@ -148,14 +148,7 @@ export class Trails {
     const material = new Material(
       trailsRenderVert,
       trailsRenderFrag,
-      {
-        defines: {
-          'USE_CLIP': 'true',
-          'USE_VERTEX_COLOR': 'true'
-        }
-      },
     );
-    material.addUniform( 'colorVar', '1f', 0.1 );
     material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
 
     if ( process.env.DEV ) {

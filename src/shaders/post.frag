@@ -60,6 +60,7 @@ void main() {
 
   vec3 col = pow( saturate( tex.xyz ), vec3( 0.4545 ) );
   col.x = linearstep( 0.0, 1.2, col.x + 0.2 * uv.y );
+  col.z = linearstep( -0.1, 1.0, col.z );
   col = colorMap( col );
 
   fragColor = vec4( col, 1.0 );

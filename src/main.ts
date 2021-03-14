@@ -253,16 +253,16 @@ light.color = [ 60.0, 60.0, 60.0 ];
 light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
 dog.root.children.push( light.entity );
 
-const light2 = new LightEntity( {
-  root: dog.root,
-  shadowMapFov: 90.0,
-  shadowMapNear: 1.0,
-  shadowMapFar: 20.0,
-  namePrefix: process.env.DEV && 'light2',
-} );
-light2.color = [ 50.0, 30.0, 40.0 ];
-light2.entity.transform.lookAt( new Vector3( [ -4.0, -2.0, 6.0 ] ) );
-dog.root.children.push( light2.entity );
+// const light2 = new LightEntity( {
+//   root: dog.root,
+//   shadowMapFov: 90.0,
+//   shadowMapNear: 1.0,
+//   shadowMapFar: 20.0,
+//   namePrefix: process.env.DEV && 'light2',
+// } );
+// light2.color = [ 50.0, 30.0, 40.0 ];
+// light2.entity.transform.lookAt( new Vector3( [ -4.0, -2.0, 6.0 ] ) );
+// dog.root.children.push( light2.entity );
 
 const camera = new CameraEntity( {
   root: dog.root,

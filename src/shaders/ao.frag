@@ -62,7 +62,7 @@ float ambientOcclusion( vec2 uv, vec3 position, vec3 normal ) {
   }
 
   ao = ao / float( AO_ITER );
-  return ao;
+  return pow( ao, 2.0 );
 }
 
 // == main procedure ===============================================================================
