@@ -221,7 +221,7 @@ dog.root.children.push( rings.entity );
 const flickyParticles = new FlickyParticles( {
   particlesSqrt: 8,
   textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
+  textureRandomStatic: randomTextureStatic.texture,
 } );
 dog.root.children.push( flickyParticles.entity );
 

@@ -18,6 +18,6 @@ uniform float time;
 void main() {
   fragPosition = vPosition;
   fragNormal = vec4( vNormal, 1.0 );
-  fragColor = vec4( 0.6, 1.0, 4.0, 1.0 );
+  fragColor = vec4( 0.6, 1.8, 1.2, 1.0 );
   fragWTF = vec4( vec3( 0.0, 0.0, 0.0 ), MTL_UNLIT );
 }
