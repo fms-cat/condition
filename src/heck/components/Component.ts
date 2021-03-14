@@ -4,6 +4,7 @@ import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
 import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
+import { GPUTimer } from '../GPUTimer';
 
 export interface ComponentUpdateEvent {
   frameCount: number;
@@ -32,18 +33,31 @@ export interface ComponentOptions {
 }
 
 export class Component {
+  public static gpuTimer?: GPUTimer;
+  public static updateList?: Promise<{ name?: string; cpu: number; gpu: number; }>[];
+  public static drawList?: Promise<{ name?: string; cpu: number; gpu: number; }>[];
   public static nameMap = new Map<string, Component>();
   private static __updateHaveReachedBreakpoint = false;
   private static __drawHaveReachedBreakpoint = false;
 
   public static resetUpdateBreakpoint(): void {
     if ( process.env.DEV ) {
-      if ( window.divComponentsUpdate ) {
-        if ( window.divComponentsUpdate.innerHTML !== window.strComponentsUpdate ) {
-          window.divComponentsUpdate.innerHTML = window.strComponentsUpdate ?? '';
-        }
+      if ( window.divComponentsUpdate && Component.updateList != null ) {
+        Promise.all( Component.updateList ).then( ( list ) => {
+          let accumCpu = 0.0;
+          let accumGpu = 0.0;
+
+          const strEach = list.map( ( { name, cpu, gpu } ) => {
+            accumCpu += cpu;
+            accumGpu += gpu;
+            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ name }`;
+          } ).join( '\n' );
+
+          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - UPDATE\n`;
+          window.divComponentsUpdate!.innerHTML = strAccum + strEach;
+        } );
       }
-      window.strComponentsUpdate = '== update ==';
+      Component.updateList = [];
 
       this.__updateHaveReachedBreakpoint = false;
     }
@@ -51,12 +65,22 @@ export class Component {
 
   public static resetDrawBreakpoint(): void {
     if ( process.env.DEV ) {
-      if ( window.divComponentsDraw ) {
-        if ( window.divComponentsDraw.innerHTML !== window.strComponentsDraw ) {
-          window.divComponentsDraw.innerHTML = window.strComponentsDraw ?? '';
-        }
+      if ( window.divComponentsDraw && Component.drawList != null ) {
+        Promise.all( Component.drawList ).then( ( list ) => {
+          let accumCpu = 0.0;
+          let accumGpu = 0.0;
+
+          const strEach = list.map( ( { name, cpu, gpu } ) => {
+            accumCpu += cpu;
+            accumGpu += gpu;
+            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ name }`;
+          } ).join( '\n' );
+
+          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - DRAW\n`;
+          window.divComponentsDraw!.innerHTML = strAccum + strEach;
+        } );
       }
-      window.strComponentsDraw = '== draw ==';
+      Component.drawList = [];
 
       this.__drawHaveReachedBreakpoint = false;
     }
@@ -105,6 +129,8 @@ export class Component {
       if ( !this.name ) {
         console.warn( 'Component created without name' );
       }
+
+      Component.gpuTimer = new GPUTimer();
     }
   }
 
@@ -117,13 +143,21 @@ export class Component {
       if ( Component.__updateHaveReachedBreakpoint && !this.ignoreBreakpoints ) {
         return;
       }
-
-      if ( window.strComponentsUpdate != null ) {
-        window.strComponentsUpdate += `\n${ this.name }`;
-      }
     }
 
-    this.__updateImpl( event );
+    if ( process.env.DEV ) {
+      let cpu: number;
+
+      Component.updateList?.push(
+        Component.gpuTimer!.measure( () => {
+          const begin = performance.now();
+          this.__updateImpl( event );
+          cpu = ( performance.now() - begin ) * 0.001;
+        } ).then( ( gpu ) => ( { name: this.name, cpu, gpu } ) )
+      );
+    } else {
+      this.__updateImpl( event );
+    }
 
     if ( process.env.DEV ) {
       if ( COMPONENT_UPDATE_BREAKPOINT != null && COMPONENT_UPDATE_BREAKPOINT === this.name ) {
@@ -140,16 +174,24 @@ export class Component {
     if ( !this.visible ) { return; }
 
     if ( process.env.DEV ) {
-      if ( window.strComponentsDraw != null ) {
-        window.strComponentsDraw += `\n${ this.name }`;
-      }
-
       if ( Component.__drawHaveReachedBreakpoint && !this.ignoreBreakpoints ) {
         return;
       }
     }
 
-    this.__drawImpl( event );
+    if ( process.env.DEV ) {
+      let cpu: number;
+
+      Component.drawList?.push(
+        Component.gpuTimer!.measure( () => {
+          const begin = performance.now();
+          this.__drawImpl( event );
+          cpu = ( performance.now() - begin ) * 0.001;
+        } ).then( ( gpu ) => ( { name: this.name, cpu, gpu } ) )
+      );
+    } else {
+      this.__drawImpl( event );
+    }
 
     if ( process.env.DEV ) {
       if ( COMPONENT_DRAW_BREAKPOINT != null && COMPONENT_DRAW_BREAKPOINT === this.name ) {

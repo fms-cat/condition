@@ -70,11 +70,9 @@ if ( process.env.DEV ) {
   window.checkActive.style.left = '8px';
   window.checkActive.style.bottom = '248px';
 
-  window.strComponentsUpdate = '';
-
   window.divComponentsUpdate = document.createElement( 'div' );
   document.body.appendChild( window.divComponentsUpdate );
-  window.divComponentsUpdate.style.whiteSpace = 'pre-wrap';
+  window.divComponentsUpdate.style.whiteSpace = 'pre';
   window.divComponentsUpdate.style.color = '#ffffff';
   window.divComponentsUpdate.style.font = '500 10px Wt-Position-Mono';
   window.divComponentsUpdate.style.position = 'fixed';
@@ -84,13 +82,11 @@ if ( process.env.DEV ) {
   window.divComponentsUpdate.style.height = 'calc( ( 100% - 240px ) * 0.5 )';
   window.divComponentsUpdate.style.right = '0';
   window.divComponentsUpdate.style.top = '0';
-  window.divComponentsUpdate.style.overflow = 'scroll';
-
-  window.strComponentsDraw = '';
+  window.divComponentsUpdate.style.overflowY = 'scroll';
 
   window.divComponentsDraw = document.createElement( 'div' );
   document.body.appendChild( window.divComponentsDraw );
-  window.divComponentsDraw.style.whiteSpace = 'pre-wrap';
+  window.divComponentsDraw.style.whiteSpace = 'pre';
   window.divComponentsDraw.style.color = '#ffffff';
   window.divComponentsDraw.style.font = '500 10px Wt-Position-Mono';
   window.divComponentsDraw.style.position = 'fixed';
@@ -100,7 +96,7 @@ if ( process.env.DEV ) {
   window.divComponentsDraw.style.height = 'calc( ( 100% - 240px ) * 0.5 )';
   window.divComponentsDraw.style.right = '0';
   window.divComponentsDraw.style.top = 'calc( ( 100% - 240px ) * 0.5 )';
-  window.divComponentsDraw.style.overflow = 'scroll';
+  window.divComponentsDraw.style.overflowY = 'scroll';
 } else {
   canvas.style.position = 'fixed';
   canvas.style.left = '0';
