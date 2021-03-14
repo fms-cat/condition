@@ -26,6 +26,7 @@ import { FlickyParticles } from './entities/FlickyParticles';
 import { PixelSorter } from './entities/PixelSorter';
 import { IBLLUT } from './entities/IBLLUT';
 import { EnvironmentMap } from './entities/EnvironmentMap';
+import { Cube } from './entities/Cube';
 
 // == music ========================================================================================
 const audio = new AudioContext();
@@ -203,12 +204,12 @@ const environmentMap = new EnvironmentMap();
 dog.root.children.push( environmentMap.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-const sphereParticles = new SphereParticles( {
-  particlesSqrt: 256,
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
-} );
-dog.root.children.push( sphereParticles.entity );
+// const sphereParticles = new SphereParticles( {
+//   particlesSqrt: 256,
+//   textureRandom: randomTexture.texture,
+//   textureRandomStatic: randomTextureStatic.texture
+// } );
+// dog.root.children.push( sphereParticles.entity );
 
 // const trails = new Trails( {
 //   trails: 4096,
@@ -220,6 +221,9 @@ dog.root.children.push( sphereParticles.entity );
 
 const rings = new Rings();
 dog.root.children.push( rings.entity );
+
+const cube = new Cube();
+dog.root.children.push( cube.entity );
 
 const flickyParticles = new FlickyParticles( {
   particlesSqrt: 8,
