@@ -312,14 +312,14 @@ dog.root.children.push( camera.entity );
 
 swap.swap();
 const bloom = new Bloom( {
-  input: swap.i.texture,
+  input: swap.i,
   target: swap.o
 } );
 dog.root.children.push( bloom.entity );
 
 swap.swap();
 const glitch = new Glitch( {
-  input: swap.i.texture,
+  input: swap.i,
   target: swap.o,
   automaton,
 } );
@@ -327,7 +327,7 @@ dog.root.children.push( glitch.entity );
 
 swap.swap();
 const pixelSorter = new PixelSorter( {
-  input: swap.i.texture,
+  input: swap.i,
   target: swap.o,
   automaton,
 } );
@@ -335,7 +335,7 @@ dog.root.children.push( pixelSorter.entity );
 
 swap.swap();
 const post = new Post( {
-  input: swap.i.texture,
+  input: swap.i,
   target: canvasRenderTarget
 } );
 dog.root.children.push( post.entity );

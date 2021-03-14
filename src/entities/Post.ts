@@ -1,13 +1,13 @@
 import { Entity } from '../heck/Entity';
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import postFrag from '../shaders/post.frag';
 import quadVert from '../shaders/quad.vert';
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 
 export interface PostOptions {
-  input: GLCatTexture<WebGL2RenderingContext>;
+  input: BufferRenderTarget;
   target: RenderTarget;
 }
 
@@ -23,7 +23,7 @@ export class Post {
       quadVert,
       postFrag,
     );
-    material.addUniformTexture( 'sampler0', options.input );
+    material.addUniformTexture( 'sampler0', options.input.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

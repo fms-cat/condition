@@ -1,6 +1,5 @@
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
@@ -12,7 +11,7 @@ import bloomBlurFrag from '../shaders/bloom-blur.frag';
 import bloomPostFrag from '../shaders/bloom-post.frag';
 
 export interface BloomOptions {
-  input: GLCatTexture<WebGL2RenderingContext>;
+  input: BufferRenderTarget;
   target: RenderTarget;
 }
 
@@ -40,7 +39,7 @@ export class Bloom {
       quadVert,
       bloomPreFrag
     );
-    materialBloomPre.addUniformTexture( 'sampler0', options.input );
+    materialBloomPre.addUniformTexture( 'sampler0', options.input.texture );
 
     this.entity.components.push( new Quad( {
       target: swap.o,
@@ -92,7 +91,7 @@ export class Bloom {
       quadVert,
       bloomPostFrag
     );
-    materialBloomPost.addUniformTexture( 'samplerDry', options.input );
+    materialBloomPost.addUniformTexture( 'samplerDry', options.input.texture );
     materialBloomPost.addUniformTexture( 'samplerWet', swap.i.texture );
 
     this.entity.components.push( new Quad( {

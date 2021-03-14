@@ -1,5 +1,4 @@
 import { Entity } from '../heck/Entity';
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
@@ -10,10 +9,10 @@ import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
 import { Automaton } from '@fms-cat/automaton';
-import { gl } from '../heck/canvas';
+import { Blit } from '../heck/components/Blit';
 
 export interface PixelSorterOptions {
-  input: GLCatTexture<WebGL2RenderingContext>;
+  input: BufferRenderTarget;
   target: RenderTarget;
   automaton: Automaton;
 }
@@ -61,12 +60,13 @@ export class PixelSorter {
     );
     materialReturn.addUniformTexture(
       'sampler0',
-      options.input,
+      options.input.texture,
     );
 
-    entityBypass.components.push( new Quad( {
-      target: options.target,
-      material: materialReturn,
+    entityBypass.components.push( new Blit( {
+      src: options.input,
+      dst: options.target,
+      name: 'PixelSorter/blitBypass',
     } ) );
 
     // -- calc index -------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ export class PixelSorter {
       material.addUniform( 'mul', '1f', mul );
       material.addUniformTexture(
         'sampler0',
-        options.input,
+        options.input.texture,
       );
       material.addUniformTexture(
         'sampler1',
@@ -118,7 +118,7 @@ export class PixelSorter {
       material.addUniform( 'comp', '1f', comp );
       material.addUniformTexture(
         'sampler0',
-        isFirst ? options.input : this.swapBuffer.o.texture,
+        ( isFirst ? options.input : this.swapBuffer.o ).texture,
       );
       material.addUniformTexture(
         'sampler1',
