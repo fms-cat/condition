@@ -7,11 +7,12 @@ const int MTL_UNLIT = 1;
 const int MODE_RECT = 0;
 const int MODE_GRID = 1;
 const int MODE_CIRCLE = 2;
-const int MODE_TAMBO = 3;
-const int MODE_C = 4;
-const int MODE_THEREFORE = 5;
-const int MODE_SPEEN = 6;
-const int MODES = 7;
+const int MODE_SLASHER = 3;
+const int MODE_TAMBO = 4;
+const int MODE_C = 5;
+const int MODE_THEREFORE = 6;
+const int MODE_SPEEN = 7;
+const int MODES = 8;
 const float PI = 3.14159265;
 const float TAU = 6.28318531;
 
@@ -23,6 +24,7 @@ const float TAU = 6.28318531;
 in float vLife;
 in float vMode;
 in vec2 vUv;
+in vec2 vSize;
 in vec3 vNormal;
 in vec4 vPosition;
 in vec4 vDice;
@@ -57,6 +59,7 @@ void main() {
 
   vec2 uv = vUv;
   vec2 deltaUv = abs( vec2( dFdx( uv.x ), dFdy( uv.y ) ) );
+  vec2 p = ( uv * 2.0 - 1.0 ) * vSize;
 
   vec3 color = vec3( 0.0 );
 
@@ -95,6 +98,13 @@ void main() {
     float r = length( uv - 0.5 );
     float shape = step( r, 0.5 );
     shape *= step( 0.5, r + length( deltaUv ) );
+
+    if ( shape < 0.5 ) { discard; }
+
+    color = vec3( 1.0 );
+
+  } else if ( mode == MODE_SLASHER ) {
+    float shape = step( 0.0, sin( 40.0 * ( p.x + p.y + 0.3 * time ) ) );
 
     if ( shape < 0.5 ) { discard; }
 

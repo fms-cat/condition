@@ -3,11 +3,12 @@
 const int MODE_RECT = 0;
 const int MODE_GRID = 1;
 const int MODE_CIRCLE = 2;
-const int MODE_TAMBO = 3;
-const int MODE_C = 4;
-const int MODE_THEREFORE = 5;
-const int MODE_SPEEN = 6;
-const int MODES = 7;
+const int MODE_SLASHER = 3;
+const int MODE_TAMBO = 4;
+const int MODE_C = 5;
+const int MODE_THEREFORE = 6;
+const int MODE_SPEEN = 7;
+const int MODES = 8;
 const float HUGE = 9E16;
 const float PI = 3.14159265;
 const float TAU = 6.283185307;
@@ -25,6 +26,7 @@ in vec2 position;
 out float vLife;
 out float vMode;
 out vec2 vUv;
+out vec2 vSize;
 out vec3 vNormal;
 out vec4 vPosition;
 out vec4 vDice;
@@ -67,23 +69,24 @@ void main() {
   // == compute size ===============================================================================
   vPosition = vec4( tex0.xyz, 1.0 );
 
-  vec2 size;
-
   if ( mode == MODE_RECT ) {
-    size = 1.0 * dice.xy;
+    vSize = 1.0 * dice.xy;
 
   } else if ( mode == MODE_GRID ) {
-    size = vec2( 0.25 );
+    vSize = vec2( 0.25 );
 
   } else if ( mode == MODE_CIRCLE ) {
-    size = vec2( 3.0 * dice.x * dice.x );
+    vSize = vec2( 3.0 * dice.x * dice.x );
+
+  } else if ( mode == MODE_SLASHER ) {
+    vSize = vec2( 0.6, 0.2 ) * dice.xy;
 
   } else if ( mode == MODE_TAMBO || mode == MODE_C || mode == MODE_THEREFORE || mode == MODE_SPEEN ) {
-    size = vec2( 0.2 * dice.x );
+    vSize = vec2( 0.2 * dice.x );
 
   }
 
-  vec2 shape = position * size;
+  vec2 shape = position * vSize;
 
   vPosition.xy += shape;
 
