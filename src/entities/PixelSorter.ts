@@ -5,6 +5,7 @@ import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import pixelSorterIndexFrag from '../shaders/pixel-sorter-index.frag';
 import pixelSorterFrag from '../shaders/pixel-sorter.frag';
+import returnFrag from '../shaders/return.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
@@ -27,6 +28,15 @@ export class PixelSorter {
     this.entity = new Entity();
     this.entity.visible = false;
 
+    const entityBypass = new Entity();
+    entityBypass.visible = false;
+    this.entity.children.push( entityBypass );
+
+    const entityMain = new Entity();
+    entityMain.active = false;
+    entityMain.visible = false;
+    this.entity.children.push( entityMain );
+
     this.swapBuffer = new Swap(
       new BufferRenderTarget( {
         width: options.target.width,
@@ -41,6 +51,21 @@ export class PixelSorter {
         name: process.env.DEV && 'PixelSorter/swap1',
       } ),
     );
+
+    // -- bypass -----------------------------------------------------------------------------------
+    const materialReturn = new Material(
+      quadVert,
+      returnFrag,
+    );
+    materialReturn.addUniformTexture(
+      'sampler0',
+      options.input,
+    );
+
+    entityBypass.components.push( new Quad( {
+      target: options.target,
+      material: materialReturn,
+    } ) );
 
     // -- calc index -------------------------------------------------------------------------------
     let mul = 1;
@@ -64,7 +89,7 @@ export class PixelSorter {
       );
       indexMaterials.push( material );
 
-      this.entity.components.push( new Quad( {
+      entityMain.components.push( new Quad( {
         target: this.swapBuffer.i,
         material,
         name: process.env.DEV && `PixelSorter/quadIndex-${ mul }`,
@@ -97,7 +122,7 @@ export class PixelSorter {
         this.swapBuffer.o.getTexture( gl.COLOR_ATTACHMENT1 ),
       );
 
-      this.entity.components.push( new Quad( {
+      entityMain.components.push( new Quad( {
         target: isLast ? options.target : this.swapBuffer.i,
         material,
         name: process.env.DEV && `PixelSorter/quad-${ dir }-${ comp }`,
@@ -119,7 +144,8 @@ export class PixelSorter {
         material.addUniform( 'threshold', '1f', value );
       } );
 
-      this.entity.active = 0.0 < value;
+      entityMain.active = 0.0 < value;
+      entityBypass.active = !entityMain.active;
     } );
   }
 }
