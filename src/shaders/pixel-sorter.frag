@@ -8,8 +8,7 @@ const vec3 RGB = vec3( 0.299, 0.587, 0.114 );
 
 in vec2 vUv;
 
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 fragClamp;
+out vec4 fragColor;
 
 uniform float dir;
 uniform float comp;
@@ -25,14 +24,14 @@ void main() {
   vec2 uv = vUv;
 
   fragColor = texture( sampler0, uv );
-  fragClamp = texture( sampler1, uv );
+  vec4 texIndex = texture( sampler1, uv );
 
-  if ( fragClamp.x < 0.5 ) {
+  if ( texIndex.x < 0.5 ) {
     return;
   }
 
-  float index = fragClamp.x - 1.0;
-  float width = fragClamp.x + fragClamp.y - 1.0;
+  float index = texIndex.x - 1.0;
+  float width = texIndex.x + texIndex.y - 1.0;
 
   bool isCompRight = mod( index, 2.0 * comp * width ) < comp * width;
   float offset = floor( ( isCompRight ? comp : -comp ) * width + 0.5 );

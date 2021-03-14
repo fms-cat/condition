@@ -39,16 +39,20 @@ export class PixelSorter {
       new BufferRenderTarget( {
         width: options.target.width,
         height: options.target.height,
-        numBuffers: 2,
         name: process.env.DEV && 'PixelSorter/swap0',
       } ),
       new BufferRenderTarget( {
         width: options.target.width,
         height: options.target.height,
-        numBuffers: 2,
         name: process.env.DEV && 'PixelSorter/swap1',
       } ),
     );
+
+    const bufferIndex = new BufferRenderTarget( {
+      width: options.target.width,
+      height: options.target.height,
+      name: process.env.DEV && 'PixelSorter/index',
+    } );
 
     // -- bypass -----------------------------------------------------------------------------------
     const materialReturn = new Material(
@@ -70,7 +74,7 @@ export class PixelSorter {
     const indexMaterials: Material[] = [];
 
     while ( mul < options.target.width ) {
-      const isFirst = mul === 1;
+      const isLast = ( mul * 8 > options.target.width );
 
       const material = new Material(
         quadVert,
@@ -79,16 +83,16 @@ export class PixelSorter {
       material.addUniform( 'mul', '1f', mul );
       material.addUniformTexture(
         'sampler0',
-        isFirst ? options.input : this.swapBuffer.o.getTexture( gl.COLOR_ATTACHMENT0 ),
+        options.input,
       );
       material.addUniformTexture(
         'sampler1',
-        this.swapBuffer.o.getTexture( gl.COLOR_ATTACHMENT1 ),
+        this.swapBuffer.o.texture,
       );
       indexMaterials.push( material );
 
       entityMain.components.push( new Quad( {
-        target: this.swapBuffer.i,
+        target: isLast ? bufferIndex : this.swapBuffer.i,
         material,
         name: process.env.DEV && `PixelSorter/quadIndex-${ mul }`,
       } ) );
@@ -99,11 +103,12 @@ export class PixelSorter {
     }
 
     // -- sort -------------------------------------------------------------------------------------
-    let dir = 1.0 / 64.0;
-    let comp = 1.0 / 64.0;
+    let dir = 1.0 / 32.0;
+    let comp = 1.0 / 32.0;
 
     while ( dir < 1.0 ) {
-      const isLast = ( dir === 0.5 ) && ( comp === 1.0 / 64.0 );
+      const isFirst = dir === 1.0 / 32.0;
+      const isLast = ( dir === 0.5 ) && ( comp === 1.0 / 32.0 );
 
       const material = new Material(
         quadVert,
@@ -113,11 +118,11 @@ export class PixelSorter {
       material.addUniform( 'comp', '1f', comp );
       material.addUniformTexture(
         'sampler0',
-        this.swapBuffer.o.getTexture( gl.COLOR_ATTACHMENT0 ),
+        isFirst ? options.input : this.swapBuffer.o.texture,
       );
       material.addUniformTexture(
         'sampler1',
-        this.swapBuffer.o.getTexture( gl.COLOR_ATTACHMENT1 ),
+        bufferIndex.texture,
       );
 
       entityMain.components.push( new Quad( {
@@ -128,7 +133,7 @@ export class PixelSorter {
 
       this.swapBuffer.swap();
 
-      if ( comp === 1.0 / 64.0 ) {
+      if ( comp === 1.0 / 32.0 ) {
         dir *= 2.0;
         comp = dir;
       } else {
