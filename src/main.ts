@@ -23,6 +23,7 @@ import { Rings } from './entities/Rings';
 import { RTInspector } from './entities/RTInspector';
 import { Component } from './heck/components/Component';
 import { FlickyParticles } from './entities/FlickyParticles';
+import { PixelSorter } from './entities/PixelSorter';
 
 // == gl ===========================================================================================
 const { canvas, glCat } = DISPLAY;
@@ -166,7 +167,7 @@ if ( process.env.DEV ) {
   );
 }
 
-// == random texture ===============================================================================
+// == textures =====================================================================================
 const randomTexture = new RandomTexture(
   glCat,
   RANDOM_RESOLUTION[ 0 ],
@@ -315,6 +316,14 @@ const glitch = new Glitch( {
   automaton,
 } );
 dog.root.children.push( glitch.entity );
+
+swap.swap();
+const pixelSorter = new PixelSorter( {
+  input: swap.i.texture,
+  target: swap.o,
+  automaton,
+} );
+dog.root.children.push( pixelSorter.entity );
 
 swap.swap();
 const post = new Post( {
