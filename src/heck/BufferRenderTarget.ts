@@ -1,5 +1,5 @@
 import { GLCatFramebuffer, GLCatTexture } from '@fms-cat/glcat-ts';
-import { DISPLAY } from './DISPLAY';
+import { gl, glCat } from './canvas';
 import { RenderTarget } from './RenderTarget';
 
 export interface BufferRenderTargetOptions {
@@ -40,7 +40,7 @@ export class BufferRenderTarget extends RenderTarget {
   public constructor( options: BufferRenderTargetOptions ) {
     super();
 
-    this.__framebuffer = DISPLAY.glCat.lazyDrawbuffers(
+    this.__framebuffer = glCat.lazyDrawbuffers(
       options.width,
       options.height,
       options.numBuffers || 1,
@@ -76,7 +76,6 @@ export class BufferRenderTarget extends RenderTarget {
   }
 
   public bind(): void {
-    const { gl, glCat } = DISPLAY;
     gl.bindFramebuffer( gl.FRAMEBUFFER, this.__framebuffer.raw );
     glCat.drawBuffers( this.__numBuffers );
     gl.viewport( 0, 0, this.width, this.height );

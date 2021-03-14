@@ -1,13 +1,13 @@
 import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { genTorus } from '../geometries/genTorus';
 import { Mesh } from '../heck/components/Mesh';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
 import ringsVert from '../shaders/rings.vert';
 import ringsFrag from '../shaders/rings.frag';
+import { gl, glCat } from '../heck/canvas';
 
 const PRIMCOUNT = 32;
 
@@ -49,14 +49,14 @@ export class Rings {
     geometry.setIndex( torus.index );
 
     const arrayInstanceId = new Array( PRIMCOUNT ).fill( 0 ).map( ( _, i ) => i );
-    const bufferInstanceId = DISPLAY.glCat.createBuffer();
+    const bufferInstanceId = glCat.createBuffer();
     bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
 
     geometry.addAttribute( 'instanceId', {
       buffer: bufferInstanceId,
       size: 1,
       divisor: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
     geometry.count = torus.count;

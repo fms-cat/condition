@@ -1,7 +1,7 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
 import { TRIANGLE_STRIP_QUAD, Vector3 } from '@fms-cat/experimental';
-import { DISPLAY } from '../heck/DISPLAY';
+import { gl, glCat } from '../heck/canvas';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Material } from '../heck/Material';
@@ -72,16 +72,16 @@ export class Raymarcher {
   protected __createGeoemtry(): Geometry {
     const geometry = new Geometry();
 
-    const bufferPos = DISPLAY.glCat.createBuffer();
+    const bufferPos = glCat.createBuffer();
     bufferPos.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
     geometry.addAttribute( 'p', {
       buffer: bufferPos,
       size: 2,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
     geometry.count = 4;
-    geometry.mode = DISPLAY.gl.TRIANGLE_STRIP;
+    geometry.mode = gl.TRIANGLE_STRIP;
 
     return geometry;
   }

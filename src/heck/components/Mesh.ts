@@ -1,7 +1,7 @@
 import { Component, ComponentDrawEvent, ComponentOptions } from './Component';
-import { DISPLAY } from '../DISPLAY';
 import { Geometry } from '../Geometry';
 import { Material } from '../Material';
+import { glCat } from '../canvas';
 
 export enum MeshCull {
   None,
@@ -37,7 +37,6 @@ export class Mesh extends Component {
   }
 
   protected __drawImpl( event: ComponentDrawEvent ): void {
-    const glCat = DISPLAY.glCat;
     const gl = glCat.renderingContext;
 
     const program = this.material.program;

@@ -3,7 +3,7 @@ import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 import * as automatonFxs from './automaton-fxs/automatonFxs';
 import { Music } from './Music';
 import automatonData from './automaton.json';
-import { DISPLAY } from './heck/DISPLAY';
+import { canvas, glCat } from './heck/canvas';
 import { Dog } from './heck/Dog';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
 import { Lambda } from './heck/components/Lambda';
@@ -24,9 +24,6 @@ import { RTInspector } from './entities/RTInspector';
 import { Component } from './heck/components/Component';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { PixelSorter } from './entities/PixelSorter';
-
-// == gl ===========================================================================================
-const { canvas, glCat } = DISPLAY;
 
 // == music ========================================================================================
 const audio = new AudioContext();

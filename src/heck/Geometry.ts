@@ -1,5 +1,5 @@
 import { GLCatBuffer, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
-import { DISPLAY } from './DISPLAY';
+import { gl, glCat } from './canvas';
 import { Material } from './Material';
 
 export interface GeometryAttribute {
@@ -18,14 +18,14 @@ export interface GeometryIndex {
 
 export class Geometry {
   public static typeSizeMap = {
-    [ DISPLAY.gl.BYTE ]: 1,
-    [ DISPLAY.gl.UNSIGNED_BYTE ]: 1,
-    [ DISPLAY.gl.SHORT ]: 2,
-    [ DISPLAY.gl.UNSIGNED_SHORT ]: 2,
-    [ DISPLAY.gl.INT ]: 4,
-    [ DISPLAY.gl.UNSIGNED_INT ]: 4,
-    [ DISPLAY.gl.HALF_FLOAT ]: 2,
-    [ DISPLAY.gl.FLOAT ]: 4,
+    [ gl.BYTE ]: 1,
+    [ gl.UNSIGNED_BYTE ]: 1,
+    [ gl.SHORT ]: 2,
+    [ gl.UNSIGNED_SHORT ]: 2,
+    [ gl.INT ]: 4,
+    [ gl.UNSIGNED_INT ]: 4,
+    [ gl.HALF_FLOAT ]: 2,
+    [ gl.FLOAT ]: 4,
   };
 
   public transformFeedback?: GLCatTransformFeedback<WebGL2RenderingContext> | null;
@@ -73,8 +73,6 @@ export class Geometry {
   }
 
   public draw(): void {
-    const { gl, glCat } = DISPLAY;
-
     if ( process.env.DEV ) {
       if ( this.count === 0 ) {
         console.warn( 'You attempt to draw a geometry that count is 0' );
@@ -94,8 +92,6 @@ export class Geometry {
   }
 
   public drawElementsOrArrays(): void {
-    const { gl, glCat } = DISPLAY;
-
     if ( this.__index ) {
       glCat.bindIndexBuffer( this.__index.buffer, () => {
         gl.drawElements(

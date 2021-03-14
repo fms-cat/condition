@@ -6,7 +6,7 @@ import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
-import { DISPLAY } from '../heck/DISPLAY';
+import { gl } from '../heck/canvas';
 
 export interface GPUParticlesOptions {
   materialCompute: Material;
@@ -69,7 +69,7 @@ export class GPUParticles {
         this.__swapCompute.swap();
 
         for ( let i = 0; i < options.computeNumBuffers; i ++ ) {
-          const attachment = DISPLAY.gl.COLOR_ATTACHMENT0 + i;
+          const attachment = gl.COLOR_ATTACHMENT0 + i;
 
           this.materialCompute.addUniformTexture(
             `samplerCompute${ i }`,

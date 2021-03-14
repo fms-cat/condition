@@ -1,5 +1,5 @@
-import { DISPLAY } from './DISPLAY';
 import { GLCatProgram, GLCatProgramLinkOptions } from '@fms-cat/glcat-ts';
+import { glCat } from './canvas';
 import { Material } from './Material';
 
 export class ShaderPool<TUser> {
@@ -19,13 +19,13 @@ export class ShaderPool<TUser> {
     if ( !program ) {
       if ( process.env.DEV ) {
         try {
-          program = DISPLAY.glCat.lazyProgram( vert, frag, options );
+          program = glCat.lazyProgram( vert, frag, options );
         } catch ( e ) {
           console.error( user );
           throw e;
         }
       } else {
-        program = DISPLAY.glCat.lazyProgram( vert, frag, options );
+        program = glCat.lazyProgram( vert, frag, options );
       }
 
       this.__programMap.set( vert + frag, program );
@@ -47,12 +47,12 @@ export class ShaderPool<TUser> {
       let promise = this.__ongoingPromises.get( vert + frag );
       if ( !promise ) {
         if ( process.env.DEV ) {
-          promise = DISPLAY.glCat.lazyProgramAsync( vert, frag, options ).catch( ( e ) => {
+          promise = glCat.lazyProgramAsync( vert, frag, options ).catch( ( e ) => {
             console.error( user );
             throw e;
           } );
         } else {
-          promise = DISPLAY.glCat.lazyProgramAsync( vert, frag, options );
+          promise = glCat.lazyProgramAsync( vert, frag, options );
         }
 
         promise.then( ( program ) => {

@@ -1,11 +1,11 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
-import { DISPLAY } from '../DISPLAY';
 import { Geometry } from '../Geometry';
 import { Material } from '../Material';
 import { RenderTarget } from '../RenderTarget';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
+import { glCat } from '../canvas';
 
-const quadBuffer = DISPLAY.glCat.createBuffer();
+const quadBuffer = glCat.createBuffer();
 quadBuffer.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
 
 const quadGeometry = new Geometry();
@@ -46,8 +46,6 @@ export class Quad extends Component {
   }
 
   protected __updateImpl( event: ComponentUpdateEvent ): void {
-    const { glCat } = DISPLAY;
-
     glCat.useProgram( this.material.program );
 
     this.target.bind();

@@ -1,5 +1,4 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -10,6 +9,7 @@ import quadVert from '../shaders/quad.vert';
 import sphereParticleComputeFrag from '../shaders/sphere-particles-compute.frag';
 import sphereParticleRenderFrag from '../shaders/sphere-particles-render.frag';
 import sphereParticleRenderVert from '../shaders/sphere-particles-render.vert';
+import { gl, glCat } from '../heck/canvas';
 
 export interface SphereParticlesOptions {
   particlesSqrt: number;
@@ -76,7 +76,7 @@ export class SphereParticles {
     geometry.addAttribute( 'normal', octahedron.normal );
     geometry.setIndex( octahedron.index );
 
-    const bufferComputeUV = DISPLAY.glCat.createBuffer();
+    const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
       const ret = new Float32Array( particles * 2 );
       for ( let iy = 0; iy < particlesSqrt; iy ++ ) {
@@ -95,7 +95,7 @@ export class SphereParticles {
       buffer: bufferComputeUV,
       size: 2,
       divisor: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
     geometry.count = octahedron.count;

@@ -1,9 +1,9 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
-import { DISPLAY } from '../DISPLAY';
 import { Entity } from '../Entity';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
+import { glCat } from '../canvas';
 
 export interface CameraOptions extends ComponentOptions {
   renderTarget?: RenderTarget;
@@ -56,7 +56,7 @@ export abstract class Camera extends Component {
     renderTarget.bind();
 
     if ( this.clear ) {
-      DISPLAY.glCat.clear( ...this.clear );
+      glCat.clear( ...this.clear );
     }
 
     scene.draw( {

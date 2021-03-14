@@ -1,5 +1,5 @@
+import { gl, glCat } from '../heck/canvas';
 import { GeometryAttribute, GeometryIndex } from '../heck/Geometry';
-import { DISPLAY } from '../heck/DISPLAY';
 
 interface ResultGenOctahedron {
   position: GeometryAttribute;
@@ -119,22 +119,22 @@ export function genOctahedron( options: {
   }
 
   const position: GeometryAttribute = {
-    buffer: DISPLAY.glCat.createBuffer(),
-    type: DISPLAY.gl.FLOAT,
+    buffer: glCat.createBuffer(),
+    type: gl.FLOAT,
     size: 3
   };
   position.buffer.setVertexbuffer( new Float32Array( pos ) );
 
   const normal: GeometryAttribute = {
-    buffer: DISPLAY.glCat.createBuffer(),
-    type: DISPLAY.gl.FLOAT,
+    buffer: glCat.createBuffer(),
+    type: gl.FLOAT,
     size: 3
   };
   normal.buffer.setVertexbuffer( new Float32Array( nor ) );
 
   const index: GeometryIndex = {
-    buffer: DISPLAY.glCat.createBuffer(),
-    type: DISPLAY.gl.UNSIGNED_SHORT
+    buffer: glCat.createBuffer(),
+    type: gl.UNSIGNED_SHORT
   };
   index.buffer.setIndexbuffer( new Uint16Array( ind ) );
 
@@ -143,6 +143,6 @@ export function genOctahedron( options: {
     normal,
     index,
     count: ind.length,
-    mode: DISPLAY.gl.TRIANGLES
+    mode: gl.TRIANGLES
   };
 }

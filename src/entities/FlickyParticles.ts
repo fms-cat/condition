@@ -1,5 +1,4 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -10,6 +9,7 @@ import flickyParticleComputeFrag from '../shaders/flicky-particles-compute.frag'
 import flickyParticleRenderFrag from '../shaders/flicky-particles-render.frag';
 import flickyParticleRenderVert from '../shaders/flicky-particles-render.vert';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
+import { gl, glCat } from '../heck/canvas';
 
 export interface FlickyParticlesOptions {
   particlesSqrt: number;
@@ -70,16 +70,16 @@ export class FlickyParticles {
 
     const geometry = new InstancedGeometry();
 
-    const bufferP = DISPLAY.glCat.createBuffer();
+    const bufferP = glCat.createBuffer();
     bufferP.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
 
     geometry.addAttribute( 'position', {
       buffer: bufferP,
       size: 2,
-      type: DISPLAY.gl.FLOAT,
+      type: gl.FLOAT,
     } );
 
-    const bufferComputeUV = DISPLAY.glCat.createBuffer();
+    const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
       const ret = new Float32Array( particles * 2 );
       for ( let iy = 0; iy < particlesSqrt; iy ++ ) {
@@ -98,11 +98,11 @@ export class FlickyParticles {
       buffer: bufferComputeUV,
       size: 2,
       divisor: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
     geometry.count = 4;
-    geometry.mode = DISPLAY.gl.TRIANGLE_STRIP;
+    geometry.mode = gl.TRIANGLE_STRIP;
     geometry.primcount = options.particlesSqrt * options.particlesSqrt;
 
     return geometry;

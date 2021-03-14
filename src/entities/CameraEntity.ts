@@ -1,6 +1,5 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Entity } from '../heck/Entity';
 import { Lambda } from '../heck/components/Lambda';
 import { LightEntity } from './LightEntity';
@@ -12,6 +11,7 @@ import { AO_RESOLUTION_RATIO } from '../config';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
+import { gl } from '../heck/canvas';
 
 export interface CameraEntityOptions {
   root: Entity;
@@ -89,7 +89,7 @@ export class CameraEntity {
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
       aoMaterial.addUniformTexture(
         'sampler' + i,
-        cameraTarget.getTexture( DISPLAY.gl.COLOR_ATTACHMENT0 + i )
+        cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
       );
     }
 
@@ -178,11 +178,11 @@ export class CameraEntity {
       for ( let i = 0; i < 4; i ++ ) {
         shadingMaterial.addUniformTexture(
           'sampler' + i,
-          cameraTarget.getTexture( DISPLAY.gl.COLOR_ATTACHMENT0 + i )
+          cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
         );
       }
 
-      shadingMaterial.blend = [ DISPLAY.gl.ONE, DISPLAY.gl.ONE ];
+      shadingMaterial.blend = [ gl.ONE, gl.ONE ];
       shadingMaterial.addUniformTexture( 'samplerAo', aoTarget.texture );
       shadingMaterial.addUniformTexture( 'samplerShadow', light.shadowMap.texture );
       shadingMaterial.addUniformTexture( 'samplerRandom', options.textureRandom );

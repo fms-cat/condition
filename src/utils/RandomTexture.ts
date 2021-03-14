@@ -1,6 +1,6 @@
 import { GLCat, GLCatTexture } from '@fms-cat/glcat-ts';
 import { Xorshift } from '@fms-cat/experimental';
-import { DISPLAY } from '../heck/DISPLAY';
+import { gl } from '../heck/canvas';
 
 export class RandomTexture {
   private __texture: GLCatTexture<WebGL2RenderingContext>;
@@ -19,7 +19,7 @@ export class RandomTexture {
     this.__rng = new Xorshift();
     this.__array = new Uint8Array( width * height * 4 );
     this.__texture = glCat.createTexture()!;
-    this.__texture.textureWrap( DISPLAY.gl.REPEAT );
+    this.__texture.textureWrap( gl.REPEAT );
   }
 
   public get texture(): GLCatTexture<WebGL2RenderingContext> {

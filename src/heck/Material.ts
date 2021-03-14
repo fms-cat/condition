@@ -1,5 +1,5 @@
 import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture } from '@fms-cat/glcat-ts';
-import { DISPLAY } from './DISPLAY';
+import { gl } from './canvas';
 import { SHADERPOOL } from './ShaderPool';
 
 export class Material {
@@ -57,7 +57,7 @@ export class Material {
     );
   }
 
-  public blend: [ GLenum, GLenum ] = [ DISPLAY.gl.ONE, DISPLAY.gl.ZERO ];
+  public blend: [ GLenum, GLenum ] = [ gl.ONE, gl.ZERO ];
 
   public constructor(
     vert: string,
@@ -106,8 +106,6 @@ export class Material {
   }
 
   public setBlendMode(): void {
-    const { gl } = DISPLAY;
-
     gl.blendFunc( ...this.blend );
   }
 

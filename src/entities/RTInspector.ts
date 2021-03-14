@@ -6,7 +6,7 @@ import returnFrag from '../shaders/return.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME } from '../config-hot';
-import { DISPLAY } from '../heck/DISPLAY';
+import { gl } from '../heck/canvas';
 
 export interface RTInspectorOptions {
   target: RenderTarget;
@@ -45,7 +45,7 @@ export class RTInspector {
   private __updateTarget(): void {
     if ( RTINSPECTOR_CAPTURE_NAME != null ) {
       const target = BufferRenderTarget.nameMap.get( RTINSPECTOR_CAPTURE_NAME ?? '' ) ?? null;
-      const attachment = DISPLAY.gl.COLOR_ATTACHMENT0 + ( RTINSPECTOR_CAPTURE_INDEX ?? 0 );
+      const attachment = gl.COLOR_ATTACHMENT0 + ( RTINSPECTOR_CAPTURE_INDEX ?? 0 );
       const texture = target?.getTexture( attachment );
 
       if ( texture ) {

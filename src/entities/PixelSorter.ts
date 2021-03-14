@@ -9,8 +9,8 @@ import returnFrag from '../shaders/return.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Automaton } from '@fms-cat/automaton';
+import { gl } from '../heck/canvas';
 
 export interface PixelSorterOptions {
   input: GLCatTexture<WebGL2RenderingContext>;
@@ -23,8 +23,6 @@ export class PixelSorter {
   public swapBuffer: Swap<BufferRenderTarget>;
 
   public constructor( options: PixelSorterOptions ) {
-    const { gl } = DISPLAY;
-
     this.entity = new Entity();
     this.entity.visible = false;
 

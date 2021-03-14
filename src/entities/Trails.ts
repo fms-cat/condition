@@ -1,5 +1,4 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
-import { DISPLAY } from '../heck/DISPLAY';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -9,6 +8,7 @@ import quadVert from '../shaders/quad.vert';
 import trailsComputeFrag from '../shaders/trails-compute.frag';
 import trailsRenderFrag from '../shaders/trails-render.frag';
 import trailsRenderVert from '../shaders/trails-render.vert';
+import { gl, glCat } from '../heck/canvas';
 
 export interface TrailsOptions {
   trails: number;
@@ -64,7 +64,7 @@ export class Trails {
   private __createGeometryRender( options: TrailsOptions ): Geometry {
     const geometry = new InstancedGeometry();
 
-    const bufferComputeU = DISPLAY.glCat.createBuffer();
+    const bufferComputeU = glCat.createBuffer();
     bufferComputeU.setVertexbuffer( ( () => {
       const ret = new Float32Array( options.trailLength * 3 );
       for ( let i = 0; i < options.trailLength; i ++ ) {
@@ -79,10 +79,10 @@ export class Trails {
     geometry.addAttribute( 'computeU', {
       buffer: bufferComputeU,
       size: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
-    const bufferComputeV = DISPLAY.glCat.createBuffer();
+    const bufferComputeV = glCat.createBuffer();
     bufferComputeV.setVertexbuffer( ( () => {
       const ret = new Float32Array( options.trails );
       for ( let i = 0; i < options.trails; i ++ ) {
@@ -95,10 +95,10 @@ export class Trails {
       buffer: bufferComputeV,
       size: 1,
       divisor: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
-    const bufferTriIndex = DISPLAY.glCat.createBuffer();
+    const bufferTriIndex = glCat.createBuffer();
     bufferTriIndex.setVertexbuffer( ( () => {
       const ret = new Float32Array( 3 * options.trailLength );
       for ( let i = 0; i < options.trailLength; i ++ ) {
@@ -112,10 +112,10 @@ export class Trails {
     geometry.addAttribute( 'triIndex', {
       buffer: bufferTriIndex,
       size: 1,
-      type: DISPLAY.gl.FLOAT
+      type: gl.FLOAT
     } );
 
-    const indexBuffer = DISPLAY.glCat.createBuffer();
+    const indexBuffer = glCat.createBuffer();
     indexBuffer.setIndexbuffer( ( () => {
       const ret = new Uint16Array( ( options.trailLength - 1 ) * 18 );
       for ( let i = 0; i < options.trailLength - 1; i ++ ) {
@@ -134,12 +134,12 @@ export class Trails {
 
     geometry.setIndex( {
       buffer: indexBuffer,
-      type: DISPLAY.gl.UNSIGNED_SHORT
+      type: gl.UNSIGNED_SHORT
     } );
 
     geometry.count = ( options.trailLength - 1 ) * 18;
     geometry.primcount = options.trails;
-    geometry.mode = DISPLAY.gl.TRIANGLES;
+    geometry.mode = gl.TRIANGLES;
 
     return geometry;
   }

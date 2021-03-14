@@ -1,12 +1,10 @@
-import { DISPLAY } from './DISPLAY';
+import { gl } from './canvas';
 import { Geometry } from './Geometry';
 
 export class InstancedGeometry extends Geometry {
   public primcount: number = 0;
 
   public draw(): void {
-    const { gl } = DISPLAY;
-
     if ( process.env.DEV ) {
       if ( this.count === 0 ) {
         console.warn( 'You attempt to draw an instanced geometry that count is 0' );
