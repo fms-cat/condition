@@ -1,7 +1,7 @@
 import { Component, ComponentDrawEvent, ComponentOptions } from './Component';
 import { Geometry } from '../Geometry';
 import { Material } from '../Material';
-import { glCat } from '../canvas';
+import { glCat } from '../../globals/canvas';
 
 export enum MeshCull {
   None,

@@ -1,4 +1,4 @@
-import { gl, glCat } from '../heck/canvas';
+import { gl, glCat } from '../globals/canvas';
 import { GeometryAttribute, GeometryIndex } from '../heck/Geometry';
 
 interface ResultGenOctahedron {

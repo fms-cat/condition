@@ -1,14 +1,14 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
 import { TRIANGLE_STRIP_QUAD, Vector3 } from '@fms-cat/experimental';
-import { gl, glCat } from '../heck/canvas';
+import { gl, glCat } from '../globals/canvas';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Material } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
-import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
+import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
 export class Raymarcher {
   private __mesh: Mesh;

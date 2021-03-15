@@ -3,7 +3,7 @@ import { Geometry } from '../Geometry';
 import { Material } from '../Material';
 import { RenderTarget } from '../RenderTarget';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
-import { glCat } from '../canvas';
+import { glCat } from '../../globals/canvas';
 
 const quadBuffer = glCat.createBuffer();
 quadBuffer.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );

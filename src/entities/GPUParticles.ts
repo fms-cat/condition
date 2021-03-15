@@ -6,7 +6,7 @@ import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
-import { gl } from '../heck/canvas';
+import { gl } from '../globals/canvas';
 
 export interface GPUParticlesOptions {
   materialCompute: Material;

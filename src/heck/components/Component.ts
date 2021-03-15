@@ -5,6 +5,7 @@ import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
 import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
 import { GPUTimer } from '../GPUTimer';
+import { getDivComponentsDraw, getDivComponentsUpdate } from '../../globals/dom';
 
 export interface ComponentUpdateEvent {
   frameCount: number;
@@ -42,7 +43,9 @@ export class Component {
 
   public static resetUpdateBreakpoint(): void {
     if ( process.env.DEV ) {
-      if ( window.divComponentsUpdate && Component.updateList != null ) {
+      const divComponentsUpdate = getDivComponentsUpdate();
+
+      if ( Component.updateList != null ) {
         Promise.all( Component.updateList ).then( ( list ) => {
           let accumCpu = 0.0;
           let accumGpu = 0.0;
@@ -54,7 +57,7 @@ export class Component {
           } ).join( '\n' );
 
           const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - UPDATE\n`;
-          window.divComponentsUpdate!.innerHTML = strAccum + strEach;
+          divComponentsUpdate.innerHTML = strAccum + strEach;
         } );
       }
       Component.updateList = [];
@@ -65,7 +68,9 @@ export class Component {
 
   public static resetDrawBreakpoint(): void {
     if ( process.env.DEV ) {
-      if ( window.divComponentsDraw && Component.drawList != null ) {
+      const divComponentsDraw = getDivComponentsDraw();
+
+      if ( Component.drawList != null ) {
         Promise.all( Component.drawList ).then( ( list ) => {
           let accumCpu = 0.0;
           let accumGpu = 0.0;
@@ -77,7 +82,7 @@ export class Component {
           } ).join( '\n' );
 
           const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - DRAW\n`;
-          window.divComponentsDraw!.innerHTML = strAccum + strEach;
+          divComponentsDraw.innerHTML = strAccum + strEach;
         } );
       }
       Component.drawList = [];

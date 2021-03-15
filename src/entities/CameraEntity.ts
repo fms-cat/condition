@@ -11,8 +11,8 @@ import { AO_RESOLUTION_RATIO } from '../config';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
-import { gl } from '../heck/canvas';
-import { randomTexture } from '../utils/RandomTexture';
+import { gl } from '../globals/canvas';
+import { randomTexture } from '../globals/randomTexture';
 
 export interface CameraEntityOptions {
   root: Entity;

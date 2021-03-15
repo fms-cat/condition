@@ -1,13 +1,8 @@
-import { Automaton } from '@fms-cat/automaton';
-import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
-import * as automatonFxs from './automaton-fxs/automatonFxs';
-import { Music } from './Music';
-import automatonData from './automaton.json';
-import { canvas, glCat } from './heck/canvas';
+import { canvas } from './globals/canvas';
 import { Dog } from './heck/Dog';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
 import { Lambda } from './heck/components/Lambda';
-import { randomTexture } from './utils/RandomTexture';
+import { randomTexture } from './globals/randomTexture';
 import { SphereParticles } from './entities/SphereParticles';
 import { Swap, Vector3 } from '@fms-cat/experimental';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
@@ -26,11 +21,11 @@ import { PixelSorter } from './entities/PixelSorter';
 import { IBLLUT } from './entities/IBLLUT';
 import { EnvironmentMap } from './entities/EnvironmentMap';
 import { Cube } from './entities/Cube';
+import { music } from './globals/music';
+import { automaton } from './globals/automaton';
+import { getCheckboxActive } from './globals/dom';
 
 // == music ========================================================================================
-const audio = new AudioContext();
-const music = new Music( glCat, audio );
-
 if ( process.env.DEV ) {
   music.isPlaying = true;
 }
@@ -47,58 +42,6 @@ if ( process.env.DEV ) {
   canvas.style.left = '0';
   canvas.style.top = '0';
   canvas.style.width = 'calc( 100% - 240px )';
-
-  window.divPath = document.createElement( 'div' );
-  document.body.appendChild( window.divPath );
-  window.divPath.style.position = 'fixed';
-  window.divPath.style.textAlign = 'right';
-  window.divPath.style.right = '8px';
-  window.divPath.style.bottom = '248px';
-  window.divPath.style.textShadow = '1px 1px 1px #ffffff';
-
-  window.divAutomaton = document.createElement( 'div' );
-  document.body.appendChild( window.divAutomaton );
-  window.divAutomaton.style.position = 'fixed';
-  window.divAutomaton.style.width = '100%';
-  window.divAutomaton.style.height = '240px';
-  window.divAutomaton.style.right = '0';
-  window.divAutomaton.style.bottom = '0';
-
-  window.checkActive = document.createElement( 'input' );
-  document.body.appendChild( window.checkActive );
-  window.checkActive.type = 'checkbox';
-  window.checkActive.checked = true;
-  window.checkActive.style.position = 'fixed';
-  window.checkActive.style.left = '8px';
-  window.checkActive.style.bottom = '248px';
-
-  window.divComponentsUpdate = document.createElement( 'div' );
-  document.body.appendChild( window.divComponentsUpdate );
-  window.divComponentsUpdate.style.whiteSpace = 'pre';
-  window.divComponentsUpdate.style.color = '#ffffff';
-  window.divComponentsUpdate.style.font = '500 10px Wt-Position-Mono';
-  window.divComponentsUpdate.style.position = 'fixed';
-  window.divComponentsUpdate.style.padding = '0';
-  window.divComponentsUpdate.style.boxSizing = 'border-box';
-  window.divComponentsUpdate.style.width = '240px';
-  window.divComponentsUpdate.style.height = 'calc( ( 100% - 240px ) * 0.5 )';
-  window.divComponentsUpdate.style.right = '0';
-  window.divComponentsUpdate.style.top = '0';
-  window.divComponentsUpdate.style.overflowY = 'scroll';
-
-  window.divComponentsDraw = document.createElement( 'div' );
-  document.body.appendChild( window.divComponentsDraw );
-  window.divComponentsDraw.style.whiteSpace = 'pre';
-  window.divComponentsDraw.style.color = '#ffffff';
-  window.divComponentsDraw.style.font = '500 10px Wt-Position-Mono';
-  window.divComponentsDraw.style.position = 'fixed';
-  window.divComponentsDraw.style.padding = '0';
-  window.divComponentsDraw.style.boxSizing = 'border-box';
-  window.divComponentsDraw.style.width = '240px';
-  window.divComponentsDraw.style.height = 'calc( ( 100% - 240px ) * 0.5 )';
-  window.divComponentsDraw.style.right = '0';
-  window.divComponentsDraw.style.top = 'calc( ( 100% - 240px ) * 0.5 )';
-  window.divComponentsDraw.style.overflowY = 'scroll';
 } else {
   canvas.style.position = 'fixed';
   canvas.style.left = '0';
@@ -117,53 +60,11 @@ if ( process.env.DEV ) {
   };
 }
 
-// == automaton ====================================================================================
+// == scene ========================================================================================
 let totalFrame = 0;
 let isInitialFrame = true;
 
-let automaton: Automaton;
-
-if ( process.env.DEV ) {
-  // this cast smells so bad
-  // https://github.com/FMS-Cat/automaton/issues/121
-  const automatonWithGUI = new AutomatonWithGUI(
-    automatonData,
-    {
-      gui: window.divAutomaton,
-      isPlaying: true,
-      fxDefinitions: automatonFxs,
-    }
-  );
-
-  automatonWithGUI.on( 'play', () => { music.isPlaying = true; } );
-  automatonWithGUI.on( 'pause', () => { music.isPlaying = false; } );
-  automatonWithGUI.on( 'seek', ( { time } ) => {
-    music.time = Math.max( 0.0, time );
-    automaton.reset();
-  } );
-
-  if ( module.hot ) {
-    module.hot.accept( './automaton.json', () => {
-      // we probably don't need this feature for now...
-      // See: https://github.com/FMS-Cat/automaton/issues/120
-      // automatonWithGUI.deserialize( automatonData );
-    } );
-  }
-
-  automaton = automatonWithGUI;
-} else {
-  // this cast smells so bad
-  // https://github.com/FMS-Cat/automaton/issues/121
-  automaton = new Automaton(
-    automatonData,
-    {
-      fxDefinitions: automatonFxs
-    }
-  );
-}
-
-// == scene ========================================================================================
-const dog = new Dog( music );
+const dog = new Dog();
 
 const canvasRenderTarget = new CanvasRenderTarget();
 
@@ -188,15 +89,10 @@ const environmentMap = new EnvironmentMap();
 dog.root.children.push( environmentMap.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-const sphereParticles = new SphereParticles( {
-  particlesSqrt: 256,
-} );
+const sphereParticles = new SphereParticles();
 dog.root.children.push( sphereParticles.entity );
 
-const trails = new Trails( {
-  trails: 4096,
-  trailLength: 64,
-} );
+const trails = new Trails();
 dog.root.children.push( trails.entity );
 
 const rings = new Rings();
@@ -295,7 +191,6 @@ swap.swap();
 const glitch = new Glitch( {
   input: swap.i,
   target: swap.o,
-  automaton,
 } );
 dog.root.children.push( glitch.entity );
 
@@ -303,7 +198,6 @@ swap.swap();
 const pixelSorter = new PixelSorter( {
   input: swap.i,
   target: swap.o,
-  automaton,
 } );
 dog.root.children.push( pixelSorter.entity );
 
@@ -323,15 +217,17 @@ if ( process.env.DEV ) {
 
 // -- keyboards ------------------------------------------------------------------------------------
 if ( process.env.DEV ) {
+  const checkboxActive = getCheckboxActive();
+
   window.addEventListener( 'keydown', ( event ) => {
     if ( event.key === 'Escape' ) { // panic button
       dog.root.active = false;
       music.isPlaying = false;
-      window.checkActive!.checked = false;
+      checkboxActive.checked = false;
     }
   } );
 
-  window.checkActive!.addEventListener( 'input', ( event: any ) => {
+  checkboxActive.addEventListener( 'input', ( event: any ) => {
     dog.root.active = event.target.checked;
     music.isPlaying = event.target.checked;
   } );

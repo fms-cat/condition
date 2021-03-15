@@ -2,7 +2,7 @@ import { Entity } from '../heck/Entity';
 import { RenderTarget } from '../heck/RenderTarget';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME, RTINSPECTOR_MULTIPLE } from '../config-hot';
-import { gl } from '../heck/canvas';
+import { gl } from '../globals/canvas';
 import { Blit } from '../heck/components/Blit';
 
 export interface RTInspectorOptions {

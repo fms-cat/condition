@@ -9,8 +9,8 @@ import flickyParticleComputeFrag from '../shaders/flicky-particles-compute.frag'
 import flickyParticleRenderFrag from '../shaders/flicky-particles-render.frag';
 import flickyParticleRenderVert from '../shaders/flicky-particles-render.vert';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
-import { gl, glCat } from '../heck/canvas';
-import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
+import { gl, glCat } from '../globals/canvas';
+import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
 export interface FlickyParticlesOptions {
   particlesSqrt: number;

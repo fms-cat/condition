@@ -1,6 +1,6 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
 import { RenderTarget } from '../RenderTarget';
-import { gl } from '../canvas';
+import { gl } from '../../globals/canvas';
 import { BufferRenderTarget } from '../BufferRenderTarget';
 
 export interface BlitOptions extends ComponentOptions {

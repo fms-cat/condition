@@ -7,7 +7,7 @@ import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
 import ringsVert from '../shaders/rings.vert';
 import ringsFrag from '../shaders/rings.frag';
-import { gl, glCat } from '../heck/canvas';
+import { gl, glCat } from '../globals/canvas';
 
 const PRIMCOUNT = 32;
 

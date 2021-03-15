@@ -1,5 +1,5 @@
 import { Pool } from '../utils/Pool';
-import { gl, glCat } from './canvas';
+import { gl, glCat } from '../globals/canvas';
 
 export class GPUTimer {
   public queries: Pool<WebGLQuery>;

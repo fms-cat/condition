@@ -1,4 +1,4 @@
-import { gl } from './canvas';
+import { gl } from '../globals/canvas';
 import { Geometry } from './Geometry';
 
 export class InstancedGeometry extends Geometry {

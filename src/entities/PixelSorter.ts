@@ -10,11 +10,11 @@ import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
 import { Automaton } from '@fms-cat/automaton';
 import { Blit } from '../heck/components/Blit';
+import { auto } from '../globals/automaton';
 
 export interface PixelSorterOptions {
   input: BufferRenderTarget;
   target: RenderTarget;
-  automaton: Automaton;
 }
 
 export class PixelSorter {
@@ -142,7 +142,7 @@ export class PixelSorter {
     }
 
     // -- update uniform ---------------------------------------------------------------------------
-    options.automaton.auto( 'PixelSorter/amp', ( { value } ) => {
+    auto( 'PixelSorter/amp', ( { value } ) => {
       indexMaterials.map( ( material ) => {
         material.addUniform( 'threshold', '1f', value );
       } );

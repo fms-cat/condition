@@ -7,13 +7,11 @@ import quadVert from '../shaders/quad.vert';
 import trailsComputeFrag from '../shaders/trails-compute.frag';
 import trailsRenderFrag from '../shaders/trails-render.frag';
 import trailsRenderVert from '../shaders/trails-render.vert';
-import { gl, glCat } from '../heck/canvas';
-import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
+import { gl, glCat } from '../globals/canvas';
+import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
-export interface TrailsOptions {
-  trails: number;
-  trailLength: number;
-}
+const TRAILS = 4096;
+const TRAIL_LENGTH = 64;
 
 export class Trails {
   public get entity(): Entity {
@@ -30,22 +28,22 @@ export class Trails {
     return this.__gpuParticles.materialRender;
   }
 
-  public constructor( options: TrailsOptions ) {
+  public constructor() {
     this.__gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute( options ),
-      geometryRender: this.__createGeometryRender( options ),
-      materialRender: this.__createMaterialRender( options ),
-      computeWidth: options.trailLength,
-      computeHeight: options.trails,
+      materialCompute: this.__createMaterialCompute(),
+      geometryRender: this.__createGeometryRender(),
+      materialRender: this.__createMaterialRender(),
+      computeWidth: TRAIL_LENGTH,
+      computeHeight: TRAILS,
       computeNumBuffers: 2,
       namePrefix: process.env.DEV && 'Trails',
     } );
   }
 
-  private __createMaterialCompute( options: TrailsOptions ): Material {
+  private __createMaterialCompute(): Material {
     const material = new Material( quadVert, trailsComputeFrag );
-    material.addUniform( 'trails', '1f', options.trails );
-    material.addUniform( 'trailLength', '1f', options.trailLength );
+    material.addUniform( 'trails', '1f', TRAILS );
+    material.addUniform( 'trailLength', '1f', TRAIL_LENGTH );
     material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
@@ -59,14 +57,14 @@ export class Trails {
     return material;
   }
 
-  private __createGeometryRender( options: TrailsOptions ): Geometry {
+  private __createGeometryRender(): Geometry {
     const geometry = new InstancedGeometry();
 
     const bufferComputeU = glCat.createBuffer();
     bufferComputeU.setVertexbuffer( ( () => {
-      const ret = new Float32Array( options.trailLength * 3 );
-      for ( let i = 0; i < options.trailLength; i ++ ) {
-        const u = ( 0.5 + i ) / options.trailLength;
+      const ret = new Float32Array( TRAIL_LENGTH * 3 );
+      for ( let i = 0; i < TRAIL_LENGTH; i ++ ) {
+        const u = ( 0.5 + i ) / TRAIL_LENGTH;
         ret[ i * 3 + 0 ] = u;
         ret[ i * 3 + 1 ] = u;
         ret[ i * 3 + 2 ] = u;
@@ -82,9 +80,9 @@ export class Trails {
 
     const bufferComputeV = glCat.createBuffer();
     bufferComputeV.setVertexbuffer( ( () => {
-      const ret = new Float32Array( options.trails );
-      for ( let i = 0; i < options.trails; i ++ ) {
-        ret[ i ] = ( i + 0.5 ) / options.trails;
+      const ret = new Float32Array( TRAILS );
+      for ( let i = 0; i < TRAILS; i ++ ) {
+        ret[ i ] = ( i + 0.5 ) / TRAILS;
       }
       return ret;
     } )() );
@@ -98,8 +96,8 @@ export class Trails {
 
     const bufferTriIndex = glCat.createBuffer();
     bufferTriIndex.setVertexbuffer( ( () => {
-      const ret = new Float32Array( 3 * options.trailLength );
-      for ( let i = 0; i < options.trailLength; i ++ ) {
+      const ret = new Float32Array( 3 * TRAIL_LENGTH );
+      for ( let i = 0; i < TRAIL_LENGTH; i ++ ) {
         ret[ i * 3 + 0 ] = 0;
         ret[ i * 3 + 1 ] = 1;
         ret[ i * 3 + 2 ] = 2;
@@ -115,8 +113,8 @@ export class Trails {
 
     const indexBuffer = glCat.createBuffer();
     indexBuffer.setIndexbuffer( ( () => {
-      const ret = new Uint16Array( ( options.trailLength - 1 ) * 18 );
-      for ( let i = 0; i < options.trailLength - 1; i ++ ) {
+      const ret = new Uint16Array( ( TRAIL_LENGTH - 1 ) * 18 );
+      for ( let i = 0; i < TRAIL_LENGTH - 1; i ++ ) {
         for ( let j = 0; j < 3; j ++ ) {
           const jn = ( j + 1 ) % 3;
           ret[ i * 18 + j * 6 + 0 ] = i * 3 + j;
@@ -135,14 +133,14 @@ export class Trails {
       type: gl.UNSIGNED_SHORT
     } );
 
-    geometry.count = ( options.trailLength - 1 ) * 18;
-    geometry.primcount = options.trails;
+    geometry.count = ( TRAIL_LENGTH - 1 ) * 18;
+    geometry.primcount = TRAILS;
     geometry.mode = gl.TRIANGLES;
 
     return geometry;
   }
 
-  private __createMaterialRender( options: TrailsOptions ): Material {
+  private __createMaterialRender(): Material {
     const material = new Material(
       trailsRenderVert,
       trailsRenderFrag,

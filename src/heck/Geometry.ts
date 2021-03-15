@@ -1,5 +1,5 @@
 import { GLCatBuffer, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
-import { gl, glCat } from './canvas';
+import { gl, glCat } from '../globals/canvas';
 import { Material } from './Material';
 
 export interface GeometryAttribute {

@@ -3,7 +3,7 @@ import { Entity } from '../Entity';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
-import { glCat } from '../canvas';
+import { glCat } from '../../globals/canvas';
 
 export interface CameraOptions extends ComponentOptions {
   renderTarget?: RenderTarget;

@@ -8,12 +8,11 @@ import quadVert from '../shaders/quad.vert';
 import sphereParticleComputeFrag from '../shaders/sphere-particles-compute.frag';
 import sphereParticleRenderFrag from '../shaders/sphere-particles-render.frag';
 import sphereParticleRenderVert from '../shaders/sphere-particles-render.vert';
-import { gl, glCat } from '../heck/canvas';
-import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
+import { gl, glCat } from '../globals/canvas';
+import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
-export interface SphereParticlesOptions {
-  particlesSqrt: number;
-}
+const PARTICLES_SQRT = 256;
+const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
 export class SphereParticles {
   public get entity(): Entity {
@@ -30,25 +29,22 @@ export class SphereParticles {
     return this.__gpuParticles.materialRender;
   }
 
-  public constructor( options: SphereParticlesOptions ) {
+  public constructor() {
     this.__gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute( options ),
-      geometryRender: this.__createGeometryRender( options ),
-      materialRender: this.__createMaterialRender( options ),
-      computeWidth: options.particlesSqrt,
-      computeHeight: options.particlesSqrt,
+      materialCompute: this.__createMaterialCompute(),
+      geometryRender: this.__createGeometryRender(),
+      materialRender: this.__createMaterialRender(),
+      computeWidth: PARTICLES_SQRT,
+      computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 2,
       namePrefix: process.env.DEV && 'SphereParticles',
     } );
   }
 
-  private __createMaterialCompute( options: SphereParticlesOptions ): Material {
-    const { particlesSqrt } = options;
-    const particles = particlesSqrt * particlesSqrt;
-
+  private __createMaterialCompute(): Material {
     const material = new Material( quadVert, sphereParticleComputeFrag );
-    material.addUniform( 'particlesSqrt', '1f', particlesSqrt );
-    material.addUniform( 'particles', '1f', particles );
+    material.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
+    material.addUniform( 'particles', '1f', PARTICLES );
     material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
@@ -62,10 +58,7 @@ export class SphereParticles {
     return material;
   }
 
-  private __createGeometryRender( options: SphereParticlesOptions ): Geometry {
-    const { particlesSqrt } = options;
-    const particles = particlesSqrt * particlesSqrt;
-
+  private __createGeometryRender(): Geometry {
     const octahedron = genOctahedron( { radius: 1.0, div: 1 } );
 
     const geometry = new InstancedGeometry();
@@ -76,12 +69,12 @@ export class SphereParticles {
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
-      const ret = new Float32Array( particles * 2 );
-      for ( let iy = 0; iy < particlesSqrt; iy ++ ) {
-        for ( let ix = 0; ix < particlesSqrt; ix ++ ) {
-          const i = ix + iy * particlesSqrt;
-          const s = ( ix + 0.5 ) / particlesSqrt;
-          const t = ( iy + 0.5 ) / particlesSqrt;
+      const ret = new Float32Array( PARTICLES * 2 );
+      for ( let iy = 0; iy < PARTICLES_SQRT; iy ++ ) {
+        for ( let ix = 0; ix < PARTICLES_SQRT; ix ++ ) {
+          const i = ix + iy * PARTICLES_SQRT;
+          const s = ( ix + 0.5 ) / PARTICLES_SQRT;
+          const t = ( iy + 0.5 ) / PARTICLES_SQRT;
           ret[ i * 2 + 0 ] = s;
           ret[ i * 2 + 1 ] = t;
         }
@@ -98,12 +91,12 @@ export class SphereParticles {
 
     geometry.count = octahedron.count;
     geometry.mode = octahedron.mode;
-    geometry.primcount = options.particlesSqrt * options.particlesSqrt;
+    geometry.primcount = PARTICLES_SQRT * PARTICLES_SQRT;
 
     return geometry;
   }
 
-  private __createMaterialRender( options: SphereParticlesOptions ): Material {
+  private __createMaterialRender(): Material {
     const material = new Material(
       sphereParticleRenderVert,
       sphereParticleRenderFrag,

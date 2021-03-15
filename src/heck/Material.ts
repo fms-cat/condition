@@ -1,5 +1,5 @@
 import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture } from '@fms-cat/glcat-ts';
-import { gl } from './canvas';
+import { gl } from '../globals/canvas';
 import { SHADERPOOL } from './ShaderPool';
 
 export class Material {

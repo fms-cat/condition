@@ -1,4 +1,4 @@
-import { canvas, gl, glCat } from './canvas';
+import { canvas, gl, glCat } from '../globals/canvas';
 import { RenderTarget } from './RenderTarget';
 
 export class CanvasRenderTarget extends RenderTarget {

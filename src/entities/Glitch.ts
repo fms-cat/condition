@@ -4,15 +4,14 @@ import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import quadVert from '../shaders/quad.vert';
 import glitchFrag from '../shaders/glitch.frag';
-import { Automaton } from '@fms-cat/automaton';
 import returnFrag from '../shaders/return.frag';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Blit } from '../heck/components/Blit';
+import { auto } from '../globals/automaton';
 
 export interface GlitchOptions {
   input: BufferRenderTarget;
   target: RenderTarget;
-  automaton: Automaton;
 }
 
 export class Glitch {
@@ -67,7 +66,7 @@ export class Glitch {
     entityMain.components.push( quad );
 
     // -- update uniform ---------------------------------------------------------------------------
-    options.automaton.auto( 'Glitch/amp', ( { value } ) => {
+    auto( 'Glitch/amp', ( { value } ) => {
       this.material.addUniform( 'amp', '1f', value );
 
       entityMain.active = 0.0 < value;
