@@ -1,4 +1,3 @@
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -12,9 +11,8 @@ import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
-export interface FlickyParticlesOptions {
-  particlesSqrt: number;
-}
+const PARTICLES_SQRT = 8;
+const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
 export class FlickyParticles {
   public get entity(): Entity {
@@ -31,25 +29,22 @@ export class FlickyParticles {
     return this.__gpuParticles.materialRender;
   }
 
-  public constructor( options: FlickyParticlesOptions ) {
+  public constructor() {
     this.__gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute( options ),
-      geometryRender: this.__createGeometryRender( options ),
-      materialRender: this.__createMaterialRender( options ),
-      computeWidth: options.particlesSqrt,
-      computeHeight: options.particlesSqrt,
+      materialCompute: this.__createMaterialCompute(),
+      geometryRender: this.__createGeometryRender(),
+      materialRender: this.__createMaterialRender(),
+      computeWidth: PARTICLES_SQRT,
+      computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 1,
       namePrefix: process.env.DEV && 'FlickyParticles',
     } );
   }
 
-  private __createMaterialCompute( options: FlickyParticlesOptions ): Material {
-    const { particlesSqrt } = options;
-    const particles = particlesSqrt * particlesSqrt;
-
+  private __createMaterialCompute(): Material {
     const material = new Material( quadVert, flickyParticleComputeFrag );
-    material.addUniform( 'particlesSqrt', '1f', particlesSqrt );
-    material.addUniform( 'particles', '1f', particles );
+    material.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
+    material.addUniform( 'particles', '1f', PARTICLES );
     material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
@@ -63,10 +58,7 @@ export class FlickyParticles {
     return material;
   }
 
-  private __createGeometryRender( options: FlickyParticlesOptions ): Geometry {
-    const { particlesSqrt } = options;
-    const particles = particlesSqrt * particlesSqrt;
-
+  private __createGeometryRender(): Geometry {
     const geometry = new InstancedGeometry();
 
     const bufferP = glCat.createBuffer();
@@ -80,12 +72,12 @@ export class FlickyParticles {
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
-      const ret = new Float32Array( particles * 2 );
-      for ( let iy = 0; iy < particlesSqrt; iy ++ ) {
-        for ( let ix = 0; ix < particlesSqrt; ix ++ ) {
-          const i = ix + iy * particlesSqrt;
-          const s = ( ix + 0.5 ) / particlesSqrt;
-          const t = ( iy + 0.5 ) / particlesSqrt;
+      const ret = new Float32Array( PARTICLES * 2 );
+      for ( let iy = 0; iy < PARTICLES_SQRT; iy ++ ) {
+        for ( let ix = 0; ix < PARTICLES_SQRT; ix ++ ) {
+          const i = ix + iy * PARTICLES_SQRT;
+          const s = ( ix + 0.5 ) / PARTICLES_SQRT;
+          const t = ( iy + 0.5 ) / PARTICLES_SQRT;
           ret[ i * 2 + 0 ] = s;
           ret[ i * 2 + 1 ] = t;
         }
@@ -102,12 +94,12 @@ export class FlickyParticles {
 
     geometry.count = 4;
     geometry.mode = gl.TRIANGLE_STRIP;
-    geometry.primcount = options.particlesSqrt * options.particlesSqrt;
+    geometry.primcount = PARTICLES;
 
     return geometry;
   }
 
-  private __createMaterialRender( options: FlickyParticlesOptions ): Material {
+  private __createMaterialRender(): Material {
     const material = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
