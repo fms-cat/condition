@@ -10,11 +10,10 @@ import flickyParticleRenderFrag from '../shaders/flicky-particles-render.frag';
 import flickyParticleRenderVert from '../shaders/flicky-particles-render.vert';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { gl, glCat } from '../heck/canvas';
+import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
 
 export interface FlickyParticlesOptions {
   particlesSqrt: number;
-  textureRandom: GLCatTexture<WebGL2RenderingContext>;
-  textureRandomStatic: GLCatTexture<WebGL2RenderingContext>;
 }
 
 export class FlickyParticles {
@@ -51,7 +50,7 @@ export class FlickyParticles {
     const material = new Material( quadVert, flickyParticleComputeFrag );
     material.addUniform( 'particlesSqrt', '1f', particlesSqrt );
     material.addUniform( 'particles', '1f', particles );
-    material.addUniformTexture( 'samplerRandom', options.textureRandom );
+    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -114,7 +113,7 @@ export class FlickyParticles {
       flickyParticleRenderFrag,
     );
     material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
+    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

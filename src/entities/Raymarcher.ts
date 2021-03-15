@@ -8,6 +8,7 @@ import { Material } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
+import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
 
 export class Raymarcher {
   private __mesh: Mesh;
@@ -25,10 +26,7 @@ export class Raymarcher {
     return this.__entity;
   }
 
-  public constructor( options: {
-    textureRandom: GLCatTexture<WebGL2RenderingContext>;
-    textureRandomStatic: GLCatTexture<WebGL2RenderingContext>;
-  } ) {
+  public constructor() {
     this.__entity = new Entity();
     this.__entity.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
     this.__entity.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
@@ -38,8 +36,8 @@ export class Raymarcher {
 
     this.__material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
 
-    this.__material.addUniformTexture( 'samplerRandom', options.textureRandom );
-    this.__material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
+    this.__material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    this.__material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     this.__entity.components.push( new Lambda( {
       onDraw: ( event ) => {

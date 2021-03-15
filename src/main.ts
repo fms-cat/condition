@@ -7,8 +7,7 @@ import { canvas, glCat } from './heck/canvas';
 import { Dog } from './heck/Dog';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
 import { Lambda } from './heck/components/Lambda';
-import { RandomTexture } from './utils/RandomTexture';
-import { RANDOM_RESOLUTION, STATIC_RANDOM_RESOLUTION } from './config';
+import { randomTexture } from './utils/RandomTexture';
 import { SphereParticles } from './entities/SphereParticles';
 import { Swap, Vector3 } from '@fms-cat/experimental';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
@@ -163,21 +162,6 @@ if ( process.env.DEV ) {
   );
 }
 
-// == textures =====================================================================================
-const randomTexture = new RandomTexture(
-  glCat,
-  RANDOM_RESOLUTION[ 0 ],
-  RANDOM_RESOLUTION[ 1 ]
-);
-randomTexture.update();
-
-const randomTextureStatic = new RandomTexture(
-  glCat,
-  STATIC_RANDOM_RESOLUTION[ 0 ],
-  STATIC_RANDOM_RESOLUTION[ 1 ]
-);
-randomTextureStatic.update();
-
 // == scene ========================================================================================
 const dog = new Dog( music );
 
@@ -206,16 +190,12 @@ dog.root.children.push( environmentMap.entity );
 // -- "objects" ------------------------------------------------------------------------------------
 const sphereParticles = new SphereParticles( {
   particlesSqrt: 256,
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
 } );
 dog.root.children.push( sphereParticles.entity );
 
 const trails = new Trails( {
   trails: 4096,
   trailLength: 64,
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
 } );
 dog.root.children.push( trails.entity );
 
@@ -227,15 +207,10 @@ dog.root.children.push( cube.entity );
 
 const flickyParticles = new FlickyParticles( {
   particlesSqrt: 8,
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture,
 } );
 dog.root.children.push( flickyParticles.entity );
 
-const raymarcher = new Raymarcher( {
-  textureRandom: randomTexture.texture,
-  textureRandomStatic: randomTextureStatic.texture
-} );
+const raymarcher = new Raymarcher();
 dog.root.children.push( raymarcher.entity );
 
 // -- things that is not an "object" ---------------------------------------------------------------
@@ -286,7 +261,6 @@ const camera = new CameraEntity( {
   ],
   textureIBLLUT: ibllut.texture,
   textureEnv: environmentMap.texture,
-  textureRandom: randomTexture.texture
 } );
 camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
 camera.entity.components.unshift( new Lambda( {

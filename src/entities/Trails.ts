@@ -1,4 +1,3 @@
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -9,12 +8,11 @@ import trailsComputeFrag from '../shaders/trails-compute.frag';
 import trailsRenderFrag from '../shaders/trails-render.frag';
 import trailsRenderVert from '../shaders/trails-render.vert';
 import { gl, glCat } from '../heck/canvas';
+import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
 
 export interface TrailsOptions {
   trails: number;
   trailLength: number;
-  textureRandom: GLCatTexture<WebGL2RenderingContext>;
-  textureRandomStatic: GLCatTexture<WebGL2RenderingContext>;
 }
 
 export class Trails {
@@ -48,7 +46,7 @@ export class Trails {
     const material = new Material( quadVert, trailsComputeFrag );
     material.addUniform( 'trails', '1f', options.trails );
     material.addUniform( 'trailLength', '1f', options.trailLength );
-    material.addUniformTexture( 'samplerRandom', options.textureRandom );
+    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -149,7 +147,7 @@ export class Trails {
       trailsRenderVert,
       trailsRenderFrag,
     );
-    material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
+    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

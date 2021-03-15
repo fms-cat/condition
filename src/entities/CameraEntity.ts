@@ -12,6 +12,7 @@ import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
 import { gl } from '../heck/canvas';
+import { randomTexture } from '../utils/RandomTexture';
 
 export interface CameraEntityOptions {
   root: Entity;
@@ -19,7 +20,6 @@ export interface CameraEntityOptions {
   lights: LightEntity[];
   textureIBLLUT: GLCatTexture<WebGL2RenderingContext>;
   textureEnv: GLCatTexture<WebGL2RenderingContext>;
-  textureRandom: GLCatTexture<WebGL2RenderingContext>;
 }
 
 export class CameraEntity {
@@ -95,7 +95,7 @@ export class CameraEntity {
       );
     }
 
-    aoMaterial.addUniformTexture( 'samplerRandom', options.textureRandom );
+    aoMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     const aoQuad = new Quad( {
       material: aoMaterial,
@@ -189,7 +189,7 @@ export class CameraEntity {
       shadingMaterial.addUniformTexture( 'samplerShadow', light.shadowMap.texture );
       shadingMaterial.addUniformTexture( 'samplerIBLLUT', options.textureIBLLUT );
       shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
-      shadingMaterial.addUniformTexture( 'samplerRandom', options.textureRandom );
+      shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
       const shadingQuad = new Quad( {
         material: shadingMaterial,

@@ -1,4 +1,3 @@
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
@@ -10,11 +9,10 @@ import sphereParticleComputeFrag from '../shaders/sphere-particles-compute.frag'
 import sphereParticleRenderFrag from '../shaders/sphere-particles-render.frag';
 import sphereParticleRenderVert from '../shaders/sphere-particles-render.vert';
 import { gl, glCat } from '../heck/canvas';
+import { randomTexture, randomTextureStatic } from '../utils/RandomTexture';
 
 export interface SphereParticlesOptions {
   particlesSqrt: number;
-  textureRandom: GLCatTexture<WebGL2RenderingContext>;
-  textureRandomStatic: GLCatTexture<WebGL2RenderingContext>;
 }
 
 export class SphereParticles {
@@ -51,7 +49,7 @@ export class SphereParticles {
     const material = new Material( quadVert, sphereParticleComputeFrag );
     material.addUniform( 'particlesSqrt', '1f', particlesSqrt );
     material.addUniform( 'particles', '1f', particles );
-    material.addUniformTexture( 'samplerRandom', options.textureRandom );
+    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -117,7 +115,7 @@ export class SphereParticles {
       },
     );
     material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniformTexture( 'samplerRandomStatic', options.textureRandomStatic );
+    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
