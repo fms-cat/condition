@@ -211,7 +211,7 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   );
 
   // reflective ibl
-  vec2 brdf = texture( samplerIBLLUT, vec2( aI.dotNV, 1.0 - roughness ) ).xy;
+  vec2 brdf = texture( samplerIBLLUT, vec2( aI.dotNV, roughness ) ).xy;
   vec3 texEnv = 0.2 * sampleEnvLinear( envUv, 5.0 * roughness ).rgb;
   color += PI * ao * texEnv * ( brdf.x * F0 + brdf.y );
 
