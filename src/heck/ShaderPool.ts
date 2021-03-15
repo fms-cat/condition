@@ -101,7 +101,9 @@ export class ShaderPool<TUser> {
     const users = this.__programUsersMap.get( program )!;
 
     if ( !users.has( user ) ) {
-      throw new Error( 'Attempt to delete an user of the program but the specified user is not an owner' );
+      if ( process.env.DEV ) {
+        console.warn( 'Attempt to delete an user of the program but the specified user is not an owner' );
+      }
     }
     users.delete( user );
   }
