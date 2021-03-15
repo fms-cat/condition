@@ -27,15 +27,10 @@ float fbm( vec4 p ) {
 }
 
 void main() {
-  float rough = smoothstep( -0.6, 0.6, fbm( vPositionWithoutModel ) );
-  // vec3 ndisp = rough * 0.2 * vec3(
-  //   fbm( 1.577 + 4.0 * vPosition ),
-  //   fbm( 12.577 + 4.0 * vPosition ),
-  //   fbm( 27.577 + 4.0 * vPosition )
-  // );
+  float rough = sin( 14.0 * fbm( vPositionWithoutModel ) );
 
   fragPosition = vPosition;
   fragNormal = vec4( normalize( vNormal ), 1.0 );
-  fragColor = vec4( vec3( 0.5 - 0.3 * rough ), 1.0 );
-  fragWTF = vec4( vec3( 0.3 + 0.2 * rough, 0.9, 0.0 ), MTL_PBR );
+  fragColor = vec4( vec3( 0.5 ), 1.0 );
+  fragWTF = vec4( vec3( 0.2 + 0.03 * rough, 0.17, 0.0 ), MTL_PBR );
 }

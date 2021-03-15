@@ -2,7 +2,7 @@
 
 precision highp float;
 
-const int MTL_UNLIT = 1;
+const int MTL_PBR = 2;
 
 in float vLife;
 in vec4 vPosition;
@@ -17,7 +17,7 @@ uniform float time;
 
 void main() {
   fragPosition = vPosition;
-  fragNormal = vec4( vNormal, 1.0 );
-  fragColor = vec4( 0.6, 1.8, 1.2, 1.0 );
-  fragWTF = vec4( vec3( 0.0, 0.0, 0.0 ), MTL_UNLIT );
+  fragNormal = vec4( normalize( vNormal ), 1.0 );
+  fragColor = vec4( 0.2, 0.9, 0.5, 1.0 );
+  fragWTF = vec4( vec3( 0.2, 0.2, 4.0 ), MTL_PBR );
 }
