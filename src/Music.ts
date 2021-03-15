@@ -106,9 +106,9 @@ export class Music {
     const { audio, isPlaying } = this;
 
     const genTime = audio.currentTime;
-    this.deltaTime = genTime - this.__prevAudioTime;
 
     if ( isPlaying ) {
+      this.deltaTime = genTime - this.__prevAudioTime;
       this.time += this.deltaTime;
 
       const buffer = this.__bufferPool.next();
@@ -125,6 +125,8 @@ export class Music {
       bufferSource.start( audio.currentTime, audio.currentTime - genTime );
       this.__prevBufferSource = bufferSource;
     } else {
+      this.deltaTime = 0.0;
+
       this.__prevBufferSource?.stop( audio.currentTime );
       this.__prevBufferSource = null;
     }

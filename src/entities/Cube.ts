@@ -17,13 +17,15 @@ export class Cube {
   public constructor() {
     this.entity = new Entity();
 
-    this.entity.transform.rotation = Quaternion.fromAxisAngle(
+    const rot0 = Quaternion.fromAxisAngle(
       new Vector3( [ 1.0, 0.0, 0.0 ] ),
       0.4,
     ).multiply( Quaternion.fromAxisAngle(
       new Vector3( [ 0.0, 0.0, 1.0 ] ),
       0.4,
     ) );
+
+    this.entity.transform.rotation = rot0;
     this.entity.transform.scale = this.entity.transform.scale.scale( 0.8 );
 
     this.geometry = this.__createGeometry();
@@ -37,9 +39,9 @@ export class Cube {
     this.entity.components.push( this.mesh );
 
     this.entity.components.push( new Lambda( {
-      onUpdate: ( { deltaTime } ) => {
-        this.entity.transform.rotation = this.entity.transform.rotation.multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), deltaTime )
+      onUpdate: ( { time } ) => {
+        this.entity.transform.rotation = rot0.multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
         );
       },
       visible: false,
