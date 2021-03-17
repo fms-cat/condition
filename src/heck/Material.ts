@@ -25,7 +25,7 @@ export class Material {
 
   protected __uniformTextures: {
     [ name: string ]: {
-      texture: GLCatTexture<WebGL2RenderingContext> | null;
+      texture: GLCatTexture | null;
     };
   } = {};
 
@@ -49,7 +49,7 @@ export class Material {
     return this.__withDefines( this.frag );
   }
 
-  public get program(): GLCatProgram<WebGL2RenderingContext> {
+  public get program(): GLCatProgram {
     return SHADERPOOL.getProgram(
       this,
       this.vertWithDefines,
@@ -85,7 +85,7 @@ export class Material {
     this.__uniformVectors[ name ] = { type, value };
   }
 
-  public addUniformTexture( name: string, texture: GLCatTexture<WebGL2RenderingContext> | null ): void {
+  public addUniformTexture( name: string, texture: GLCatTexture | null ): void {
     this.__uniformTextures[ name ] = { texture };
   }
 

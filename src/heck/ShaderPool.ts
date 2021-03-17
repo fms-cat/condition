@@ -3,18 +3,18 @@ import { glCat } from '../globals/canvas';
 import { Material } from './Material';
 
 export class ShaderPool<TUser> {
-  private __programMap: Map<string, GLCatProgram<WebGL2RenderingContext>> = new Map();
+  private __programMap: Map<string, GLCatProgram> = new Map();
 
-  private __ongoingPromises: Map<string, Promise<GLCatProgram<WebGL2RenderingContext>>> = new Map();
+  private __ongoingPromises: Map<string, Promise<GLCatProgram>> = new Map();
 
-  private __programUsersMap: Map<GLCatProgram<WebGL2RenderingContext>, Set<TUser>> = new Map();
+  private __programUsersMap: Map<GLCatProgram, Set<TUser>> = new Map();
 
   public getProgram(
     user: TUser,
     vert: string,
     frag: string,
     options?: GLCatProgramLinkOptions,
-  ): GLCatProgram<WebGL2RenderingContext> {
+  ): GLCatProgram {
     let program = this.__programMap.get( vert + frag );
     if ( !program ) {
       if ( process.env.DEV ) {
@@ -41,7 +41,7 @@ export class ShaderPool<TUser> {
     vert: string,
     frag: string,
     options?: GLCatProgramLinkOptions
-  ): Promise<GLCatProgram<WebGL2RenderingContext>> {
+  ): Promise<GLCatProgram> {
     let program = this.__programMap.get( vert + frag );
     if ( !program ) {
       let promise = this.__ongoingPromises.get( vert + frag );
@@ -85,7 +85,7 @@ export class ShaderPool<TUser> {
     }
   }
 
-  private __setUser( user: TUser, program: GLCatProgram<WebGL2RenderingContext> ): void {
+  private __setUser( user: TUser, program: GLCatProgram ): void {
     let users = this.__programUsersMap.get( program );
     if ( !users ) {
       users = new Set();
@@ -97,7 +97,7 @@ export class ShaderPool<TUser> {
     }
   }
 
-  private __deleteUser( user: TUser, program: GLCatProgram<WebGL2RenderingContext> ): void {
+  private __deleteUser( user: TUser, program: GLCatProgram ): void {
     const users = this.__programUsersMap.get( program )!;
 
     if ( !users.has( user ) ) {
@@ -108,7 +108,7 @@ export class ShaderPool<TUser> {
     users.delete( user );
   }
 
-  private __countUsers( program: GLCatProgram<WebGL2RenderingContext> ): number {
+  private __countUsers( program: GLCatProgram ): number {
     const users = this.__programUsersMap.get( program )!;
     return users.size;
   }

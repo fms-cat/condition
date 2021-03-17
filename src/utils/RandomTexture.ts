@@ -3,14 +3,14 @@ import GLCat, { GLCatTexture } from '@fms-cat/glcat-ts';
 import { gl } from '../globals/canvas';
 
 export class RandomTexture {
-  private __texture: GLCatTexture<WebGL2RenderingContext>;
+  private __texture: GLCatTexture;
   private __array: Uint8Array;
   private __rng: Xorshift;
   private __width: number;
   private __height: number;
 
   public constructor(
-    glCat: GLCat<WebGL2RenderingContext>,
+    glCat: GLCat,
     width: number,
     height: number,
   ) {
@@ -22,7 +22,7 @@ export class RandomTexture {
     this.__texture.textureWrap( gl.REPEAT );
   }
 
-  public get texture(): GLCatTexture<WebGL2RenderingContext> {
+  public get texture(): GLCatTexture {
     return this.__texture;
   }
 

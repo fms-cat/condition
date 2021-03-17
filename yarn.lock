@@ -74,10 +74,10 @@
   resolved "https://registry.yarnpkg.com/@fms-cat/experimental/-/experimental-0.5.0.tgz#41ebe9ce2b4bfca7b194f3a5c8aad951264a4ac0"
   integrity sha512-01vnWv6fCrwvR0hsEhmDKhrQ/k0NjAsbV4+lDJJ8xCOdHDjbtHxSjv92Px2WxDMpv2JYfIpw2d8iqGZzVAvcAg==
 
-"@fms-cat/glcat-ts@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@fms-cat/glcat-ts/-/glcat-ts-0.14.0.tgz#881573c559c9a56f2b429c919011fbdfbbdd6c55"
-  integrity sha512-qaRvW1Hua0quOdsp58f0LAEaaYuU8LwG6hwoA/y7lmMGppuAeTmssnL+i/WKbI/h7TVI3JmPhPwRBXS1/+t55Q==
+"@fms-cat/glcat-ts@^0.14.2":
+  version "0.14.2"
+  resolved "https://registry.yarnpkg.com/@fms-cat/glcat-ts/-/glcat-ts-0.14.2.tgz#548019d8b31ccf9d5aa6e1bfd01d73bd1ad2e4de"
+  integrity sha512-Pv32IeyZXJiFaf8mhAzOkoef4gaaVWYITuwENrtKi+4rwkebLcx9SEqoG8qDAFeWmm0ANKFYsYCRyhns4VSnRA==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"

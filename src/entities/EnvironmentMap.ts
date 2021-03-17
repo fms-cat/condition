@@ -16,7 +16,7 @@ export class EnvironmentMap {
 
   public swap: Swap<BufferRenderTarget>;
 
-  public get texture(): GLCatTexture<WebGL2RenderingContext> {
+  public get texture(): GLCatTexture {
     return this.swap.o.texture;
   }
 

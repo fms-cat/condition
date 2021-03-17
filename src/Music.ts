@@ -13,20 +13,20 @@ export class Music {
   public time: number;
   public deltaTime: number;
   public audio: AudioContext;
-  public samples?: GLCatTexture<WebGL2RenderingContext>;
+  public samples?: GLCatTexture;
 
-  private __program: GLCatProgram<WebGL2RenderingContext>;
-  private __bufferOff: GLCatBuffer<WebGL2RenderingContext>;
+  private __program: GLCatProgram;
+  private __bufferOff: GLCatBuffer;
   private __bufferTransformFeedbacks: [
-    GLCatBuffer<WebGL2RenderingContext>,
-    GLCatBuffer<WebGL2RenderingContext>
+    GLCatBuffer,
+    GLCatBuffer
   ];
-  private __transformFeedback: GLCatTransformFeedback<WebGL2RenderingContext>;
+  private __transformFeedback: GLCatTransformFeedback;
   private __prevAudioTime: number;
   private __bufferPool: Pool<AudioBuffer>;
   private __prevBufferSource: AudioBufferSourceNode | null = null;
 
-  constructor( glCat: GLCat<WebGL2RenderingContext>, audio: AudioContext ) {
+  constructor( glCat: GLCat, audio: AudioContext ) {
     this.audio = audio;
 
     // == yoinked from wavenerd-deck ===============================================================

@@ -13,9 +13,9 @@ export interface BufferRenderTargetOptions {
 export class BufferRenderTarget extends RenderTarget {
   public static nameMap = new Map<string, BufferRenderTarget>();
 
-  private readonly __framebuffer: GLCatFramebuffer<WebGL2RenderingContext>;
+  private readonly __framebuffer: GLCatFramebuffer;
 
-  public get framebuffer(): GLCatFramebuffer<WebGL2RenderingContext> {
+  public get framebuffer(): GLCatFramebuffer {
     return this.__framebuffer;
   }
 
@@ -85,11 +85,11 @@ export class BufferRenderTarget extends RenderTarget {
     }
   }
 
-  public get texture(): GLCatTexture<WebGL2RenderingContext> {
+  public get texture(): GLCatTexture {
     return this.__framebuffer.texture!;
   }
 
-  public getTexture( attachment: number ): GLCatTexture<WebGL2RenderingContext> | null {
+  public getTexture( attachment: number ): GLCatTexture | null {
     return this.__framebuffer.getTexture( attachment );
   }
 

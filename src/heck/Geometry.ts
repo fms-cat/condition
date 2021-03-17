@@ -3,7 +3,7 @@ import { gl, glCat } from '../globals/canvas';
 import { Material } from './Material';
 
 export interface GeometryAttribute {
-  buffer: GLCatBuffer<WebGL2RenderingContext>;
+  buffer: GLCatBuffer;
   size: number;
   divisor?: number;
   type: GLenum;
@@ -12,7 +12,7 @@ export interface GeometryAttribute {
 }
 
 export interface GeometryIndex {
-  buffer: GLCatBuffer<WebGL2RenderingContext>;
+  buffer: GLCatBuffer;
   type: GLenum;
 }
 
@@ -28,7 +28,7 @@ export class Geometry {
     [ gl.FLOAT ]: 4,
   };
 
-  public transformFeedback?: GLCatTransformFeedback<WebGL2RenderingContext> | null;
+  public transformFeedback?: GLCatTransformFeedback | null;
 
   protected __attributes: {
     [ name: string ]: GeometryAttribute;

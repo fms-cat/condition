@@ -18,8 +18,8 @@ export interface CameraEntityOptions {
   root: Entity;
   target: RenderTarget;
   lights: LightEntity[];
-  textureIBLLUT: GLCatTexture<WebGL2RenderingContext>;
-  textureEnv: GLCatTexture<WebGL2RenderingContext>;
+  textureIBLLUT: GLCatTexture;
+  textureEnv: GLCatTexture;
 }
 
 export class CameraEntity {
