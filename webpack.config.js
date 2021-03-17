@@ -39,8 +39,8 @@ module.exports = ( env, argv ) => {
         },
         {
           test: /\.(glsl|frag|vert)$/,
+          type: 'asset/source',
           use: [
-            'raw-loader',
             // shader minifier is kinda jej
             // want to try it works well in development phase
             {
@@ -53,11 +53,15 @@ module.exports = ( env, argv ) => {
           ],
         },
         {
+          test: /\.opus$/,
+          type: 'asset/inline',
+        },
+        {
           test: /\.tsx?$/,
           exclude: /node_modules/,
           use: [
             'ts-loader',
-          ]
+          ],
         },
       ],
     },

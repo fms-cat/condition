@@ -122,3 +122,27 @@ const float TAU = 6.283185307;
 ```
 
 You might want to also avoid macros with arguments for the same reason.
+
+## Hentai Preprocessors
+
+You can't use your favorite `beat` preprocessor. damn.
+
+```glsl
+// won't compile
+#define beat *60.0/BPM
+
+t = mod( time, 2.0 beat );
+
+// use this instead
+const float BEAT = 60.0 / BPM;
+
+t = mod( time, 2.0 * BEAT );
+```
+
+### Error Examples
+
+```
+  int prog = int( mod( time.z / ( 8.0 beat ), 8.0 ) );
+      ^
+Expecting: infix operator, postfix operator, ',' or ';'
+```

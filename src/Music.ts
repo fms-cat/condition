@@ -1,7 +1,10 @@
-import { GLCat, GLCatBuffer, GLCatProgram, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
+import { GLCat, GLCatBuffer, GLCatProgram, GLCatTexture, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
 import { MUSIC_BPM, MUSIC_BUFFER_LENGTH } from './config';
 import { Pool } from './utils/Pool';
 import musicVert from './shaders/music.vert';
+import { gl, glCat } from './globals/canvas';
+import samplesOpus from './samples.opus';
+import { randomTextureStatic } from './globals/randomTexture';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
 
@@ -10,7 +13,7 @@ export class Music {
   public time: number;
   public deltaTime: number;
   public audio: AudioContext;
-  public glCat: GLCat<WebGL2RenderingContext>;
+  public samples?: GLCatTexture<WebGL2RenderingContext>;
 
   private __program: GLCatProgram<WebGL2RenderingContext>;
   private __bufferOff: GLCatBuffer<WebGL2RenderingContext>;
@@ -24,9 +27,6 @@ export class Music {
   private __prevBufferSource: AudioBufferSourceNode | null = null;
 
   constructor( glCat: GLCat<WebGL2RenderingContext>, audio: AudioContext ) {
-    this.glCat = glCat;
-    const { gl } = glCat;
-
     this.audio = audio;
 
     // == yoinked from wavenerd-deck ===============================================================
@@ -70,6 +70,8 @@ export class Music {
       audio.createBuffer( 2, MUSIC_BUFFER_LENGTH, audio.sampleRate ),
     ] );
 
+    this.__loadSamples();
+
     // == I think these are gonna be required ======================================================
     this.isPlaying = false;
     this.time = 0.0;
@@ -83,11 +85,11 @@ export class Music {
             './shaders/music.vert',
           ],
           async () => {
-            const program = await this.glCat.lazyProgramAsync(
+            const program = await glCat.lazyProgramAsync(
               musicVert,
               discardFrag,
               { transformFeedbackVaryings: [ 'outL', 'outR' ] },
-            ).catch( ( error ) => {
+            ).catch( ( error: any ) => {
               console.error( error );
               return null;
             } );
@@ -134,9 +136,35 @@ export class Music {
     this.__prevAudioTime = genTime;
   }
 
+  private async __loadSamples(): Promise<void> {
+    const inputBuffer = await fetch( samplesOpus ).then( ( res ) => res.arrayBuffer() );
+    const audioBuffer = await this.audio.decodeAudioData( inputBuffer );
+
+    const buffer = new Float32Array( 96000 );
+
+    const data = audioBuffer.getChannelData( 0 );
+    for ( let i = 0; i < audioBuffer.length; i ++ ) {
+      buffer[ i ] = data[ i ];
+    }
+
+    const texture = glCat.createTexture()!;
+    texture.setTextureFromArray(
+      6000,
+      16,
+      buffer,
+      {
+        internalformat: gl.R32F,
+        format: gl.RED,
+        type: gl.FLOAT,
+      }
+    );
+    texture.textureFilter( gl.LINEAR );
+
+    this.samples = texture;
+  }
+
   private __prepareBuffer( buffer: AudioBuffer ): void {
-    const { glCat, time } = this;
-    const { gl } = this.glCat;
+    const { time } = this;
     const program = this.__program;
 
     const beatLength = 60.0 / MUSIC_BPM;
@@ -160,6 +188,12 @@ export class Music {
       time % sixteenBarLength,
       time
     );
+
+    program.uniformTexture( 'samplerRandom', randomTextureStatic.texture );
+
+    if ( this.samples ) {
+      program.uniformTexture( 'samplerSamples', this.samples );
+    }
 
     glCat.useProgram( program, () => {
       glCat.bindTransformFeedback( this.__transformFeedback, () => {
