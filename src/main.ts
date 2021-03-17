@@ -2,7 +2,7 @@ import { canvas } from './globals/canvas';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { Component } from './heck/components/Component';
 import { music } from './globals/music';
-import { getCheckboxActive } from './globals/dom';
+import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
 import { dog } from './scene';
 
 // == music ========================================================================================
@@ -18,10 +18,13 @@ if ( process.env.DEV ) {
   document.body.style.background = '#000';
   document.body.style.width = '100%';
 
-  document.body.appendChild( canvas );
-  canvas.style.left = '0';
-  canvas.style.top = '0';
-  canvas.style.width = 'calc( 100% - 240px )';
+  const divCanvasContainer = getDivCanvasContainer();
+
+  divCanvasContainer.appendChild( canvas );
+  ( canvas.style as any ).aspectRatio = 'auto 1920 / 1080';
+  canvas.style.margin = 'auto';
+  canvas.style.maxWidth = '100%';
+  canvas.style.maxHeight = '100%';
 } else {
   canvas.style.position = 'fixed';
   canvas.style.left = '0';

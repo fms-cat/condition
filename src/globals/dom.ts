@@ -37,6 +37,21 @@ export function getCheckboxActive(): HTMLInputElement {
   );
 }
 
+export function getDivCanvasContainer(): HTMLDivElement {
+  return getElement<HTMLDivElement>(
+    'divCanvasContainer',
+    'div',
+    {
+      position: 'fixed',
+      width: 'calc( 100% - 240px )',
+      height: 'calc( 100% - 240px )',
+      left: '0',
+      top: '0',
+      display: 'flex',
+    },
+  );
+}
+
 export function getDivAutomaton(): HTMLDivElement {
   return getElement<HTMLDivElement>(
     'divAutomaton',
