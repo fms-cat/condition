@@ -1,6 +1,13 @@
-import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture } from '@fms-cat/glcat-ts';
+import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
 import { gl } from '../globals/canvas';
 import { SHADERPOOL } from './ShaderPool';
+
+export type MaterialTag =
+  | 'deferred'
+  | 'forward'
+  | 'shadow';
+
+export type MaterialMap<T extends MaterialTag = MaterialTag> = { [ tag in T ]: Material };
 
 export class Material {
   protected __linkOptions: GLCatProgramLinkOptions;
@@ -26,6 +33,12 @@ export class Material {
   protected __uniformTextures: {
     [ name: string ]: {
       texture: GLCatTexture | null;
+    };
+  } = {};
+
+  protected __uniformCubemaps: {
+    [ name: string ]: {
+      texture: GLCatTextureCubemap | null;
     };
   } = {};
 
@@ -89,6 +102,10 @@ export class Material {
     this.__uniformTextures[ name ] = { texture };
   }
 
+  public addUniformCubemap( name: string, texture: GLCatTextureCubemap | null ): void {
+    this.__uniformCubemaps[ name ] = { texture };
+  }
+
   public setUniforms(): void {
     const program = this.program;
 
@@ -102,6 +119,10 @@ export class Material {
 
     Object.entries( this.__uniformTextures ).forEach( ( [ name, { texture } ] ) => {
       program.uniformTexture( name, texture );
+    } );
+
+    Object.entries( this.__uniformCubemaps ).forEach( ( [ name, { texture } ] ) => {
+      program.uniformCubemap( name, texture );
     } );
   }
 

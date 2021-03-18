@@ -6,6 +6,7 @@ import { Transform } from '../Transform';
 import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
 import { GPUTimer } from '../GPUTimer';
 import { getDivComponentsDraw, getDivComponentsUpdate } from '../../globals/dom';
+import { MaterialTag } from '../Material';
 
 export interface ComponentUpdateEvent {
   frameCount: number;
@@ -19,6 +20,8 @@ export interface ComponentDrawEvent {
   frameCount: number;
   time: number;
   camera: Camera;
+  cameraTransform: Transform;
+  materialTag: MaterialTag;
   renderTarget: RenderTarget;
   globalTransform: Transform;
   viewMatrix: Matrix4;

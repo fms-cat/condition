@@ -13,29 +13,10 @@ export interface BufferRenderTargetOptions {
 export class BufferRenderTarget extends RenderTarget {
   public static nameMap = new Map<string, BufferRenderTarget>();
 
-  private readonly __framebuffer: GLCatFramebuffer;
-
-  public get framebuffer(): GLCatFramebuffer {
-    return this.__framebuffer;
-  }
-
-  private __width: number;
-
-  public get width(): number {
-    return this.__width;
-  }
-
-  private __height: number;
-
-  public get height(): number {
-    return this.__height;
-  }
-
-  private __numBuffers: number;
-
-  public get numBuffers(): number {
-    return this.__numBuffers;
-  }
+  public readonly framebuffer: GLCatFramebuffer;
+  public readonly width: number;
+  public readonly height: number;
+  public readonly numBuffers: number;
 
   private __name?: string;
   public get name(): string | undefined {
@@ -67,18 +48,18 @@ export class BufferRenderTarget extends RenderTarget {
   public constructor( options: BufferRenderTargetOptions ) {
     super();
 
-    this.__framebuffer = glCat.lazyDrawbuffers(
+    this.framebuffer = glCat.lazyDrawbuffers(
       options.width,
       options.height,
-      options.numBuffers || 1,
+      options.numBuffers ?? 1,
       {
-        isFloat: options.isFloat || true
+        isFloat: options.isFloat ?? true
       }
     );
 
-    this.__width = options.width;
-    this.__height = options.height;
-    this.__numBuffers = options.numBuffers || 1;
+    this.width = options.width;
+    this.height = options.height;
+    this.numBuffers = options.numBuffers ?? 1;
 
     if ( process.env.DEV ) {
       this.name = options?.name;
@@ -86,20 +67,20 @@ export class BufferRenderTarget extends RenderTarget {
   }
 
   public get texture(): GLCatTexture {
-    return this.__framebuffer.texture!;
+    return this.framebuffer.texture!;
   }
 
   public getTexture( attachment: number ): GLCatTexture | null {
-    return this.__framebuffer.getTexture( attachment );
+    return this.framebuffer.getTexture( attachment );
   }
 
   public bind(): void {
-    gl.bindFramebuffer( gl.FRAMEBUFFER, this.__framebuffer.raw );
-    glCat.drawBuffers( this.__numBuffers );
+    gl.bindFramebuffer( gl.FRAMEBUFFER, this.framebuffer.raw );
+    glCat.drawBuffers( this.numBuffers );
     gl.viewport( 0, 0, this.width, this.height );
   }
 
   public dispose(): void {
-    this.__framebuffer.dispose();
+    this.framebuffer.dispose();
   }
 }

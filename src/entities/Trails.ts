@@ -2,8 +2,9 @@ import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
+import depthFrag from '../shaders/depth.frag';
 import trailsComputeFrag from '../shaders/trails-compute.frag';
 import trailsRenderFrag from '../shaders/trails-render.frag';
 import trailsRenderVert from '../shaders/trails-render.vert';
@@ -15,24 +16,16 @@ const TRAIL_LENGTH = 64;
 
 export class Trails {
   public get entity(): Entity {
-    return this.__gpuParticles.entity;
+    return this.gpuParticles.entity;
   }
 
-  private __gpuParticles: GPUParticles;
-
-  public get materialCompute(): Material {
-    return this.__gpuParticles.materialCompute;
-  }
-
-  public get materialRender(): Material {
-    return this.__gpuParticles.materialRender;
-  }
+  public gpuParticles: GPUParticles;
 
   public constructor() {
-    this.__gpuParticles = new GPUParticles( {
+    this.gpuParticles = new GPUParticles( {
       materialCompute: this.__createMaterialCompute(),
       geometryRender: this.__createGeometryRender(),
-      materialRender: this.__createMaterialRender(),
+      materialsRender: this.__createMaterialsRender(),
       computeWidth: TRAIL_LENGTH,
       computeHeight: TRAILS,
       computeNumBuffers: 2,
@@ -140,33 +133,32 @@ export class Trails {
     return geometry;
   }
 
-  private __createMaterialRender(): Material {
-    const material = new Material(
+  private __createMaterialsRender(): MaterialMap<'deferred' | 'shadow'> {
+    const deferred = new Material(
       trailsRenderVert,
       trailsRenderFrag,
+      { defines: { 'DEFERRED': 'true' } },
     );
-    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+
+    const shadow = new Material( trailsRenderVert, depthFrag );
+    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
-        module.hot.accept( '../shaders/trails-render.vert', () => {
-          material.replaceShader(
-            trailsRenderVert,
-            trailsRenderFrag,
-          );
-        } );
-      }
-
-      if ( module.hot ) {
-        module.hot.accept( '../shaders/trails-render.frag', () => {
-          material.replaceShader(
-            trailsRenderVert,
-            trailsRenderFrag,
-          );
-        } );
+        module.hot.accept(
+          [
+            '../shaders/trails-render.vert',
+            '../shaders/trails-render.frag',
+          ],
+          () => {
+            deferred.replaceShader( trailsRenderVert, trailsRenderFrag );
+            shadow.replaceShader( trailsRenderVert, depthFrag );
+          }
+        );
       }
     }
 
-    return material;
+    return { deferred, shadow };
   }
 }

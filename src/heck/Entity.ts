@@ -3,6 +3,7 @@ import { Component } from './components/Component';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from './RenderTarget';
 import { Transform } from './Transform';
+import { MaterialTag } from './Material';
 
 export interface EntityUpdateEvent {
   frameCount: number;
@@ -20,6 +21,8 @@ export interface EntityDrawEvent {
   viewMatrix: Matrix4;
   projectionMatrix: Matrix4;
   camera: Camera;
+  cameraTransform: Transform;
+  materialTag: MaterialTag;
 }
 
 export class Entity {
@@ -69,9 +72,11 @@ export class Entity {
         renderTarget: event.renderTarget,
         globalTransform,
         camera: event.camera,
+        cameraTransform: event.cameraTransform,
         viewMatrix: event.viewMatrix,
         projectionMatrix: event.projectionMatrix,
-        entity: this
+        entity: this,
+        materialTag: event.materialTag,
       } );
     } );
 
@@ -83,7 +88,9 @@ export class Entity {
         globalTransform,
         viewMatrix: event.viewMatrix,
         projectionMatrix: event.projectionMatrix,
-        camera: event.camera
+        camera: event.camera,
+        cameraTransform: event.cameraTransform,
+        materialTag: event.materialTag,
       } );
     } );
   }

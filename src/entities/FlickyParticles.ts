@@ -2,7 +2,7 @@ import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import flickyParticleComputeFrag from '../shaders/flicky-particles-compute.frag';
 import flickyParticleRenderFrag from '../shaders/flicky-particles-render.frag';
@@ -16,24 +16,16 @@ const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
 export class FlickyParticles {
   public get entity(): Entity {
-    return this.__gpuParticles.entity;
+    return this.gpuParticles.entity;
   }
 
-  private __gpuParticles: GPUParticles;
-
-  public get materialCompute(): Material {
-    return this.__gpuParticles.materialCompute;
-  }
-
-  public get materialRender(): Material {
-    return this.__gpuParticles.materialRender;
-  }
+  public gpuParticles: GPUParticles;
 
   public constructor() {
-    this.__gpuParticles = new GPUParticles( {
+    this.gpuParticles = new GPUParticles( {
       materialCompute: this.__createMaterialCompute(),
       geometryRender: this.__createGeometryRender(),
-      materialRender: this.__createMaterialRender(),
+      materialsRender: this.__createMaterialsRender(),
       computeWidth: PARTICLES_SQRT,
       computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 1,
@@ -99,36 +91,44 @@ export class FlickyParticles {
     return geometry;
   }
 
-  private __createMaterialRender(): Material {
-    const material = new Material(
+  private __createMaterialsRender(): MaterialMap {
+    const forward = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
+      { defines: { 'FORWARD': 'true' } },
     );
-    material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    forward.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+
+    const deferred = new Material(
+      flickyParticleRenderVert,
+      flickyParticleRenderFrag,
+      { defines: { 'DEFERRED': 'true' } },
+    );
+    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+
+    const shadow = new Material(
+      flickyParticleRenderVert,
+      flickyParticleRenderFrag,
+      { defines: { 'SHADOW': 'true' } },
+    );
+    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
-        module.hot.accept( '../shaders/flicky-particles-render.vert', () => {
-          material.replaceShader(
-            flickyParticleRenderVert,
-            flickyParticleRenderFrag,
-          );
-        } );
+        module.hot.accept(
+          [
+            '../shaders/flicky-particles-render.vert',
+            '../shaders/flicky-particles-render.frag',
+          ],
+          () => {
+            forward.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
+            deferred.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
+            shadow.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
+          }
+        );
       }
     }
 
-    if ( process.env.DEV ) {
-      if ( module.hot ) {
-        module.hot.accept( '../shaders/flicky-particles-render.frag', () => {
-          material.replaceShader(
-            flickyParticleRenderVert,
-            flickyParticleRenderFrag,
-          );
-        } );
-      }
-    }
-
-    return material;
+    return { forward, deferred, shadow };
   }
 }

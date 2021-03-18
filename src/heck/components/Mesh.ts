@@ -1,6 +1,6 @@
 import { Component, ComponentDrawEvent, ComponentOptions } from './Component';
 import { Geometry } from '../Geometry';
-import { Material } from '../Material';
+import { MaterialMap, MaterialTag } from '../Material';
 import { glCat } from '../../globals/canvas';
 
 export enum MeshCull {
@@ -18,12 +18,12 @@ const meshCullMap = {
 
 export interface MeshOptions extends ComponentOptions {
   geometry: Geometry;
-  material: Material;
+  materials: Partial<MaterialMap<MaterialTag>>;
 }
 
 export class Mesh extends Component {
   public geometry: Geometry;
-  public material: Material;
+  public materials: Partial<MaterialMap<MaterialTag>>;
 
   public cull: MeshCull = MeshCull.Back;
 
@@ -33,16 +33,21 @@ export class Mesh extends Component {
     this.active = false;
 
     this.geometry = options.geometry;
-    this.material = options.material;
+    this.materials = options.materials;
   }
 
   protected __drawImpl( event: ComponentDrawEvent ): void {
     const gl = glCat.renderingContext;
 
-    const program = this.material.program;
+    const material = this.materials[ event.materialTag ];
+    if ( material == null ) {
+      return;
+    }
+
+    const program = material.program;
 
     glCat.useProgram( program );
-    this.material.setBlendMode();
+    material.setBlendMode();
 
     if ( this.cull === MeshCull.None ) {
       gl.disable( gl.CULL_FACE );
@@ -51,13 +56,15 @@ export class Mesh extends Component {
       gl.cullFace( meshCullMap[ this.cull ] );
     }
 
-    this.geometry.assignBuffers( this.material );
+    this.geometry.assignBuffers( material );
 
-    this.material.setUniforms();
+    material.setUniforms();
 
     program.uniform1f( 'time', event.time );
     program.uniform1f( 'frameCount', event.frameCount );
     program.uniform2f( 'resolution', event.renderTarget.width, event.renderTarget.height );
+    program.uniform3f( 'cameraPos', ...event.cameraTransform.position.elements );
+    program.uniform2f( 'cameraNearFar', event.camera.near, event.camera.far );
 
     program.uniformMatrix4fv( 'normalMatrix', event.globalTransform.matrix.inverse!.transpose.elements );
     program.uniformMatrix4fv( 'modelMatrix', event.globalTransform.matrix.elements );

@@ -58,6 +58,7 @@ export class CameraEntity {
       near: 0.1,
       far: 20.0,
       name: 'CameraEntity/camera',
+      materialTag: 'deferred',
     } );
     this.__entity.components.push( this.__camera );
 

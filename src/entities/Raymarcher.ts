@@ -1,70 +1,63 @@
-import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
 import { TRIANGLE_STRIP_QUAD, Vector3 } from '@fms-cat/experimental';
 import { gl, glCat } from '../globals/canvas';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 
 export class Raymarcher {
-  private __mesh: Mesh;
-  private __geometry: Geometry;
-
-  private __material: Material;
-
-  public get material(): Material {
-    return this.__material;
-  }
-
-  private __entity: Entity;
-
-  public get entity(): Entity {
-    return this.__entity;
-  }
+  public materials: MaterialMap<'deferred' | 'shadow'>;
+  public mesh: Mesh;
+  public geometry: Geometry;
+  public readonly entity: Entity;
 
   public constructor() {
-    this.__entity = new Entity();
-    this.__entity.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
-    this.__entity.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
+    this.entity = new Entity();
+    this.entity.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
+    this.entity.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
 
-    this.__geometry = this.__createGeoemtry();
-    this.__material = this.__createMaterial();
+    this.geometry = this.__createGeoemtry();
+    this.materials = this.__createMaterials();
 
-    this.__material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
+    for ( const material of Object.values( this.materials ) ) {
+      material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
 
-    this.__material.addUniformTexture( 'samplerRandom', randomTexture.texture );
-    this.__material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+      material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+      material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    }
 
-    this.__entity.components.push( new Lambda( {
+    this.entity.components.push( new Lambda( {
       onDraw: ( event ) => {
-        this.__material.addUniform(
-          'cameraNearFar',
-          '2f',
-          event.camera.near,
-          event.camera.far
-        );
+        for ( const material of Object.values( this.materials ) ) {
+          material.addUniform(
+            'cameraNearFar',
+            '2f',
+            event.camera.near,
+            event.camera.far
+          );
 
-        this.__material.addUniformVector(
-          'inversePV',
-          'Matrix4fv',
-          event.projectionMatrix.multiply( event.viewMatrix ).inverse!.elements
-        );
+          material.addUniformVector(
+            'inversePV',
+            'Matrix4fv',
+            event.projectionMatrix.multiply( event.viewMatrix ).inverse!.elements
+          );
+        }
       },
       active: false,
       name: process.env.DEV && 'Raymarcher/setCameraUniforms',
     } ) );
 
-    this.__mesh = new Mesh( {
-      geometry: this.__geometry,
-      material: this.__material,
+    this.mesh = new Mesh( {
+      geometry: this.geometry,
+      materials: this.materials,
       name: process.env.DEV && 'Raymarcher/mesh',
     } );
-    this.__mesh.cull = MeshCull.None;
-    this.__entity.components.push( this.__mesh );
+    this.mesh.cull = MeshCull.None;
+    this.entity.components.push( this.mesh );
   }
 
   protected __createGeoemtry(): Geometry {
@@ -84,17 +77,19 @@ export class Raymarcher {
     return geometry;
   }
 
-  protected __createMaterial(): Material {
-    const material = new Material( quadVert, raymarcherFrag );
+  protected __createMaterials(): MaterialMap<'deferred' | 'shadow'> {
+    const deferred = new Material( quadVert, raymarcherFrag, { defines: { 'DEFERRED': 'true' } } );
+    const shadow = new Material( quadVert, raymarcherFrag, { defines: { 'SHADOW': 'true' } } );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/raymarcher.frag', () => {
-          material.replaceShader( quadVert, raymarcherFrag );
+          deferred.replaceShader( quadVert, raymarcherFrag );
+          shadow.replaceShader( quadVert, raymarcherFrag );
         } );
       }
     }
 
-    return material;
+    return { deferred, shadow };
   }
 }

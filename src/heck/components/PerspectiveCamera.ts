@@ -3,8 +3,10 @@ import { Entity } from '../Entity';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { ComponentOptions } from './Component';
+import { MaterialTag } from '../Material';
 
 export interface PerspectiveCameraOptions extends ComponentOptions {
+  materialTag: MaterialTag;
   renderTarget?: RenderTarget;
   near?: number;
   far?: number;
@@ -14,17 +16,8 @@ export interface PerspectiveCameraOptions extends ComponentOptions {
 }
 
 export class PerspectiveCamera extends Camera {
-  private __near: number;
-
-  public get near(): number {
-    return this.__near;
-  }
-
-  private __far: number;
-
-  public get far(): number {
-    return this.__far;
-  }
+  public readonly near: number;
+  public readonly far: number;
 
   public constructor( options: PerspectiveCameraOptions ) {
     const projectionMatrix = Matrix4.perspective(
@@ -38,10 +31,10 @@ export class PerspectiveCamera extends Camera {
       projectionMatrix,
       renderTarget: options.renderTarget,
       scene: options.scene,
-      clear: options.clear
+      clear: options.clear,
     } );
 
-    this.__near = options.near || 0.01;
-    this.__far = options.far || 100.0;
+    this.near = options.near || 0.01;
+    this.far = options.far || 100.0;
   }
 }

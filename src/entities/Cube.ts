@@ -2,16 +2,17 @@ import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { Mesh } from '../heck/components/Mesh';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import cubeVert from '../shaders/cube.vert';
 import cubeFrag from '../shaders/cube.frag';
+import depthFrag from '../shaders/depth.frag';
 import { genCube } from '../geometries/genCube';
 import { Lambda } from '../heck/components/Lambda';
 
 export class Cube {
   public mesh: Mesh;
   public geometry: Geometry;
-  public material: Material;
+  public materials: MaterialMap<'deferred' | 'shadow'>;
   public entity: Entity;
 
   public constructor() {
@@ -29,11 +30,11 @@ export class Cube {
     this.entity.transform.scale = this.entity.transform.scale.scale( 0.8 );
 
     this.geometry = this.__createGeometry();
-    this.material = this.__createMaterial();
+    this.materials = this.__createMaterials();
 
     this.mesh = new Mesh( {
       geometry: this.geometry,
-      material: this.material,
+      materials: this.materials,
       name: process.env.DEV && 'Cube/mesh',
     } );
     this.entity.components.push( this.mesh );
@@ -42,6 +43,10 @@ export class Cube {
       onUpdate: ( { time } ) => {
         this.entity.transform.rotation = rot0.multiply(
           Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
+        ).multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 1.0, 0.0, 0.0 ] ), 1.0 )
+        ).multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
         );
       },
       visible: false,
@@ -64,10 +69,14 @@ export class Cube {
     return geometry;
   }
 
-  private __createMaterial(): Material {
-    const material = new Material( cubeVert, cubeFrag );
+  private __createMaterials(): MaterialMap<'deferred' | 'shadow'> {
+    const deferred = new Material(
+      cubeVert,
+      cubeFrag,
+      { defines: { 'DEFERRED': 'true' } },
+    );
 
-    material.addUniform( 'inflate', '1f', 0.01 );
+    const shadow = new Material( cubeVert, depthFrag );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -77,12 +86,13 @@ export class Cube {
             '../shaders/cube.frag',
           ],
           () => {
-            material.replaceShader( cubeVert, cubeFrag );
+            deferred.replaceShader( cubeVert, cubeFrag );
+            shadow.replaceShader( cubeVert, depthFrag );
           },
         );
       }
     }
 
-    return material;
+    return { deferred, shadow };
   }
 }

@@ -4,26 +4,26 @@ import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
 import { glCat } from '../../globals/canvas';
+import { MaterialTag } from '../Material';
 
 export interface CameraOptions extends ComponentOptions {
   renderTarget?: RenderTarget;
   projectionMatrix: Matrix4;
+  materialTag: MaterialTag;
   scene?: Entity;
   clear?: Array<number | undefined> | false;
 }
 
 export abstract class Camera extends Component {
-  protected __projectionMatrix: Matrix4;
-
-  public get projectionMatrix(): Matrix4 {
-    return this.__projectionMatrix;
-  }
+  public projectionMatrix: Matrix4;
 
   public renderTarget?: RenderTarget;
 
   public scene?: Entity;
 
   public clear: Array<number | undefined> | false = [];
+
+  public materialTag: MaterialTag;
 
   public abstract get near(): number;
 
@@ -36,7 +36,8 @@ export abstract class Camera extends Component {
 
     this.renderTarget = options.renderTarget;
     this.scene = options.scene;
-    this.__projectionMatrix = options.projectionMatrix;
+    this.projectionMatrix = options.projectionMatrix;
+    this.materialTag = options.materialTag;
     if ( options.clear !== undefined ) { this.clear = options.clear; }
   }
 
@@ -63,10 +64,12 @@ export abstract class Camera extends Component {
       frameCount: event.frameCount,
       time: event.time,
       renderTarget: renderTarget,
+      cameraTransform: event.globalTransform,
       globalTransform: new Transform(),
       viewMatrix,
-      projectionMatrix: this.__projectionMatrix,
-      camera: this
+      projectionMatrix: this.projectionMatrix,
+      camera: this,
+      materialTag: this.materialTag,
     } );
 
     if ( process.env.DEV ) {

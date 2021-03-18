@@ -7,6 +7,7 @@ import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap, Xorshift } from '@fms-cat/experimental';
 import { Lambda } from '../heck/components/Lambda';
+import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 
 const WIDTH = 1024;
 const HEIGHT = 512;
@@ -20,7 +21,9 @@ export class EnvironmentMap {
     return this.swap.o.texture;
   }
 
-  public constructor() {
+  public constructor( { cubemap }: {
+    cubemap: CubemapRenderTarget;
+  } ) {
     this.entity = new Entity();
     this.entity.visible = false;
 
@@ -47,6 +50,7 @@ export class EnvironmentMap {
     );
     material.addUniform( 'uniformSeed', '4f', rng.gen(), rng.gen(), rng.gen(), rng.gen() );
     material.addUniformTexture( 'sampler0', this.swap.i.texture );
+    material.addUniformCubemap( 'samplerCubemap', cubemap.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

@@ -19,6 +19,7 @@ export class RandomTexture {
     this.__rng = new Xorshift();
     this.__array = new Uint8Array( width * height * 4 );
     this.__texture = glCat.createTexture()!;
+    this.__texture.textureFilter( gl.LINEAR );
     this.__texture.textureWrap( gl.REPEAT );
   }
 

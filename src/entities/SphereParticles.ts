@@ -2,8 +2,10 @@ import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import { genOctahedron } from '../geometries/genOctahedron';
+import depthFrag from '../shaders/depth.frag';
+import discardFrag from '../shaders/discard.frag';
 import quadVert from '../shaders/quad.vert';
 import sphereParticleComputeFrag from '../shaders/sphere-particles-compute.frag';
 import sphereParticleRenderFrag from '../shaders/sphere-particles-render.frag';
@@ -16,24 +18,16 @@ const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
 export class SphereParticles {
   public get entity(): Entity {
-    return this.__gpuParticles.entity;
+    return this.gpuParticles.entity;
   }
 
-  private __gpuParticles: GPUParticles;
-
-  public get materialCompute(): Material {
-    return this.__gpuParticles.materialCompute;
-  }
-
-  public get materialRender(): Material {
-    return this.__gpuParticles.materialRender;
-  }
+  public gpuParticles: GPUParticles;
 
   public constructor() {
-    this.__gpuParticles = new GPUParticles( {
+    this.gpuParticles = new GPUParticles( {
       materialCompute: this.__createMaterialCompute(),
       geometryRender: this.__createGeometryRender(),
-      materialRender: this.__createMaterialRender(),
+      materialsRender: this.__createMaterialsRender(),
       computeWidth: PARTICLES_SQRT,
       computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 2,
@@ -59,7 +53,7 @@ export class SphereParticles {
   }
 
   private __createGeometryRender(): Geometry {
-    const octahedron = genOctahedron( { radius: 1.0, div: 1 } );
+    const octahedron = genOctahedron( { radius: 1.0, div: 3 } );
 
     const geometry = new InstancedGeometry();
 
@@ -96,42 +90,32 @@ export class SphereParticles {
     return geometry;
   }
 
-  private __createMaterialRender(): Material {
-    const material = new Material(
+  private __createMaterialsRender(): MaterialMap<'deferred' | 'shadow'> {
+    const deferred = new Material(
       sphereParticleRenderVert,
       sphereParticleRenderFrag,
-      {
-        defines: {
-          'USE_CLIP': 'true',
-          'USE_VERTEX_COLOR': 'true'
-        },
-      },
+      { defines: { 'DEFERRED': 'true' } },
     );
-    material.addUniform( 'colorVar', '1f', 0.1 );
-    material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+
+    const shadow = new Material( sphereParticleRenderVert, depthFrag );
+    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
-        module.hot.accept( '../shaders/sphere-particles-render.vert', () => {
-          material.replaceShader(
-            sphereParticleRenderVert,
-            sphereParticleRenderFrag,
-          );
-        } );
+        module.hot.accept(
+          [
+            '../shaders/sphere-particles-render.vert',
+            '../shaders/sphere-particles-render.frag',
+          ],
+          () => {
+            deferred.replaceShader( sphereParticleRenderVert, sphereParticleRenderFrag );
+            shadow.replaceShader( sphereParticleRenderVert, depthFrag );
+          }
+        );
       }
     }
 
-    if ( process.env.DEV ) {
-      if ( module.hot ) {
-        module.hot.accept( '../shaders/sphere-particles-render.frag', () => {
-          material.replaceShader(
-            sphereParticleRenderVert,
-            sphereParticleRenderFrag,
-          );
-        } );
-      }
-    }
-
-    return material;
+    return { deferred, shadow };
   }
 }

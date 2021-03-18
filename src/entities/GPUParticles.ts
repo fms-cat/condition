@@ -2,7 +2,7 @@ import { BufferRenderTarget, BufferRenderTargetOptions } from '../heck/BufferRen
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap, MaterialTag } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
@@ -11,7 +11,7 @@ import { gl } from '../globals/canvas';
 export interface GPUParticlesOptions {
   materialCompute: Material;
   geometryRender: Geometry;
-  materialRender: Material;
+  materialsRender: Partial<MaterialMap<MaterialTag>>;
   computeWidth: number;
   computeHeight: number;
   computeNumBuffers: number;
@@ -39,8 +39,8 @@ export class GPUParticles {
     return this.__quadCompute.material;
   }
 
-  public get materialRender(): Material {
-    return this.__meshRender.material;
+  public get materialsRender(): Partial<MaterialMap<MaterialTag>> {
+    return this.__meshRender.materials;
   }
 
   public constructor( options: GPUParticlesOptions ) {
@@ -75,10 +75,13 @@ export class GPUParticles {
             `samplerCompute${ i }`,
             this.__swapCompute.i.getTexture( attachment )
           );
-          this.materialRender.addUniformTexture(
-            `samplerCompute${ i }`,
-            this.__swapCompute.o.getTexture( attachment )
-          );
+
+          for ( const material of Object.values( this.materialsRender ) ) {
+            material?.addUniformTexture(
+              `samplerCompute${ i }`,
+              this.__swapCompute.o.getTexture( attachment )
+            );
+          }
         }
 
         this.__quadCompute.target = this.__swapCompute.o;
@@ -98,15 +101,19 @@ export class GPUParticles {
     // -- render -----------------------------------------------------------------------------------
     this.__meshRender = new Mesh( {
       geometry: options.geometryRender,
-      material: options.materialRender,
+      materials: options.materialsRender,
       name: process.env.DEV && `${ options.namePrefix }/meshRender`,
     } );
-    options.materialRender.addUniform(
-      'resolutionCompute',
-      '2f',
-      options.computeWidth,
-      options.computeHeight
-    );
+
+    for ( const material of Object.values( options.materialsRender ) ) {
+      material?.addUniform(
+        'resolutionCompute',
+        '2f',
+        options.computeWidth,
+        options.computeHeight
+      );
+    }
+
     this.__entity.components.push( this.__meshRender );
   }
 }

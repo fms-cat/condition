@@ -82,9 +82,8 @@ vec2 filterSaw( vec2 time, float freq, float cutoff, float resonance ) {
 float kick( float t ) {
   if ( t < 0.0 ) { return 0.0; }
 
-  float phase = 50.0 * t - 12.0 * exp( -200.0 * t ) - 7.4 * exp( -40.0 * t );
-  float fm = 0.7 * exp( -40.0 * t ) * sin( 2.0 * TAU * phase );
-  return exp( -4.0 * t ) * sin( TAU * phase + fm );
+  float phase = 50.0 * t - 15.0 * exp( -200.0 * t ) - 9.4 * exp( -30.0 * t );
+  return exp( -4.0 * t ) * sin( TAU * phase );
 }
 
 vec2 longsnare( float t ) {
@@ -145,7 +144,7 @@ vec2 crash( float t ) {
   if ( t < 0.0 ) { return vec2( 0.0 ); }
 
   t = t + 0.01 * sin( 0.5 * exp( -40.0 * t ) + 3.0 );
-  t = lofi( t, 0.00004 );
+  t = lofi( 0.8 * t, 0.00004 );
   float fmamp = -3.4 * exp( -1.0 * t );
   vec2 fm = fmamp * sin( vec2( 38855.0, 38865.0 ) * t );
   float amp = exp( -3.0 * t );
@@ -234,7 +233,7 @@ vec2 mainAudio( vec4 time ) {
     : time.x;
   float sidechain = smoothstep( 0.0, 0.7 * BEAT, tKick );
   {
-    dest += 0.2 * kick( tKick );
+    dest += 0.25 * kick( tKick );
   }
 
   // -- snare --------------------------------------------------------------------------------------
@@ -262,7 +261,7 @@ vec2 mainAudio( vec4 time ) {
   }
 
   if (
-    inRange( time.w, SECTION_PSY + 32.0 * BEAT, 1E9 )
+    inRange( time.w, SECTION_PSY + 31.5 * BEAT, 1E9 )
   ) {
     float t = mod( time.x - 0.5 * BEAT, BEAT );
     dest += 0.1 * mix( 0.3, 1.0, sidechain ) * hihat( t, 20.0 );
@@ -299,7 +298,7 @@ vec2 mainAudio( vec4 time ) {
 
   // -- amen ---------------------------------------------------------------------------------------
   if (
-    inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_AAAA - 8.0 * BEAT ) &&
+    inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_AAAA - 8.0 * BEAT ) ||
     inRange( time.w, SECTION_AAAA, SECTION_PSY )
   ) {
     float chunk = floor( 6.0 * fs( lofi( time.z, 0.5 * BEAT ) ) );
@@ -336,6 +335,7 @@ vec2 mainAudio( vec4 time ) {
   // -- superbass ----------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_AAAA ) ) {
     float t = mod( time.z, 8.0 * BEAT );
+    t += 1.0 * inRangeInteg( time.z, 28.0 * BEAT, 31.5 * BEAT, 50.0 );
     float freq = n2f( float( chordsB[ progB ] ) ) * 0.125;
     float fadetime = max( 0.0, time.w - SECTION_AAAA + 8.0 * BEAT );
     dest += 0.1 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
@@ -401,7 +401,7 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.3 * mix( 0.2, 1.0, sidechain ) * choir( t * rate * 0.5 );
     }
 
-    dest += 0.1 * aSaturate( sum );
+    dest += 0.12 * aSaturate( sum );
   }
 
   // -- harp ---------------------------------------------------------------------------------------
@@ -469,7 +469,7 @@ vec2 mainAudio( vec4 time ) {
 
     dest += 0.2 * kick( t ) * exp( -decay * t );
     dest += 0.1 * inRangeFloat( time.w, SECTION_PSY - 32.0 * BEAT, 1E9 ) * clap( t );
-    dest += 0.1 * ph * inRangeFloat( time.w, SECTION_PSY - 16.0 * BEAT, 1E9 ) * snare909( t );
+    dest += 0.05 * ph * inRangeFloat( time.w, SECTION_PSY - 16.0 * BEAT, 1E9 ) * snare909( t );
   }
 
   // -- fill, before psy ---------------------------------------------------------------------------

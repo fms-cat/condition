@@ -29,13 +29,26 @@ in vec3 vNormal;
 in vec4 vPosition;
 in vec4 vDice;
 
-layout (location = 0) out vec4 fragPosition;
-layout (location = 1) out vec4 fragNormal;
-layout (location = 2) out vec4 fragColor;
-layout (location = 3) out vec4 fragWTF;
-
 uniform float time;
 uniform sampler2D samplerRandomStatic;
+
+#ifdef FORWARD
+  out vec4 fragColor;
+#endif
+
+#ifdef DEFERRED
+  layout (location = 0) out vec4 fragPosition;
+  layout (location = 1) out vec4 fragNormal;
+  layout (location = 2) out vec4 fragColor;
+  layout (location = 3) out vec4 fragWTF;
+#endif
+
+#ifdef SHADOW
+  out vec4 fragColor;
+
+  uniform vec2 cameraNearFar;
+  uniform vec3 cameraPos;
+#endif
 
 // == utils ========================================================================================
 mat2 rotate2D( float t ) {
@@ -163,8 +176,23 @@ void main() {
 
   }
 
-  fragPosition = vPosition;
-  fragNormal = vec4( vNormal, 1.0 );
-  fragColor = vec4( color, 1.0 );
-  fragWTF = vec4( vec3( 0.0 ), MTL_UNLIT );
+  #ifdef FORWARD
+    fragColor = vec4( 1.0 );
+  #endif
+
+  #ifdef DEFERRED
+    fragPosition = vPosition;
+    fragNormal = vec4( vNormal, 1.0 );
+    fragColor = vec4( color, 1.0 );
+    fragWTF = vec4( vec3( 0.0 ), MTL_UNLIT );
+  #endif
+
+  #ifdef SHADOW
+    float depth = linearstep(
+      cameraNearFar.x,
+      cameraNearFar.y,
+      length( cameraPos - vPosition.xyz )
+    );
+    fragColor = vec4( depth, depth * depth, depth, 1.0 );
+  #endif
 }

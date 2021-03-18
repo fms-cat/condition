@@ -13,14 +13,21 @@ const int MTL_IRIDESCENT = 4;
 
 in vec2 vUv;
 
-layout (location = 0) out vec4 fragPosition;
-layout (location = 1) out vec4 fragNormal;
-layout (location = 2) out vec4 fragColor;
-layout (location = 3) out vec4 fragWTF;
+#ifdef DEFERRED
+  layout (location = 0) out vec4 fragPosition;
+  layout (location = 1) out vec4 fragNormal;
+  layout (location = 2) out vec4 fragColor;
+  layout (location = 3) out vec4 fragWTF;
+#endif
+
+#ifdef SHADOW
+  out vec4 fragColor;
+#endif
 
 uniform float time;
 uniform vec2 resolution;
 uniform vec2 cameraNearFar;
+uniform vec3 cameraPos;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 inversePV;
@@ -76,8 +83,19 @@ void main() {
   float depth = projPos.z / projPos.w;
   gl_FragDepth = 0.5 + 0.5 * depth;
 
-  fragPosition = vec4( rayPos, depth );
-  fragNormal = vec4( normal, 1.0 );
-  fragColor = color;
-  fragWTF = vec4( vec3( 0.8, 0.8, 0.0 ), MTL_PBR );
+  #ifdef DEFERRED
+    fragPosition = vec4( rayPos, depth );
+    fragNormal = vec4( normal, 1.0 );
+    fragColor = color;
+    fragWTF = vec4( vec3( 0.2, 0.2, 0.0 ), MTL_PBR );
+  #endif
+
+  #ifdef SHADOW
+    float shadowDepth = linearstep(
+      cameraNearFar.x,
+      cameraNearFar.y,
+      length( cameraPos - rayPos )
+    );
+    fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
+  #endif
 }

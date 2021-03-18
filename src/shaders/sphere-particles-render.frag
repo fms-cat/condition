@@ -19,10 +19,12 @@ in vec3 vNormal;
 in vec4 vColor;
 in vec4 vRandom;
 
-layout (location = 0) out vec4 fragPosition;
-layout (location = 1) out vec4 fragNormal;
-layout (location = 2) out vec4 fragColor;
-layout (location = 3) out vec4 fragWTF;
+#ifdef DEFERRED
+  layout (location = 0) out vec4 fragPosition;
+  layout (location = 1) out vec4 fragNormal;
+  layout (location = 2) out vec4 fragColor;
+  layout (location = 3) out vec4 fragWTF;
+#endif
 
 uniform float time;
 
@@ -35,8 +37,10 @@ mat2 rotate2D( float _t ) {
 void main() {
   if ( vColor.a < 0.0 ) { discard; }
 
-  fragPosition = vPosition;
-  fragNormal = vec4( vNormal, 1.0 );
-  fragColor = vec4( vColor.xyz, 1.0 );
-  fragWTF = vec4( vec3( 0.4, 0.4, 0.0 ), MTL_PBR );
+  #ifdef DEFERRED
+    fragPosition = vPosition;
+    fragNormal = vec4( vNormal, 1.0 );
+    fragColor = vec4( vColor.xyz, 1.0 );
+    fragWTF = vec4( vec3( 0.1, 0.2, 0.0 ), MTL_PBR );
+  #endif
 }

@@ -22,6 +22,7 @@ uniform float head;
 uniform vec2 resolution;
 uniform vec4 uniformSeed;
 uniform sampler2D sampler0;
+uniform samplerCube samplerCubemap;
 
 vec4 seed;
 
@@ -66,14 +67,7 @@ vec3 ImportanceSampleGGX( vec2 Xi, float roughness, vec3 N ) {
 }
 
 vec3 haha( vec3 L ) {
-  bool circ = dot( L, normalize( vec3( 1.0, 3.0, 3.0 ) ) ) > 0.9;
-  vec3 c = circ ? 0.01 * vec3( 0.1, 0.1, 1.0 ) : vec3( 0.0 );
-
-  bool ring = abs( dot( L, vec3( -0.3, 1.0, 0.3 ) ) ) < 0.1;
-  c += ring ? 10.0 * vec3( 0.1, 1.0, 0.3 ) : vec3( 0.0 );
-
-  return c;
-  // return 0.5 + 0.5 * L;
+  return texture( samplerCubemap, L ).xyz;
 }
 
 void main() {
@@ -92,11 +86,11 @@ void main() {
 
   float a = TAU * uv.x;
   float b = PI * ( uv.y - 0.5 );
-  vec3 N = vec3( sin( a ) * cos( b ), -sin( b ), -cos( a ) * cos( b ) );
+  vec3 N = vec3( -sin( a ) * cos( b ), sin( b ), -cos( a ) * cos( b ) );
   vec3 R = N;
   vec3 V = R;
 
-  seed = uniformSeed + N.xyzx;
+  seed = uniformSeed + 500.0 * N.xyzx;
 
   vec4 col = vec4( 0.0 );
   for ( int i = 0; i < SAMPLES; i ++ ) {
@@ -113,7 +107,7 @@ void main() {
 
   col.xyz = col.w <= 0.001 ? vec3( 0.0 ) : ( col.xyz / col.w );
 
-  tex.xyz = mix( tex.xyz, col.xyz, 1.0 / 16.0 );
+  tex.xyz = mix( tex.xyz, col.xyz, 1.0 / 4.0 );
 
   fragColor = vec4( tex, 1.0 );
 }

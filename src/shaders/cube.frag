@@ -9,10 +9,12 @@ in vec3 vNormal;
 in vec4 vPosition;
 in vec4 vPositionWithoutModel;
 
-layout (location = 0) out vec4 fragPosition;
-layout (location = 1) out vec4 fragNormal;
-layout (location = 2) out vec4 fragColor;
-layout (location = 3) out vec4 fragWTF;
+#ifdef DEFERRED
+  layout (location = 0) out vec4 fragPosition;
+  layout (location = 1) out vec4 fragNormal;
+  layout (location = 2) out vec4 fragColor;
+  layout (location = 3) out vec4 fragWTF;
+#endif
 
 #pragma glslify: noise = require( ./-simplex4d );
 
@@ -29,8 +31,10 @@ float fbm( vec4 p ) {
 void main() {
   float rough = sin( 14.0 * fbm( vPositionWithoutModel ) );
 
-  fragPosition = vPosition;
-  fragNormal = vec4( normalize( vNormal ), 1.0 );
-  fragColor = vec4( vec3( 0.5 ), 1.0 );
-  fragWTF = vec4( vec3( 0.2 + 0.03 * rough, 0.17, 0.0 ), MTL_PBR );
+  #ifdef DEFERRED
+    fragPosition = vPosition;
+    fragNormal = vec4( normalize( vNormal ), 1.0 );
+    fragColor = vec4( vec3( 0.02, 0.04, 0.9 ), 1.0 );
+    fragWTF = vec4( vec3( 0.02 + 0.03 * rough, 0.87, 0.0 ), MTL_PBR );
+  #endif
 }
