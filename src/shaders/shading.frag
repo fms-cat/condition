@@ -8,7 +8,7 @@ const int MTL_PBR = 2;
 const int MTL_GRADIENT = 3;
 const int MTL_IRIDESCENT = 4;
 const int AO_ITER = 8;
-const float ENV_UV_MARGIN = 0.9;
+const float ENV_UV_MARGIN = 0.9375;
 const float AO_BIAS = 0.0;
 const float AO_RADIUS = 0.5;
 const float PI = 3.14159265359;
@@ -16,9 +16,12 @@ const float TAU = 6.28318530718;
 const float EPSILON = 1E-3;
 const vec3 BLACK = vec3( 0.0 );
 const vec3 DIELECTRIC_SPECULAR = vec3( 0.04 );
+const vec3 ONE_SUB_DIELECTRIC_SPECULAR = 1.0 - DIELECTRIC_SPECULAR;
 
 #define saturate(x) clamp(x,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
+
+vec4 seed;
 
 in vec2 vUv;
 
@@ -44,6 +47,9 @@ uniform sampler2D samplerRandom;
 
 // == commons ======================================================================================
 #pragma glslify: prng = require( ./-prng );
+#pragma glslify: brdfLambert = require( ./modules/brdfLambert.glsl );
+#pragma glslify: brdfSpecularGGX = require( ./modules/brdfSpecularGGX.glsl );
+#pragma glslify: importanceSampleGGX = require( ./modules/importanceSampleGGX.glsl );
 
 vec3 catColor( float _p ) {
   return 0.5 + 0.5 * vec3(
@@ -51,19 +57,6 @@ vec3 catColor( float _p ) {
     cos( _p + PI / 3.0 * 4.0 ),
     cos( _p + PI / 3.0 * 2.0 )
   );
-}
-
-vec3 randomSphere( inout vec4 seed ) {
-  vec3 v;
-  for ( int i = 0; i < 10; i ++ ) {
-    v = vec3(
-      prng( seed ),
-      prng( seed ),
-      prng( seed )
-    ) * 2.0 - 1.0;
-    if ( length( v ) < 1.0 ) { break; }
-  }
-  return v;
 }
 
 vec3 blurpleGradient( float t ) {
@@ -105,7 +98,7 @@ vec4 sampleEnvLinear( vec2 uv, float lv ) {
 // == structs ======================================================================================
 struct Isect {
   vec2 screenUv;
-  vec3 albedo;
+  vec3 color;
   vec3 position;
   float depth;
   vec3 normal;
@@ -185,38 +178,41 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   float lenL = length( isect.position - lightPos );
   float decay = 1.0 / ( lenL * lenL );
 
-  vec3 F0 = mix( DIELECTRIC_SPECULAR, isect.albedo, metallic );
-  vec3 F = F0 + ( 1.0 - F0 ) * pow( 1.0 - aI.dotVH, 5.0 );
+  vec3 albedo = mix( isect.color * ONE_SUB_DIELECTRIC_SPECULAR, vec3( 0.0 ), metallic );
+  vec3 f0 = mix( DIELECTRIC_SPECULAR, isect.color, metallic );
 
-  float roughnessSq = roughness * roughness;
-  float GGXV = aI.dotNL * sqrt( aI.dotNV * aI.dotNV * ( 1.0 - roughnessSq ) + roughnessSq );
-  float GGXL = aI.dotNV * sqrt( aI.dotNL * aI.dotNL * ( 1.0 - roughnessSq ) + roughnessSq );
-  float GGX = GGXV + GGXL;
-  float Vis = ( 0.0 < GGX ) ? ( 0.5 / GGX ) : 0.0;
+  vec3 diffuse = brdfLambert( f0, albedo, aI.dotVH );
+  vec3 spec = brdfSpecularGGX( f0, roughness, aI.dotVH, aI.dotNL, aI.dotNV, aI.dotNH );
 
-  float f = ( aI.dotNH * roughnessSq - aI.dotNH ) * aI.dotNH + 1.0;
-  float D = roughnessSq / ( PI * f * f );
-
-  vec3 diffuse = max( vec3( 0.0 ), ( 1.0 - F ) * ( isect.albedo / PI ) );
-  vec3 spec = max( vec3( 0.0 ), F * Vis * D );
   vec3 shade = PI * lightColor * decay * shadow * aI.dotNL * ( diffuse + spec );
 
   vec3 color = shade;
 
 #ifdef IS_FIRST_LIGHT
-  vec3 refl = reflect( aI.V, isect.normal );
-  vec2 envUv = vec2(
-    0.5 + atan( refl.x, -refl.z ) / TAU,
-    0.5 + atan( refl.y, length( refl.zx ) ) / PI
+
+  // cheat the texture seam using noise!
+  vec3 nEnvDiffuse = importanceSampleGGX( vec2( prng( seed ), prng( seed ) * 0.05 ), 2.0, isect.normal );
+
+  // diffuse ibl
+  vec2 uvEnvDiffuse = vec2(
+    0.5 + atan( nEnvDiffuse.x, -nEnvDiffuse.z ) / TAU,
+    0.5 + atan( nEnvDiffuse.y, length( nEnvDiffuse.zx ) ) / PI
   );
+  vec3 texEnvDiffuse = sampleEnvNearest( uvEnvDiffuse, 4.0 ).rgb;
+  color += ao * texEnvDiffuse * albedo;
 
   // reflective ibl
-  vec2 brdf = texture( samplerIBLLUT, vec2( aI.dotNV, roughness ) ).xy;
-  vec3 texEnv = 0.2 * sampleEnvLinear( envUv, 5.0 * roughness ).rgb;
-  color += PI * ao * texEnv * ( brdf.x * F0 + brdf.y );
+  vec3 reflEnvReflective = reflect( aI.V, isect.normal );
+  vec2 uvEnvReflective = vec2(
+    0.5 + atan( reflEnvReflective.x, -reflEnvReflective.z ) / TAU,
+    0.5 + atan( reflEnvReflective.y, length( reflEnvReflective.zx ) ) / PI
+  );
+  vec2 brdfEnvReflective = texture( samplerIBLLUT, vec2( aI.dotNV, roughness ) ).xy;
+  vec3 texEnvReflective = sampleEnvLinear( uvEnvReflective, 3.0 * roughness ).rgb;
+  color += ao * texEnvReflective * ( brdfEnvReflective.x * f0 + brdfEnvReflective.y );
 
   // emissive
-  color += emissive * aI.dotNV * isect.albedo;
+  color += emissive * aI.dotNV * isect.color;
 #endif // IS_FIRST_LIGHT
 
   return color;
@@ -243,12 +239,15 @@ void main() {
   vec4 tex2 = texture( sampler2, vUv );
   vec4 tex3 = texture( sampler3, vUv );
 
+  seed = texture( samplerRandom, vUv ) * 1919.810;
+  prng( seed );
+
   Isect isect;
   isect.screenUv = vUv;
   isect.position = tex0.xyz;
   isect.depth = tex0.w;
   isect.normal = tex1.xyz;
-  isect.albedo = tex2.rgb;
+  isect.color = tex2.rgb;
   isect.materialId = int( tex3.w + 0.5 );
   isect.materialParams = tex3.xyz;
 
@@ -259,7 +258,7 @@ void main() {
 
   } else if ( isect.materialId == MTL_UNLIT ) {
 #ifdef IS_FIRST_LIGHT
-    color = isect.albedo;
+    color = isect.color;
 #endif
 
   } else if ( isect.materialId == MTL_PBR ) {
@@ -271,7 +270,7 @@ void main() {
 
   } else if ( isect.materialId == MTL_IRIDESCENT ) {
     AngularInfo aI = genAngularInfo( isect );
-    isect.albedo *= mix(
+    isect.color *= mix(
       vec3( 1.0 ),
       catColor( isect.materialParams.x * aI.dotNV ),
       isect.materialParams.y

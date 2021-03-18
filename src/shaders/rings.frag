@@ -23,7 +23,7 @@ uniform float time;
 
 void main() {
   #ifdef FORWARD
-    fragColor = vec4( 28.0 * vec3( 0.2, 0.9, 0.5 ), 1.0 );
+    fragColor = vec4( 6.0 * vec3( 0.2, 0.9, 0.5 ), 1.0 );
   #endif
 
   #ifdef DEFERRED

@@ -71,12 +71,12 @@ const ibllut = new IBLLUT();
 dog.root.children.push( ibllut.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-// const replacerSphereParticles = new EntityReplacer( () => new SphereParticles() );
-// if ( process.env.DEV && module.hot ) {
-//   module.hot.accept( './entities/SphereParticles', () => {
-//     replacerSphereParticles.replace();
-//   } );
-// }
+const replacerSphereParticles = new EntityReplacer( () => new SphereParticles() );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SphereParticles', () => {
+    replacerSphereParticles.replace();
+  } );
+}
 
 // const replacerTrails = new EntityReplacer( () => new Trails() );
 // if ( process.env.DEV && module.hot ) {
@@ -137,7 +137,7 @@ const light = new LightEntity( {
   shadowMapFar: 20.0,
   namePrefix: process.env.DEV && 'light1',
 } );
-light.color = [ 0.1, 0.1, 0.1 ];
+light.color = [ 40.0, 40.0, 40.0 ];
 light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
 dog.root.children.push( light.entity );
 

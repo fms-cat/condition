@@ -41,6 +41,6 @@ void main() {
     fragPosition = vPosition;
     fragNormal = vec4( vNormal, 1.0 );
     fragColor = vec4( vColor.xyz, 1.0 );
-    fragWTF = vec4( vec3( 0.1, 0.2, 0.0 ), MTL_PBR );
+    fragWTF = vec4( vec3( 0.9, 0.1, 0.0 ), MTL_PBR );
   #endif
 }

@@ -87,7 +87,7 @@ void main() {
     fragPosition = vec4( rayPos, depth );
     fragNormal = vec4( normal, 1.0 );
     fragColor = color;
-    fragWTF = vec4( vec3( 0.2, 0.2, 0.0 ), MTL_PBR );
+    fragWTF = vec4( vec3( 0.2, 0.9, 0.0 ), MTL_PBR );
   #endif
 
   #ifdef SHADOW

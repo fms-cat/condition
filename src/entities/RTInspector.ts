@@ -26,6 +26,7 @@ export class RTInspector {
     this.blitSingle = new Blit( {
       dst: options.target,
       name: process.env.DEV && 'RTInspector/blitSingle',
+      ignoreBreakpoints: true,
     } );
     this.entitySingle.components.push( this.blitSingle );
 
@@ -64,6 +65,7 @@ export class RTInspector {
           attachment: gl.COLOR_ATTACHMENT0 + iAttachment,
           dstRect,
           name: `RTInspector/blitsMultiple/${ src.name }/${ iAttachment }`,
+          ignoreBreakpoints: true,
         } );
 
         this.blitsMultiple.push( blit );

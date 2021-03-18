@@ -53,7 +53,7 @@ export class SphereParticles {
   }
 
   private __createGeometryRender(): Geometry {
-    const octahedron = genOctahedron( { radius: 1.0, div: 3 } );
+    const octahedron = genOctahedron( { radius: 1.0, div: 1 } );
 
     const geometry = new InstancedGeometry();
 
