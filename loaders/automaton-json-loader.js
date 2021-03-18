@@ -10,7 +10,7 @@ module.exports = function( content ) {
   let data = JSON.parse( content );
 
   if ( options.minimize ) {
-    data = AutomatonWithGUI.minimizeData( data, { ...options } );
+    data = AutomatonWithGUI.minimizeData( data, { ...options.minimize } );
   }
 
   return `module.exports = ${ JSON.stringify( data ) }`;
