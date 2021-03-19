@@ -7,7 +7,7 @@ precision highp float;
 
 #pragma glslify: prng = require( ./-prng );
 
-const int SAMPLES = 16;
+const int SAMPLES = 4;
 const float UV_MARGIN = 0.9375;
 const float PI = 3.14159265;
 const float TAU = 6.283185307;
