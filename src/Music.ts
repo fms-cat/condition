@@ -5,6 +5,9 @@ import musicVert from './shaders/music.vert';
 import { gl, glCat } from './globals/canvas';
 import samplesOpus from './samples.opus';
 import { randomTextureStatic } from './globals/randomTexture';
+import { automaton } from './globals/automaton';
+import { automatonMusicParamMap } from './automatonMusicParamMap';
+import type { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
 
@@ -13,7 +16,6 @@ export class Music {
   public time: number;
   public deltaTime: number;
   public audio: AudioContext;
-  public samples?: GLCatTexture;
 
   private __program: GLCatProgram;
   private __bufferOff: GLCatBuffer;
@@ -25,6 +27,8 @@ export class Music {
   private __prevAudioTime: number;
   private __bufferPool: Pool<AudioBuffer>;
   private __prevBufferSource: AudioBufferSourceNode | null = null;
+  private __samples?: GLCatTexture;
+  private __textureAutomaton: GLCatTexture;
 
   constructor( glCat: GLCat, audio: AudioContext ) {
     this.audio = audio;
@@ -54,6 +58,9 @@ export class Music {
 
     this.__transformFeedback.bindBuffer( 0, this.__bufferTransformFeedbacks[ 0 ] );
     this.__transformFeedback.bindBuffer( 1, this.__bufferTransformFeedbacks[ 1 ] );
+
+    this.__textureAutomaton = glCat.createTexture();
+    this.__textureAutomaton.textureFilter( gl.NEAREST );
 
     // == program ==================================================================================
     this.__program = glCat.lazyProgram(
@@ -116,6 +123,7 @@ export class Music {
       const buffer = this.__bufferPool.next();
 
       if ( this.__program ) {
+        this.__updateAutomatonTexture();
         this.__prepareBuffer( buffer );
       }
 
@@ -160,7 +168,35 @@ export class Music {
     );
     texture.textureFilter( gl.LINEAR );
 
-    this.samples = texture;
+    this.__samples = texture;
+  }
+
+  private __updateAutomatonTexture(): void {
+    const buffer = new Float32Array( MUSIC_BUFFER_LENGTH * 256 );
+
+    for ( const [ iChannel, channelName ] of automatonMusicParamMap.entries() ) {
+      let channel = automaton.mapNameToChannel.get( channelName )!;
+
+      if ( process.env.DEV && !channel ) {
+        channel = ( automaton as AutomatonWithGUI ).createChannel( channelName );
+      }
+
+      for ( let iSample = 0; iSample < MUSIC_BUFFER_LENGTH; iSample ++ ) {
+        const t = this.time + iSample / this.audio.sampleRate;
+        buffer[ MUSIC_BUFFER_LENGTH * iChannel + iSample ] = channel.getValue( t );
+      }
+    }
+
+    this.__textureAutomaton.setTextureFromArray(
+      MUSIC_BUFFER_LENGTH,
+      256,
+      buffer,
+      {
+        internalformat: gl.R32F,
+        format: gl.RED,
+        type: gl.FLOAT,
+      }
+    );
   }
 
   private __prepareBuffer( buffer: AudioBuffer ): void {
@@ -173,6 +209,7 @@ export class Music {
 
     program.attribute( 'off', this.__bufferOff, 1 );
     program.uniform1f( 'bpm', MUSIC_BPM );
+    program.uniform1f( 'bufferLength', MUSIC_BUFFER_LENGTH );
     program.uniform1f( '_deltaSample', 1.0 / this.audio.sampleRate );
     program.uniform4f(
       'timeLength',
@@ -190,9 +227,10 @@ export class Music {
     );
 
     program.uniformTexture( 'samplerRandom', randomTextureStatic.texture );
+    program.uniformTexture( 'samplerAutomaton', this.__textureAutomaton );
 
-    if ( this.samples ) {
-      program.uniformTexture( 'samplerSamples', this.samples );
+    if ( this.__samples ) {
+      program.uniformTexture( 'samplerSamples', this.__samples );
     }
 
     glCat.useProgram( program, () => {
