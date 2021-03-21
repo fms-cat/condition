@@ -1,14 +1,14 @@
 import { GLCat, GLCatBuffer, GLCatProgram, GLCatTexture, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
-import { MUSIC_BPM, MUSIC_BUFFER_LENGTH } from './config';
+import { MUSIC_AUTOMATON_TEXTURE_HEIGHT, MUSIC_BPM, MUSIC_BUFFER_LENGTH } from './config';
 import { Pool } from './utils/Pool';
 import musicVert from './shaders/music.vert';
 import { gl, glCat } from './globals/canvas';
 import samplesOpus from './samples.opus';
 import { randomTextureStatic } from './globals/randomTexture';
-import { auto, automaton } from './globals/automaton';
+import { automaton } from './globals/automaton';
 import { Channel } from '@fms-cat/automaton';
 import { injectCodeToShader } from './utils/injectCodeToShader';
-import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
+import type { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
 
@@ -31,6 +31,7 @@ export class Music {
   private __samples?: GLCatTexture;
   private __automatonChannelList: Channel[];
   private __automatonDefineString: string;
+  private __arrayAutomaton: Float32Array;
   private __textureAutomaton: GLCatTexture;
 
   constructor( glCat: GLCat, audio: AudioContext ) {
@@ -51,12 +52,12 @@ export class Music {
 
     this.__bufferTransformFeedbacks[ 0 ].setVertexbuffer(
       MUSIC_BUFFER_LENGTH * 4,
-      gl.DYNAMIC_COPY
+      gl.STREAM_READ
     );
 
     this.__bufferTransformFeedbacks[ 1 ].setVertexbuffer(
       MUSIC_BUFFER_LENGTH * 4,
-      gl.DYNAMIC_COPY
+      gl.STREAM_READ
     );
 
     this.__transformFeedback.bindBuffer( 0, this.__bufferTransformFeedbacks[ 0 ] );
@@ -67,6 +68,10 @@ export class Music {
     this.__automatonDefineString = '';
 
     this.__updateAutomatonChannelList();
+
+    this.__arrayAutomaton = new Float32Array(
+      MUSIC_BUFFER_LENGTH * MUSIC_AUTOMATON_TEXTURE_HEIGHT
+    );
 
     this.__textureAutomaton = glCat.createTexture();
     this.__textureAutomaton.textureFilter( gl.NEAREST );
@@ -210,26 +215,25 @@ export class Music {
       if ( channelName.startsWith( 'Music/' ) ) {
         const key = channelName.substring( 6 );
         const index = this.__automatonChannelList.length;
-        this.__automatonDefineString += `const int AUTO_${key}=${index};`;
+        const y = ( index + 0.5 ) / MUSIC_AUTOMATON_TEXTURE_HEIGHT;
+        this.__automatonDefineString += `const float AUTO_${key}=${y};`;
         this.__automatonChannelList.push( channel );
       }
     }
   }
 
   private __updateAutomatonTexture(): void {
-    const buffer = new Float32Array( MUSIC_BUFFER_LENGTH * 256 );
-
     for ( const [ iChannel, channel ] of this.__automatonChannelList.entries() ) {
       for ( let iSample = 0; iSample < MUSIC_BUFFER_LENGTH; iSample ++ ) {
         const t = this.time + iSample / this.audio.sampleRate;
-        buffer[ MUSIC_BUFFER_LENGTH * iChannel + iSample ] = channel.getValue( t );
+        this.__arrayAutomaton[ MUSIC_BUFFER_LENGTH * iChannel + iSample ] = channel.getValue( t );
       }
     }
 
     this.__textureAutomaton.setTextureFromArray(
       MUSIC_BUFFER_LENGTH,
-      256,
-      buffer,
+      MUSIC_AUTOMATON_TEXTURE_HEIGHT,
+      this.__arrayAutomaton,
       {
         internalformat: gl.R32F,
         format: gl.RED,

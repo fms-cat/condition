@@ -40,8 +40,8 @@ in float off;
 out float outL;
 out float outR;
 
-float auto( int index ) {
-  return texture( samplerAutomaton, vec2( off / bufferLength, ( float( index ) + 0.5 ) / 256.0 ) ).x;
+float auto( float y ) {
+  return texture( samplerAutomaton, vec2( off / bufferLength, y ) ).x;
 }
 
 float fs( float s ) {
@@ -372,7 +372,6 @@ vec2 mainAudio( vec4 time ) {
   // -- snare --------------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_NEURO, SECTION_PORTER_FUCKING_ROBINSON ) ) {
     float t = mod( time.y - 2.0 * BEAT, 4.0 * BEAT );
-    // float t = mod( time.z - 2.0 * BEAT, 4.0 * BEAT );
     dest += 0.12 * snare( t );
   }
 
@@ -391,7 +390,7 @@ vec2 mainAudio( vec4 time ) {
 
       float tt = t + det * fi * sin( fi * detPhase + 1.0 * t );
 
-      float radius = 0.2 + 0.1 * wubIntensity * fbm( 0.1 * vec2( tri( n2f( -36.0 ) * wubFreq * tt ) ) ).x;
+      float radius = 0.1 * wubIntensity * fbm( 0.1 * vec2( sin( TAU * n2f( -36.0 ) * wubFreq * tt ) ) ).x;
 
       float phase = 0.2 * tri( n2f( -36.0 ) * tt );
       vec2 uv = radius * vec2( sin( phase ), cos( phase ) ) + 0.4;
