@@ -61,8 +61,6 @@ float fDistFunc( vec3 p ) {
 
   if ( length( p ) > 2.0 ) { return length( p ) - 1.8; }
 
-  p += 0.5 * deformAmp / deformFreq * noise( vec4( deformFreq * p.xyz, 4.0 * deformFreq * deformTime ) );
-
   {
     vec3 pt = p;
 
@@ -74,6 +72,7 @@ float fDistFunc( vec3 p ) {
   }
 
   float dist = distFunc( p, time );
+  dist += 0.5 * deformAmp / deformFreq * noise( vec4( deformFreq * p.xyz, 4.0 * deformFreq * deformTime ) );
 
   return max( distSlasher, dist );
 }
