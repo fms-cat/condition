@@ -372,7 +372,7 @@ vec2 mainAudio( vec4 time ) {
   // -- snare --------------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_NEURO, SECTION_PORTER_FUCKING_ROBINSON ) ) {
     float t = mod( time.y - 2.0 * BEAT, 4.0 * BEAT );
-    dest += 0.12 * snare( t );
+    dest += 0.1 * snare( t );
   }
 
   // -- neuro bass ---------------------------------------------------------------------------------
@@ -398,7 +398,7 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.3 * ( 2.0 * fbm( uv ) - 1.0 );
     }
 
-    dest += mix( 0.0, 1.0, sidechain ) * 0.2 * aSaturate( sum );
+    dest += mix( 0.0, 1.0, sidechain ) * 0.27 * aSaturate( sum );
     dest += mix( 0.0, 1.0, sidechain ) * 0.2 * sin( n2f( -36.0 ) * TAU * t );
   }
 
@@ -519,7 +519,7 @@ vec2 mainAudio( vec4 time ) {
     t += 1.0 * inRangeInteg( time.z, 28.0 * BEAT, 31.75 * BEAT, 50.0 );
     float freq = n2f( chordsB[ progB ] ) * 0.125;
     float fadetime = max( 0.0, time.w - SECTION_AAAA + 8.0 * BEAT );
-    dest += 0.1 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
+    dest += 0.08 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
   }
 
   // -- choir --------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.3 * mix( 0.2, 1.0, sidechain ) * choir( t * rate * 0.5 );
     }
 
-    dest += 0.12 * aSaturate( sum );
+    dest += 0.1 * aSaturate( sum );
   }
 
   // -- harp ---------------------------------------------------------------------------------------
@@ -562,7 +562,7 @@ vec2 mainAudio( vec4 time ) {
       float rev = 0.3;
 
       float rate = n2r( float( notes[ prog ] ) );
-      dest += 0.1 * exp( -0.5 * fi ) * mix( 0.2, 1.0, sidechain ) * harp( t * rate * 0.5 );
+      dest += 0.08 * exp( -0.5 * fi ) * mix( 0.2, 1.0, sidechain ) * harp( t * rate * 0.5 );
     }
   }
 
@@ -595,7 +595,7 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.1 * mix( 0.2, 1.0, sidechain ) * phase;
     }
 
-    dest += 0.15 * aSaturate( sum );
+    dest += 0.12 * aSaturate( sum );
   }
 
   // -- deepkick -----------------------------------------------------------------------------------

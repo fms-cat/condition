@@ -8,6 +8,7 @@ import quadVert from '../shaders/quad.vert';
 import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import { auto } from '../globals/automaton';
 
 export class Raymarcher {
   public materials: MaterialMap<'deferred' | 'shadow'>;
@@ -45,10 +46,14 @@ export class Raymarcher {
             'Matrix4fv',
             event.projectionMatrix.multiply( event.viewMatrix ).inverse!.elements
           );
+
+          material.addUniform( 'deformAmp', '1f', auto( 'Music/NEURO_WUB_AMP' ) );
+          material.addUniform( 'deformFreq', '1f', auto( 'Music/NEURO_WUB_FREQ' ) );
+          material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         }
       },
       active: false,
-      name: process.env.DEV && 'Raymarcher/setCameraUniforms',
+      name: process.env.DEV && 'Raymarcher/updater',
     } ) );
 
     this.mesh = new Mesh( {

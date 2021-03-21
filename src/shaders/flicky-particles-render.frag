@@ -177,7 +177,7 @@ void main() {
   }
 
   #ifdef FORWARD
-    fragColor = vec4( 1.0 );
+    fragColor = vec4( 0.2 );
   #endif
 
   #ifdef DEFERRED
