@@ -5,9 +5,10 @@ import musicVert from './shaders/music.vert';
 import { gl, glCat } from './globals/canvas';
 import samplesOpus from './samples.opus';
 import { randomTextureStatic } from './globals/randomTexture';
-import { automaton } from './globals/automaton';
-import { automatonMusicParamMap } from './automatonMusicParamMap';
-import type { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
+import { auto, automaton } from './globals/automaton';
+import { Channel } from '@fms-cat/automaton';
+import { injectCodeToShader } from './utils/injectCodeToShader';
+import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
 
@@ -28,6 +29,8 @@ export class Music {
   private __bufferPool: Pool<AudioBuffer>;
   private __prevBufferSource: AudioBufferSourceNode | null = null;
   private __samples?: GLCatTexture;
+  private __automatonChannelList: Channel[];
+  private __automatonDefineString: string;
   private __textureAutomaton: GLCatTexture;
 
   constructor( glCat: GLCat, audio: AudioContext ) {
@@ -59,12 +62,18 @@ export class Music {
     this.__transformFeedback.bindBuffer( 0, this.__bufferTransformFeedbacks[ 0 ] );
     this.__transformFeedback.bindBuffer( 1, this.__bufferTransformFeedbacks[ 1 ] );
 
+    // == automaton? ===============================================================================
+    this.__automatonChannelList = [];
+    this.__automatonDefineString = '';
+
+    this.__updateAutomatonChannelList();
+
     this.__textureAutomaton = glCat.createTexture();
     this.__textureAutomaton.textureFilter( gl.NEAREST );
 
     // == program ==================================================================================
     this.__program = glCat.lazyProgram(
-      musicVert,
+      injectCodeToShader( musicVert, this.__automatonDefineString ),
       discardFrag,
       { transformFeedbackVaryings: [ 'outL', 'outR' ] },
     );
@@ -85,29 +94,51 @@ export class Music {
     this.deltaTime = 0.0;
 
     // == hot hot hot hot hot ======================================================================
-    if ( process.env.DEV ) {
-      if ( module.hot ) {
-        module.hot.accept(
-          [
-            './shaders/music.vert',
-          ],
-          async () => {
-            const program = await glCat.lazyProgramAsync(
-              musicVert,
-              discardFrag,
-              { transformFeedbackVaryings: [ 'outL', 'outR' ] },
-            ).catch( ( error: any ) => {
-              console.error( error );
-              return null;
-            } );
+    if ( process.env.DEV && module.hot ) {
+      const recompileShader = async () => {
+        const program = await glCat.lazyProgramAsync(
+          injectCodeToShader( musicVert, this.__automatonDefineString ),
+          discardFrag,
+          { transformFeedbackVaryings: [ 'outL', 'outR' ] },
+        ).catch( ( error: any ) => {
+          console.error( error );
+          return null;
+        } );
 
-            if ( program ) {
-              this.__program.dispose( true );
-              this.__program = program;
-            }
-          }
-        );
-      }
+        if ( program ) {
+          this.__program.dispose( true );
+          this.__program = program;
+        }
+      };
+
+      module.hot.accept(
+        [ './shaders/music.vert' ],
+        () => {
+          recompileShader();
+        }
+      );
+
+      module.hot.accept(
+        [ './automaton.json' ],
+        () => {
+          this.__updateAutomatonChannelList();
+          recompileShader();
+        }
+      );
+
+      ( automaton as AutomatonWithGUI ).on( 'createChannel', ( { name } ) => {
+        if ( name.startsWith( 'Music/' ) ) {
+          this.__updateAutomatonChannelList();
+          recompileShader();
+        }
+      } );
+
+      ( automaton as AutomatonWithGUI ).on( 'removeChannel', ( { name } ) => {
+        if ( name.startsWith( 'Music/' ) ) {
+          this.__updateAutomatonChannelList();
+          recompileShader();
+        }
+      } );
     }
   }
 
@@ -171,16 +202,24 @@ export class Music {
     this.__samples = texture;
   }
 
+  private __updateAutomatonChannelList(): void {
+    this.__automatonChannelList = [];
+    this.__automatonDefineString = '';
+
+    for ( const [ channelName, channel ] of automaton.mapNameToChannel.entries() ) {
+      if ( channelName.startsWith( 'Music/' ) ) {
+        const key = channelName.substring( 6 );
+        const index = this.__automatonChannelList.length;
+        this.__automatonDefineString += `const int AUTO_${key}=${index};`;
+        this.__automatonChannelList.push( channel );
+      }
+    }
+  }
+
   private __updateAutomatonTexture(): void {
     const buffer = new Float32Array( MUSIC_BUFFER_LENGTH * 256 );
 
-    for ( const [ iChannel, channelName ] of automatonMusicParamMap.entries() ) {
-      let channel = automaton.mapNameToChannel.get( channelName )!;
-
-      if ( process.env.DEV && !channel ) {
-        channel = ( automaton as AutomatonWithGUI ).createChannel( channelName );
-      }
-
+    for ( const [ iChannel, channel ] of this.__automatonChannelList.entries() ) {
       for ( let iSample = 0; iSample < MUSIC_BUFFER_LENGTH; iSample ++ ) {
         const t = this.time + iSample / this.audio.sampleRate;
         buffer[ MUSIC_BUFFER_LENGTH * iChannel + iSample ] = channel.getValue( t );

@@ -1,1 +1,1 @@
-export { hermitePatch } from '@fms-cat/automaton-fxs';
+export { sine, hermitePatch } from '@fms-cat/automaton-fxs';

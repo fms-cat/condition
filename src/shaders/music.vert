@@ -380,15 +380,16 @@ vec2 mainAudio( vec4 time ) {
   if ( inRange( time.w, SECTION_NEURO, SECTION_PORTER_FUCKING_ROBINSON ) ) {
     vec2 sum = vec2( 0.0 );
 
-    float t = auto( 0 );
-    float det = 0.01 * auto( 1 );
-    float wubIntensity = auto( 2 );
-    float wubFreq = auto( 3 );
+    float t = auto( AUTO_NEURO_TIME );
+    float det = 0.01 * auto( AUTO_NEURO_DETUNE );
+    float detPhase = auto( AUTO_NEURO_DETUNE_PHASE );
+    float wubIntensity = auto( AUTO_NEURO_WUB_AMP );
+    float wubFreq = auto( AUTO_NEURO_WUB_FREQ );
 
     for ( int i = 0; i < 5; i ++ ) {
       float fi = float( i );
 
-      float tt = t + det * fi * sin( 0.7 * fi + 1.0 * t );
+      float tt = t + det * fi * sin( fi * detPhase + 1.0 * t );
 
       float radius = 0.2 + 0.1 * wubIntensity * fbm( 0.1 * vec2( tri( n2f( -36.0 ) * wubFreq * tt ) ) ).x;
 

@@ -68,15 +68,15 @@ class EntityReplacer<T extends { entity: Entity }> {
 
 // -- bake -----------------------------------------------------------------------------------------
 const ibllut = new IBLLUT();
-dog.root.children.push( ibllut.entity );
+// dog.root.children.push( ibllut.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-const replacerSphereParticles = new EntityReplacer( () => new SphereParticles() );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/SphereParticles', () => {
-    replacerSphereParticles.replace();
-  } );
-}
+// const replacerSphereParticles = new EntityReplacer( () => new SphereParticles() );
+// if ( process.env.DEV && module.hot ) {
+//   module.hot.accept( './entities/SphereParticles', () => {
+//     replacerSphereParticles.replace();
+//   } );
+// }
 
 // const replacerTrails = new EntityReplacer( () => new Trails() );
 // if ( process.env.DEV && module.hot ) {
@@ -85,12 +85,12 @@ if ( process.env.DEV && module.hot ) {
 //   } );
 // }
 
-const replacerRings = new EntityReplacer( () => new Rings() );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Rings', () => {
-    replacerRings.replace();
-  } );
-}
+// const replacerRings = new EntityReplacer( () => new Rings() );
+// if ( process.env.DEV && module.hot ) {
+//   module.hot.accept( './entities/Rings', () => {
+//     replacerRings.replace();
+//   } );
+// }
 
 // const replacerCube = new EntityReplacer( () => new Cube() );
 // if ( process.env.DEV && module.hot ) {
@@ -99,19 +99,19 @@ if ( process.env.DEV && module.hot ) {
 //   } );
 // }
 
-const replacerFlickyParticles = new EntityReplacer( () => new FlickyParticles() );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/FlickyParticles', () => {
-    replacerFlickyParticles.replace();
-  } );
-}
+// const replacerFlickyParticles = new EntityReplacer( () => new FlickyParticles() );
+// if ( process.env.DEV && module.hot ) {
+//   module.hot.accept( './entities/FlickyParticles', () => {
+//     replacerFlickyParticles.replace();
+//   } );
+// }
 
-const replacerRaymarcher = new EntityReplacer( () => new Raymarcher() );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Raymarcher', () => {
-    replacerRaymarcher.replace();
-  } );
-}
+// const replacerRaymarcher = new EntityReplacer( () => new Raymarcher() );
+// if ( process.env.DEV && module.hot ) {
+//   module.hot.accept( './entities/Raymarcher', () => {
+//     replacerRaymarcher.replace();
+//   } );
+// }
 
 // -- things that is not an "object" ---------------------------------------------------------------
 const swapOptions = {
@@ -130,16 +130,16 @@ const swap = new Swap(
   } ),
 );
 
-const light = new LightEntity( {
-  root: dog.root,
-  shadowMapFov: 90.0,
-  shadowMapNear: 1.0,
-  shadowMapFar: 20.0,
-  namePrefix: process.env.DEV && 'light1',
-} );
-light.color = [ 40.0, 40.0, 40.0 ];
-light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
-dog.root.children.push( light.entity );
+// const light = new LightEntity( {
+//   root: dog.root,
+//   shadowMapFov: 90.0,
+//   shadowMapNear: 1.0,
+//   shadowMapFar: 20.0,
+//   namePrefix: process.env.DEV && 'light1',
+// } );
+// light.color = [ 40.0, 40.0, 40.0 ];
+// light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+// dog.root.children.push( light.entity );
 
 // const light2 = new LightEntity( {
 //   root: dog.root,
@@ -152,83 +152,83 @@ dog.root.children.push( light.entity );
 // light2.entity.transform.lookAt( new Vector3( [ -4.0, -2.0, 6.0 ] ) );
 // dog.root.children.push( light2.entity );
 
-const cubemapCamera = new CubemapCameraEntity( {
-  root: dog.root,
-  lights: [
-    light,
-    // light2
-  ],
-} );
-dog.root.children.push( cubemapCamera.entity );
+// const cubemapCamera = new CubemapCameraEntity( {
+//   root: dog.root,
+//   lights: [
+//     light,
+//     // light2
+//   ],
+// } );
+// dog.root.children.push( cubemapCamera.entity );
 
-const environmentMap = new EnvironmentMap( {
-  cubemap: cubemapCamera.target,
-} );
-dog.root.children.push( environmentMap.entity );
+// const environmentMap = new EnvironmentMap( {
+//   cubemap: cubemapCamera.target,
+// } );
+// dog.root.children.push( environmentMap.entity );
 
-const camera = new CameraEntity( {
-  root: dog.root,
-  target: swap.o,
-  lights: [
-    light,
-    // light2
-  ],
-  textureIBLLUT: ibllut.texture,
-  textureEnv: environmentMap.texture,
-} );
-camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
-camera.entity.components.unshift( new Lambda( {
-  onUpdate: ( event ) => {
-    const t1 = 0.02 * Math.sin( event.time );
-    const s1 = Math.sin( t1 );
-    const c1 = Math.cos( t1 );
-    const t2 = 0.02 * Math.cos( event.time );
-    const s2 = Math.sin( t2 );
-    const c2 = Math.cos( t2 );
-    const r = 5.0;
+// const camera = new CameraEntity( {
+//   root: dog.root,
+//   target: swap.o,
+//   lights: [
+//     light,
+//     // light2
+//   ],
+//   textureIBLLUT: ibllut.texture,
+//   textureEnv: environmentMap.texture,
+// } );
+// camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
+// camera.entity.components.unshift( new Lambda( {
+//   onUpdate: ( event ) => {
+//     const t1 = 0.02 * Math.sin( event.time );
+//     const s1 = Math.sin( t1 );
+//     const c1 = Math.cos( t1 );
+//     const t2 = 0.02 * Math.cos( event.time );
+//     const s2 = Math.sin( t2 );
+//     const c2 = Math.cos( t2 );
+//     const r = 5.0;
 
-    camera.entity.transform.lookAt( new Vector3( [
-      r * c1 * s2,
-      r * s1,
-      r * c1 * c2
-    ] ) );
-  },
-  visible: false,
-  name: process.env.DEV && 'main/updateCamera',
-} ) );
-dog.root.children.push( camera.entity );
+//     camera.entity.transform.lookAt( new Vector3( [
+//       r * c1 * s2,
+//       r * s1,
+//       r * c1 * c2
+//     ] ) );
+//   },
+//   visible: false,
+//   name: process.env.DEV && 'main/updateCamera',
+// } ) );
+// dog.root.children.push( camera.entity );
 
-swap.swap();
-const bloom = new Bloom( {
-  input: swap.i,
-  target: swap.o
-} );
-dog.root.children.push( bloom.entity );
+// swap.swap();
+// const bloom = new Bloom( {
+//   input: swap.i,
+//   target: swap.o
+// } );
+// dog.root.children.push( bloom.entity );
 
-swap.swap();
-const glitch = new Glitch( {
-  input: swap.i,
-  target: swap.o,
-} );
-dog.root.children.push( glitch.entity );
+// swap.swap();
+// const glitch = new Glitch( {
+//   input: swap.i,
+//   target: swap.o,
+// } );
+// dog.root.children.push( glitch.entity );
 
-swap.swap();
-const pixelSorter = new PixelSorter( {
-  input: swap.i,
-  target: swap.o,
-} );
-dog.root.children.push( pixelSorter.entity );
+// swap.swap();
+// const pixelSorter = new PixelSorter( {
+//   input: swap.i,
+//   target: swap.o,
+// } );
+// dog.root.children.push( pixelSorter.entity );
 
-swap.swap();
-const post = new Post( {
-  input: swap.i,
-  target: canvasRenderTarget
-} );
-dog.root.children.push( post.entity );
+// swap.swap();
+// const post = new Post( {
+//   input: swap.i,
+//   target: canvasRenderTarget
+// } );
+// dog.root.children.push( post.entity );
 
-if ( process.env.DEV ) {
-  const rtInspector = new RTInspector( {
-    target: canvasRenderTarget
-  } );
-  dog.root.children.push( rtInspector.entity );
-}
+// if ( process.env.DEV ) {
+//   const rtInspector = new RTInspector( {
+//     target: canvasRenderTarget
+//   } );
+//   dog.root.children.push( rtInspector.entity );
+// }

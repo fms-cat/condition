@@ -1,5 +1,6 @@
 import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
 import { gl } from '../globals/canvas';
+import { injectCodeToShader } from '../utils/injectCodeToShader';
 import { SHADERPOOL } from './ShaderPool';
 
 export type MaterialTag =
@@ -163,18 +164,14 @@ export class Material {
   }
 
   protected __withDefines( code: string ): string {
-    if ( !code.startsWith( '#version' ) ) {
-      return code;
-    }
-
-    const lines = code.split( '\n' );
+    let inject = '';
 
     Object.entries( this.__defines ).map( ( [ key, value ] ) => {
       if ( value != null ) {
-        lines.splice( 1, 0, `#define ${key} ${value}` );
+        inject += `#define ${key} ${value}\n`;
       }
     } );
 
-    return lines.join( '\n' );
+    return injectCodeToShader( code, inject );
   }
 }
