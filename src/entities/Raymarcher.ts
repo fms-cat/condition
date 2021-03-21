@@ -48,7 +48,7 @@ export class Raymarcher {
           );
 
           material.addUniform( 'deformAmp', '1f', auto( 'Music/NEURO_WUB_AMP' ) );
-          material.addUniform( 'deformFreq', '1f', 1.0 + 7.0 * auto( 'Music/NEURO_DETUNE' ) );
+          material.addUniform( 'deformFreq', '1f', auto( 'Music/NEURO_WUB_FREQ' ) + auto( 'Music/NEURO_DETUNE' ) );
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         }
       },
