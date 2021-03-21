@@ -20,6 +20,7 @@ import { music } from './globals/music';
 import { randomTexture } from './globals/randomTexture';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
+import { Component } from './heck/components/Component';
 import { Lambda } from './heck/components/Lambda';
 import { Dog } from './heck/Dog';
 import { Entity } from './heck/Entity';
@@ -38,6 +39,10 @@ dog.root.components.push( new Lambda( {
   onUpdate: () => {
     totalFrame ++;
     isInitialFrame = false;
+
+    if ( process.env.DEV ) {
+      Component.gpuTimer!.update();
+    }
 
     randomTexture.update();
     automaton.update( music.time );

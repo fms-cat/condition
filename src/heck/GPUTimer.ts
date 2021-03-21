@@ -6,6 +6,8 @@ export class GPUTimer {
   public stack: Promise<number>[];
   public ext: any;
 
+  private __loopTasks: Set<() => void>;
+
   public constructor() {
     const queries = new Array( 1024 ).fill( 1 ).map( () => gl.createQuery()! );
     this.queries = new Pool( queries );
@@ -13,6 +15,14 @@ export class GPUTimer {
     this.stack = [];
 
     this.ext = glCat.getExtension( 'EXT_disjoint_timer_query_webgl2' );
+
+    this.__loopTasks = new Set();
+  }
+
+  public update(): void {
+    for ( const task of this.__loopTasks ) {
+      task();
+    }
   }
 
   public async measure( func: () => void ): Promise<number> {
@@ -49,17 +59,16 @@ export class GPUTimer {
 
   public check( query: WebGLQuery ): Promise<number> {
     return new Promise( ( resolve ) => {
-      const loop = () => {
+      const task = () => {
         const isAvailable = gl.getQueryParameter( query, gl.QUERY_RESULT_AVAILABLE );
 
         if ( isAvailable ) {
+          this.__loopTasks.delete( task );
           resolve( gl.getQueryParameter( query, gl.QUERY_RESULT ) * 0.001 * 0.001 );
-        } else {
-          setTimeout( loop, 1 );
         }
-      }
+      };
 
-      loop();
+      this.__loopTasks.add( task );
     } );
   }
 }
