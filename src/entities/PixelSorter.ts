@@ -147,7 +147,7 @@ export class PixelSorter {
         material.addUniform( 'threshold', '1f', value );
       } );
 
-      entityMain.active = 0.0 < value;
+      entityMain.active = 0.001 < value;
       entityBypass.active = !entityMain.active;
     } );
   }
