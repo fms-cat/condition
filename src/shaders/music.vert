@@ -207,7 +207,7 @@ vec2 superbass( float t, float freq, float cutrate ) {
   if ( t < 0.0 ) { return vec2( 0.0 ); }
 
   vec2 wave = vec2( 0.0 );
-  wave += 2.0 * sin( TAU * t * freq );
+  wave += 3.0 * sin( TAU * t * freq );
 
   vec2 tt = t + 0.003 * sin( 3.0 * t + vec2( 0.0, 0.5 ) );
 
@@ -607,7 +607,7 @@ vec2 mainAudio( vec4 time ) {
     t += 1.0 * inRangeInteg( time.z, 28.0 * BEAT, 31.75 * BEAT, 50.0 );
     float freq = n2f( chordsB[ progB ] ) * 0.125;
     float fadetime = max( 0.0, time.w - SECTION_AAAA + 8.0 * BEAT );
-    dest += 0.08 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
+    dest += 0.12 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
   }
 
   // -- choir --------------------------------------------------------------------------------------
