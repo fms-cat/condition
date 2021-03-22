@@ -29,7 +29,7 @@ export class CubemapCameraEntity {
     this.camera = new CubemapCamera( {
       scene: this.root,
       renderTarget: this.target,
-      near: 0.1,
+      near: 1.0,
       far: 20.0,
       name: 'CubemapCameraEntity/camera',
       materialTag: 'forward',
