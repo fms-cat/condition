@@ -81,7 +81,12 @@ void main() {
 
   col.xyz = col.w <= 0.001 ? vec3( 0.0 ) : ( col.xyz / col.w );
 
-  tex.xyz = mix( tex.xyz, col.xyz, 1.0 / 4.0 );
+  if ( lv >= 4.0 ) {
+    // lambert
+    col *= PI;
+  }
+
+  tex = mix( tex.xyz, col.xyz, accumulate );
 
   fragColor = vec4( tex, 1.0 );
 }
