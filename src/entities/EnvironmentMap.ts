@@ -10,6 +10,7 @@ import { Swap, Xorshift } from '@fms-cat/experimental';
 import { Lambda } from '../heck/components/Lambda';
 import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { gl } from '../globals/canvas';
+import { auto } from '../globals/automaton';
 
 const WIDTH = 1024;
 const HEIGHT = 512;
@@ -93,6 +94,11 @@ export class EnvironmentMap {
 
     // -- this is the output -----------------------------------------------------------------------
     this.texture = swap.o.texture;
+
+    // -- auto -------------------------------------------------------------------------------------
+    auto( 'EnvironmentMap/accumulate', ( { value } ) => {
+      materialIntegrate.addUniform( 'accumulate', '1f', value );
+    } );
 
     // -- updater ----------------------------------------------------------------------------------
     this.entity.components.push( new Lambda( {

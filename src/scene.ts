@@ -15,7 +15,7 @@ import { Rings } from './entities/Rings';
 import { RTInspector } from './entities/RTInspector';
 import { SphereParticles } from './entities/SphereParticles';
 import { Trails } from './entities/Trails';
-import { automaton } from './globals/automaton';
+import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
 import { randomTexture } from './globals/randomTexture';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
@@ -56,18 +56,34 @@ class EntityReplacer<T extends { entity: Entity }> {
   public current?: T;
   public creator: () => T;
 
-  public constructor( creator: () => T ) {
+  public constructor( creator: () => T, name?: string ) {
     this.creator = creator;
     this.replace();
+
+    if ( name ) {
+      auto( `${ name }/active`, ( { uninit } ) => {
+        const entity = this.current?.entity;
+        if ( entity ) {
+          entity.active = !uninit;
+          entity.visible = !uninit;
+        }
+      } );
+    }
   }
 
   public replace(): void {
-    if ( this.current ) {
-      arraySetDelete( dog.root.children, this.current.entity );
+    if ( process.env.DEV ) {
+      if ( this.current ) {
+        arraySetDelete( dog.root.children, this.current.entity );
+      }
     }
 
     this.current = this.creator();
     dog.root.children.push( this.current.entity );
+
+    // not visible by default
+    this.current.entity.active = false;
+    this.current.entity.visible = false;
   }
 }
 
@@ -76,42 +92,48 @@ const ibllut = new IBLLUT();
 dog.root.children.push( ibllut.entity );
 
 // -- "objects" ------------------------------------------------------------------------------------
-// const replacerSphereParticles = new EntityReplacer( () => new SphereParticles() );
-// if ( process.env.DEV && module.hot ) {
-//   module.hot.accept( './entities/SphereParticles', () => {
-//     replacerSphereParticles.replace();
-//   } );
-// }
+const replacerSphereParticles = new EntityReplacer(
+  () => new SphereParticles(),
+  'SphereParticles',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SphereParticles', () => {
+    replacerSphereParticles.replace();
+  } );
+}
 
-// const replacerTrails = new EntityReplacer( () => new Trails() );
-// if ( process.env.DEV && module.hot ) {
-//   module.hot.accept( './entities/Trails', () => {
-//     replacerTrails.replace();
-//   } );
-// }
+const replacerTrails = new EntityReplacer( () => new Trails(), 'Trails' );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/Trails', () => {
+    replacerTrails.replace();
+  } );
+}
 
-const replacerRings = new EntityReplacer( () => new Rings() );
+const replacerRings = new EntityReplacer( () => new Rings(), 'Rings' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Rings', () => {
     replacerRings.replace();
   } );
 }
 
-// const replacerCube = new EntityReplacer( () => new Cube() );
-// if ( process.env.DEV && module.hot ) {
-//   module.hot.accept( './entities/Cube', () => {
-//     replacerCube.replace();
-//   } );
-// }
+const replacerCube = new EntityReplacer( () => new Cube(), 'Cube' );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/Cube', () => {
+    replacerCube.replace();
+  } );
+}
 
-const replacerFlickyParticles = new EntityReplacer( () => new FlickyParticles() );
+const replacerFlickyParticles = new EntityReplacer(
+  () => new FlickyParticles(),
+  'FlickyParticles',
+);
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/FlickyParticles', () => {
     replacerFlickyParticles.replace();
   } );
 }
 
-const replacerRaymarcher = new EntityReplacer( () => new Raymarcher() );
+const replacerRaymarcher = new EntityReplacer( () => new Raymarcher(), 'Raymarcher' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Raymarcher', () => {
     replacerRaymarcher.replace();

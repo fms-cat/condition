@@ -16,6 +16,7 @@ in vec2 vUv;
 
 out vec4 fragColor;
 
+uniform float accumulate;
 uniform float head;
 uniform vec2 resolution;
 uniform vec4 uniformSeed;
