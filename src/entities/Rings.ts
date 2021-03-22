@@ -52,7 +52,7 @@ export class Rings {
         );
       },
       visible: false,
-      name: process.env.DEV && 'Cube/speen',
+      name: process.env.DEV && 'Rings/speen',
     } ) );
   }
 
