@@ -14,6 +14,7 @@ import { Raymarcher } from './entities/Raymarcher';
 import { Rings } from './entities/Rings';
 import { RTInspector } from './entities/RTInspector';
 import { SphereParticles } from './entities/SphereParticles';
+import { SufferTexts } from './entities/SufferTexts';
 import { Trails } from './entities/Trails';
 import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
@@ -130,6 +131,16 @@ const replacerFlickyParticles = new EntityReplacer(
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/FlickyParticles', () => {
     replacerFlickyParticles.replace();
+  } );
+}
+
+const replacerSufferTexts = new EntityReplacer(
+  () => new SufferTexts(),
+  'SufferTexts',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SufferTexts', () => {
+    replacerSufferTexts.replace();
   } );
 }
 

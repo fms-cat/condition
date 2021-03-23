@@ -53,7 +53,7 @@ module.exports = ( env, argv ) => {
           ],
         },
         {
-          test: /\.opus$/,
+          test: /\.(opus|png)$/,
           type: 'asset/inline',
         },
         {
