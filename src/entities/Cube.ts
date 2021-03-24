@@ -8,7 +8,6 @@ import cubeFrag from '../shaders/cube.frag';
 import depthFrag from '../shaders/depth.frag';
 import { genCube } from '../geometries/genCube';
 import { Lambda } from '../heck/components/Lambda';
-import { gl } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
@@ -41,7 +40,7 @@ export class Cube extends Entity {
 
     geometry.count = cube.count;
     geometry.mode = cube.mode;
-    geometry.indexType = gl.UNSIGNED_SHORT;
+    geometry.indexType = cube.indexType;
 
     // -- materials --------------------------------------------------------------------------------
     const materials = {

@@ -7,6 +7,7 @@ interface ResultGenTorus {
   index: GLCatBuffer;
   count: number;
   mode: GLenum;
+  indexType: GLenum;
 }
 
 export function genTorus( options?: {
@@ -71,6 +72,7 @@ export function genTorus( options?: {
     normal,
     index,
     count: ind.length,
-    mode: gl.TRIANGLES
+    mode: gl.TRIANGLES,
+    indexType: gl.UNSIGNED_SHORT,
   };
 }

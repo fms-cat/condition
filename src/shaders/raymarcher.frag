@@ -11,7 +11,7 @@ const int MTL_PBR = 2;
 const int MTL_GRADIENT = 3;
 const int MTL_IRIDESCENT = 4;
 
-in vec2 vUv;
+in vec2 vP;
 
 #ifdef DEFERRED
   layout (location = 0) out vec4 fragPosition;
@@ -33,7 +33,7 @@ uniform vec2 cameraNearFar;
 uniform vec3 cameraPos;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 inversePV;
+uniform mat4 inversePVM;
 uniform sampler2D samplerRandom;
 uniform sampler2D samplerRandomStatic;
 uniform sampler2D samplerCapture;
@@ -87,10 +87,10 @@ vec3 normalFunc( vec3 p, float dd ) {
 }
 
 void main() {
-  vec2 p = vUv * 2.0 - 1.0;
-  p.x *= resolution.x / resolution.y;
-  vec3 rayOri = divideByW( inversePV * vec4( p, 0.0, 1.0 ) );
-  vec3 farPos = divideByW( inversePV * vec4( p, 1.0, 1.0 ) );
+  vec2 p = vP;
+
+  vec3 rayOri = divideByW( inversePVM * vec4( p, 0.0, 1.0 ) );
+  vec3 farPos = divideByW( inversePVM * vec4( p, 1.0, 1.0 ) );
   vec3 rayDir = normalize( farPos - rayOri );
   float rayLen = cameraNearFar.x;
   vec3 rayPos = rayOri + rayDir * rayLen;

@@ -7,6 +7,7 @@ interface ResultGenOctahedron {
   index: GLCatBuffer;
   count: number;
   mode: GLenum;
+  indexType: GLenum;
 }
 
 export function genOctahedron( options: {
@@ -132,6 +133,7 @@ export function genOctahedron( options: {
     normal,
     index,
     count: ind.length,
-    mode: gl.TRIANGLES
+    mode: gl.TRIANGLES,
+    indexType: gl.UNSIGNED_SHORT,
   };
 }

@@ -67,8 +67,8 @@ export class SphereParticles extends Entity {
 
     geometryRender.count = octahedron.count;
     geometryRender.mode = octahedron.mode;
+    geometryRender.indexType = octahedron.indexType;
     geometryRender.primcount = PARTICLES_SQRT * PARTICLES_SQRT;
-    geometryRender.indexType = gl.UNSIGNED_SHORT;
 
     // -- material render --------------------------------------------------------------------------
     const deferred = new Material(

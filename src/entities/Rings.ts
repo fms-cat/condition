@@ -42,9 +42,9 @@ export class Rings extends Entity {
     geometry.vao.bindVertexbuffer( bufferInstanceId, 2, 1, 1 );
 
     geometry.count = torus.count;
-    geometry.primcount = PRIMCOUNT;
     geometry.mode = torus.mode;
-    geometry.indexType = gl.UNSIGNED_SHORT;
+    geometry.indexType = torus.indexType;
+    geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
     const materials = {

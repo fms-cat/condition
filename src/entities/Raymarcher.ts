@@ -1,38 +1,39 @@
 import { Mesh, MeshCull } from '../heck/components/Mesh';
-import { TRIANGLE_STRIP_QUAD, Vector3 } from '@fms-cat/experimental';
-import { gl, glCat } from '../globals/canvas';
+import { Vector3 } from '@fms-cat/experimental';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Material } from '../heck/Material';
-import quadVert from '../shaders/quad.vert';
+import raymarchObjectVert from '../shaders/raymarch-object.vert';
 import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { auto } from '../globals/automaton';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { genOctahedron } from '../geometries/genOctahedron';
 
 export class Raymarcher extends Entity {
   public constructor() {
     super();
 
-    this.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
-    this.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
+    this.transform.position = new Vector3( [ 0.0, 0.0, 0.0 ] );
+    this.transform.scale = new Vector3( [ 1.0, 1.0, 1.0 ] );
 
     // -- geometry ---------------------------------------------------------------------------------
+    const octahedron = genOctahedron( { radius: 2.0, div: 1 } );
+
     const geometry = new Geometry();
 
-    const bufferPos = glCat.createBuffer();
-    bufferPos.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
+    geometry.vao.bindVertexbuffer( octahedron.position, 0, 3 );
+    geometry.vao.bindIndexbuffer( octahedron.index );
 
-    geometry.vao.bindVertexbuffer( bufferPos, 0, 2 );
-
-    geometry.count = 4;
-    geometry.mode = gl.TRIANGLE_STRIP;
+    geometry.count = octahedron.count;
+    geometry.mode = octahedron.mode;
+    geometry.indexType = octahedron.indexType;
 
     // -- materials --------------------------------------------------------------------------------
     const materials = {
       deferred: new Material(
-        quadVert,
+        raymarchObjectVert,
         raymarcherFrag,
         {
           defines: { 'DEFERRED': 'true' },
@@ -40,7 +41,7 @@ export class Raymarcher extends Entity {
         },
       ),
       shadow: new Material(
-        quadVert,
+        raymarchObjectVert,
         raymarcherFrag,
         {
           defines: { 'SHADOW': 'true' },
@@ -52,8 +53,8 @@ export class Raymarcher extends Entity {
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/raymarcher.frag', () => {
-          materials.deferred.replaceShader( quadVert, raymarcherFrag );
-          materials.shadow.replaceShader( quadVert, raymarcherFrag );
+          materials.deferred.replaceShader( raymarchObjectVert, raymarcherFrag );
+          materials.shadow.replaceShader( raymarchObjectVert, raymarcherFrag );
         } );
       }
     }
@@ -77,9 +78,13 @@ export class Raymarcher extends Entity {
           );
 
           material.addUniformVector(
-            'inversePV',
+            'inversePVM',
             'Matrix4fv',
-            event.projectionMatrix.multiply( event.viewMatrix ).inverse!.elements
+            event.projectionMatrix
+              .multiply( event.viewMatrix )
+              .multiply( this.transform.matrix )
+              .inverse!
+              .elements
           );
 
           material.addUniform( 'deformAmp', '1f', auto( 'Music/NEURO_WUB_AMP' ) );
