@@ -54,7 +54,7 @@ dog.root.components.push( new Lambda( {
 
 // -- util -----------------------------------------------------------------------------------------
 class EntityReplacer<T extends Entity> {
-  public current?: T;
+  public current!: T;
   public creator: () => T;
 
   public constructor( creator: () => T, name?: string ) {
@@ -175,16 +175,40 @@ const swap = new Swap(
   } ),
 );
 
-const light = new LightEntity( {
-  root: dog.root,
-  shadowMapFov: 90.0,
-  shadowMapNear: 1.0,
-  shadowMapFar: 20.0,
-  namePrefix: process.env.DEV && 'light1',
-} );
-light.color = [ 0.1, 0.1, 0.1 ];
-light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
-dog.root.children.push( light );
+const replacerLightFirst = new EntityReplacer( () => {
+  const light = new LightEntity( {
+    root: dog.root,
+    shadowMapFov: 90.0,
+    shadowMapNear: 1.0,
+    shadowMapFar: 20.0,
+    namePrefix: process.env.DEV && 'lightFirst',
+  } );
+  light.color = [ 1.0, 1.0, 1.0 ];
+  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+  return light;
+}, 'LightFirst' );
+const lightFirst = replacerLightFirst.current;
+
+const replacerLightPink = new EntityReplacer( () => {
+  const light = new LightEntity( {
+    root: dog.root,
+    shadowMapFov: 90.0,
+    shadowMapNear: 1.0,
+    shadowMapFar: 20.0,
+    namePrefix: process.env.DEV && 'lightPink',
+  } );
+  light.color = [ 60.0, 1.0, 5.0 ];
+  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+  return light;
+}, 'LightPink' );
+const lightPink = replacerLightPink.current;
+
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/LightEntity', () => {
+    replacerLightFirst.replace();
+    replacerLightPink.replace();
+  } );
+}
 
 // const light2 = new LightEntity( {
 //   root: dog.root,
@@ -200,7 +224,8 @@ dog.root.children.push( light );
 const cubemapCamera = new CubemapCameraEntity( {
   root: dog.root,
   lights: [
-    light,
+    lightFirst,
+    lightPink,
     // light2
   ],
 } );
@@ -215,7 +240,8 @@ const camera = new CameraEntity( {
   root: dog.root,
   target: swap.o,
   lights: [
-    light,
+    lightFirst,
+    lightPink,
     // light2
   ],
   textureIBLLUT: ibllut.texture,
@@ -223,20 +249,35 @@ const camera = new CameraEntity( {
 } );
 camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
 camera.components.unshift( new Lambda( {
-  onUpdate: ( event ) => {
-    const t1 = 0.02 * Math.sin( event.time );
-    const s1 = Math.sin( t1 );
-    const c1 = Math.cos( t1 );
-    const t2 = 0.02 * Math.cos( event.time );
-    const s2 = Math.sin( t2 );
-    const c2 = Math.cos( t2 );
-    const r = 5.0;
+  onUpdate: ( { time } ) => {
+    const r = auto( 'Camera/r' );
+    const t = auto( 'Camera/t' );
+    const p = auto( 'Camera/p' );
 
-    camera.transform.lookAt( new Vector3( [
-      r * c1 * s2,
-      r * s1,
-      r * c1 * c2
-    ] ) );
+    const st = Math.sin( t );
+    const ct = Math.cos( t );
+    const sp = Math.sin( p );
+    const cp = Math.cos( p );
+
+    const wubPosAmp = 0.01;
+    const wubPosTheta = 3.0 * time;
+    const wubTarAmp = 0.02;
+    const wubTarTheta = 4.21 * time;
+
+    camera.transform.lookAt(
+      new Vector3( [
+        r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ),
+        r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ),
+        r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ),
+      ] ),
+      new Vector3( [
+        wubTarAmp * Math.sin( wubTarTheta ),
+        wubTarAmp * Math.sin( 2.0 + wubTarTheta ),
+        wubTarAmp * Math.sin( 4.0 + wubTarTheta ),
+      ] ),
+      undefined,
+      0.02 * Math.sin( 2.74 * time ),
+    );
   },
   name: process.env.DEV && 'main/updateCamera',
 } ) );

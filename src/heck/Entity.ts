@@ -28,6 +28,8 @@ export interface EntityDrawEvent {
 export class Entity {
   public readonly transform = new Transform();
 
+  public lastUpdateFrame = 0;
+
   public active = true;
   public visible = true;
 
@@ -36,6 +38,8 @@ export class Entity {
 
   public update( event: EntityUpdateEvent ): void {
     if ( !this.active ) { return; }
+    if ( this.lastUpdateFrame === event.frameCount ) { return; }
+    this.lastUpdateFrame = event.frameCount;
 
     const globalTransform = event.globalTransform.multiply( this.transform );
 

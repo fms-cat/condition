@@ -94,7 +94,7 @@ export class Component {
     }
   }
 
-  protected __lastUpdateFrame = 0;
+  public lastUpdateFrame = 0;
 
   public active: boolean;
   public visible: boolean;
@@ -142,8 +142,8 @@ export class Component {
 
   public update( event: ComponentUpdateEvent ): void {
     if ( !this.active ) { return; }
-    if ( this.__lastUpdateFrame === event.frameCount ) { return; }
-    this.__lastUpdateFrame = event.frameCount;
+    if ( this.lastUpdateFrame === event.frameCount ) { return; }
+    this.lastUpdateFrame = event.frameCount;
 
     if ( process.env.DEV ) {
       if ( Component.__updateHaveReachedBreakpoint && !this.ignoreBreakpoints ) {

@@ -1,5 +1,7 @@
 #version 300 es
 
+#define lofi(i,m) (floor((i)/(m))*(m))
+
 precision highp float;
 
 const int MTL_PBR = 2;
@@ -16,25 +18,32 @@ in vec4 vPositionWithoutModel;
   layout (location = 3) out vec4 fragWTF;
 #endif
 
-#pragma glslify: noise = require( ./-simplex4d );
-
 uniform float time;
 
-float fbm( vec4 p ) {
-  float v = 0.5 * noise( 1.0 * p );
-  v += 0.25 * noise( 2.0 * p );
-  v += 0.125 * noise( 4.0 * p );
-  v += 0.0625 * noise( 8.0 * p );
-  return v;
+#pragma glslify: orthBasis = require( ./modules/orthBasis );
+
+vec3 cyclicNoise( vec3 p ) {
+  vec3 sum = vec3( 0.0 );
+  float amp = 0.5;
+
+  for ( int i = 0; i < 8; i ++ ) {
+    p = p.zxy * 1.4 + 0.5;
+    vec3 pt = lofi( p, 0.5 );
+    sum += sin( cross( cos( pt ), sin( pt.yzx ) ) ) * amp;
+    p += sum;
+    amp *= 0.5;
+  }
+
+  return sum;
 }
 
 void main() {
-  float rough = sin( 14.0 * fbm( vPositionWithoutModel ) );
+  float rough = 0.5 + 0.5 * sin( 34.0 * cyclicNoise( vPositionWithoutModel.xyz ).x );
 
   #ifdef DEFERRED
     fragPosition = vPosition;
     fragNormal = vec4( normalize( vNormal ), 1.0 );
-    fragColor = vec4( vec3( 0.5 ), 1.0 );
-    fragWTF = vec4( vec3( 0.4 + 0.03 * rough, 0.17, 0.0 ), MTL_PBR );
+    fragColor = vec4( vec3( 0.1 ), 1.0 );
+    fragWTF = vec4( vec3( 0.2 + 0.5 * rough, 0.77, 0.0 ), MTL_PBR );
   #endif
 }

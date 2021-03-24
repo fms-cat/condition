@@ -104,8 +104,16 @@ export class CameraEntity extends Entity {
         },
       );
 
-      this.components.push( new Lambda( {
-        onUpdate: () => {
+      let shadingQuad: Quad;
+
+      const lambda = new Lambda( {
+        onUpdate: ( { frameCount } ) => {
+          const lightHasUpdated = frameCount === light.lastUpdateFrame;
+          shadingQuad.active = lightHasUpdated;
+          if ( !lightHasUpdated ) {
+            return;
+          }
+
           const cameraView = this.transform.matrix.inverse!;
 
           shadingMaterial.addUniformVector(
@@ -163,7 +171,9 @@ export class CameraEntity extends Entity {
           );
         },
         name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
-      } ) );
+      } );
+
+      this.components.push( lambda );
 
       for ( let i = 0; i < 4; i ++ ) {
         shadingMaterial.addUniformTexture(
@@ -179,12 +189,13 @@ export class CameraEntity extends Entity {
       shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
       shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
-      const shadingQuad = new Quad( {
+      shadingQuad = new Quad( {
         material: shadingMaterial,
         target: options.target,
         name: process.env.DEV && 'CameraEntity/shading/quad',
       } );
       shadingQuad.clear = iLight === 0 ? [] : false;
+
       this.components.push( shadingQuad );
 
       return shadingMaterial;
