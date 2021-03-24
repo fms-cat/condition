@@ -4,12 +4,10 @@ import { Entity } from '../heck/Entity';
 import { createSVGTableTexture } from '../utils/createSVGTableTexture';
 import { ConditionChar } from './ConditionChar';
 
-export class Condition {
-  public entity: Entity;
-
+export class Condition extends Entity {
   public constructor() {
-    this.entity = new Entity();
-    this.entity.transform.scale = new Vector3( [ 0.05, 0.05, 0.05 ] );
+    super();
+    this.transform.scale = new Vector3( [ 0.05, 0.05, 0.05 ] );
 
     const pathC = createSVGTableTexture( 'M5,5l-9,0l-1,-1l0,-8l1,-1l9,0l0,2l-8,0l0,6l8,0Z' );
     const pathO = createSVGTableTexture( 'M5,4l0,-8l-1,-1l-8,0l-1,1l0,8l1,1l8,0Z' );
@@ -35,7 +33,7 @@ export class Condition {
     ];
     tableAndPos.forEach( ( [ table, pos ], i ) => {
       const svgEntity = new ConditionChar( { table, pos, i } );
-      this.entity.children.push( svgEntity );
+      this.children.push( svgEntity );
     } );
   }
 }

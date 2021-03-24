@@ -4,35 +4,34 @@ import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import pixelSorterIndexFrag from '../shaders/pixel-sorter-index.frag';
 import pixelSorterFrag from '../shaders/pixel-sorter.frag';
-import returnFrag from '../shaders/return.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
-import { Automaton } from '@fms-cat/automaton';
 import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 export interface PixelSorterOptions {
   input: BufferRenderTarget;
   target: RenderTarget;
 }
 
-export class PixelSorter {
-  public entity: Entity;
+export class PixelSorter extends Entity {
   public swapBuffer: Swap<BufferRenderTarget>;
 
   public constructor( options: PixelSorterOptions ) {
-    this.entity = new Entity();
-    this.entity.visible = false;
+    super();
+    this.visible = false;
 
     const entityBypass = new Entity();
     entityBypass.visible = false;
-    this.entity.children.push( entityBypass );
+    this.children.push( entityBypass );
 
     const entityMain = new Entity();
     entityMain.active = false;
     entityMain.visible = false;
-    this.entity.children.push( entityMain );
+    this.children.push( entityMain );
 
     this.swapBuffer = new Swap(
       new BufferRenderTarget( {
@@ -54,15 +53,6 @@ export class PixelSorter {
     } );
 
     // -- bypass -----------------------------------------------------------------------------------
-    const materialReturn = new Material(
-      quadVert,
-      returnFrag,
-    );
-    materialReturn.addUniformTexture(
-      'sampler0',
-      options.input.texture,
-    );
-
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
@@ -79,6 +69,7 @@ export class PixelSorter {
       const material = new Material(
         quadVert,
         pixelSorterIndexFrag,
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
       );
       material.addUniform( 'mul', '1f', mul );
       material.addUniformTexture(
@@ -113,6 +104,7 @@ export class PixelSorter {
       const material = new Material(
         quadVert,
         pixelSorterFrag,
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
       );
       material.addUniform( 'dir', '1f', dir );
       material.addUniform( 'comp', '1f', comp );

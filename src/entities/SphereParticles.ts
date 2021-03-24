@@ -1,65 +1,52 @@
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
-import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material, MaterialMap } from '../heck/Material';
+import { Material } from '../heck/Material';
 import { genOctahedron } from '../geometries/genOctahedron';
 import depthFrag from '../shaders/depth.frag';
-import discardFrag from '../shaders/discard.frag';
 import quadVert from '../shaders/quad.vert';
 import sphereParticleComputeFrag from '../shaders/sphere-particles-compute.frag';
 import sphereParticleRenderFrag from '../shaders/sphere-particles-render.frag';
 import sphereParticleRenderVert from '../shaders/sphere-particles-render.vert';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 const PARTICLES_SQRT = 256;
 const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
-export class SphereParticles {
-  public get entity(): Entity {
-    return this.gpuParticles.entity;
-  }
-
-  public gpuParticles: GPUParticles;
-
+export class SphereParticles extends Entity {
   public constructor() {
-    this.gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute(),
-      geometryRender: this.__createGeometryRender(),
-      materialsRender: this.__createMaterialsRender(),
-      computeWidth: PARTICLES_SQRT,
-      computeHeight: PARTICLES_SQRT,
-      computeNumBuffers: 2,
-      namePrefix: process.env.DEV && 'SphereParticles',
-    } );
-  }
+    super();
 
-  private __createMaterialCompute(): Material {
-    const material = new Material( quadVert, sphereParticleComputeFrag );
-    material.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
-    material.addUniform( 'particles', '1f', PARTICLES );
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    // -- material compute -------------------------------------------------------------------------
+    const materialCompute = new Material(
+      quadVert,
+      sphereParticleComputeFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+    );
+
+    materialCompute.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
+    materialCompute.addUniform( 'particles', '1f', PARTICLES );
+    materialCompute.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/sphere-particles-compute.frag', () => {
-          material.replaceShader( quadVert, sphereParticleComputeFrag );
+          materialCompute.replaceShader( quadVert, sphereParticleComputeFrag );
         } );
       }
     }
 
-    return material;
-  }
-
-  private __createGeometryRender(): Geometry {
+    // -- geometry render --------------------------------------------------------------------------
     const octahedron = genOctahedron( { radius: 1.0, div: 1 } );
 
-    const geometry = new InstancedGeometry();
+    const geometryRender = new InstancedGeometry();
 
-    geometry.vao.bindVertexbuffer( octahedron.position, 0, 3 );
-    geometry.vao.bindVertexbuffer( octahedron.normal, 1, 3 );
-    geometry.vao.bindIndexbuffer( octahedron.index );
+    geometryRender.vao.bindVertexbuffer( octahedron.position, 0, 3 );
+    geometryRender.vao.bindVertexbuffer( octahedron.normal, 1, 3 );
+    geometryRender.vao.bindIndexbuffer( octahedron.index );
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
@@ -76,25 +63,32 @@ export class SphereParticles {
       return ret;
     } )() );
 
-    geometry.vao.bindVertexbuffer( bufferComputeUV, 2, 2, 1 );
+    geometryRender.vao.bindVertexbuffer( bufferComputeUV, 2, 2, 1 );
 
-    geometry.count = octahedron.count;
-    geometry.mode = octahedron.mode;
-    geometry.primcount = PARTICLES_SQRT * PARTICLES_SQRT;
-    geometry.indexType = gl.UNSIGNED_SHORT;
+    geometryRender.count = octahedron.count;
+    geometryRender.mode = octahedron.mode;
+    geometryRender.primcount = PARTICLES_SQRT * PARTICLES_SQRT;
+    geometryRender.indexType = gl.UNSIGNED_SHORT;
 
-    return geometry;
-  }
-
-  private __createMaterialsRender(): MaterialMap<'deferred' | 'shadow'> {
+    // -- material render --------------------------------------------------------------------------
     const deferred = new Material(
       sphereParticleRenderVert,
       sphereParticleRenderFrag,
-      { defines: { 'DEFERRED': 'true' } },
+      {
+        defines: { 'DEFERRED': 'true' },
+        initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
+      },
     );
-    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
-    const shadow = new Material( sphereParticleRenderVert, depthFrag );
+    const shadow = new Material(
+      sphereParticleRenderVert,
+      depthFrag,
+      { initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers } },
+    );
+
+    const materialsRender = { deferred, shadow };
+
+    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
     shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
@@ -112,6 +106,16 @@ export class SphereParticles {
       }
     }
 
-    return { deferred, shadow };
+    // -- gpu particles ----------------------------------------------------------------------------
+    const gpuParticles = new GPUParticles( {
+      materialCompute,
+      geometryRender,
+      materialsRender,
+      computeWidth: PARTICLES_SQRT,
+      computeHeight: PARTICLES_SQRT,
+      computeNumBuffers: 2,
+      namePrefix: process.env.DEV && 'SphereParticles',
+    } );
+    this.children.push( gpuParticles );
   }
 }

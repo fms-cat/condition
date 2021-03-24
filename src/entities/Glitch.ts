@@ -4,44 +4,34 @@ import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import quadVert from '../shaders/quad.vert';
 import glitchFrag from '../shaders/glitch.frag';
-import returnFrag from '../shaders/return.frag';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 export interface GlitchOptions {
   input: BufferRenderTarget;
   target: RenderTarget;
 }
 
-export class Glitch {
+export class Glitch extends Entity {
   public amp = 0.0;
-
-  public entity: Entity;
   public material: Material;
 
   public constructor( options: GlitchOptions ) {
-    this.entity = new Entity();
+    super();
 
     const entityBypass = new Entity();
     entityBypass.visible = false;
-    this.entity.children.push( entityBypass );
+    this.children.push( entityBypass );
 
     const entityMain = new Entity();
     entityMain.active = false;
     entityMain.visible = false;
-    this.entity.children.push( entityMain );
+    this.children.push( entityMain );
 
     // -- bypass -----------------------------------------------------------------------------------
-    const materialReturn = new Material(
-      quadVert,
-      returnFrag,
-    );
-    materialReturn.addUniformTexture(
-      'sampler0',
-      options.input.texture,
-    );
-
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
@@ -49,7 +39,11 @@ export class Glitch {
     } ) );
 
     // -- quad -------------------------------------------------------------------------------------
-    this.material = new Material( quadVert, glitchFrag );
+    this.material = new Material(
+      quadVert,
+      glitchFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+    );
     this.material.addUniformTexture( 'sampler0', options.input.texture );
 
     if ( module.hot ) {

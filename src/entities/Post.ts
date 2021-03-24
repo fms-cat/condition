@@ -5,23 +5,25 @@ import { RenderTarget } from '../heck/RenderTarget';
 import postFrag from '../shaders/post.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 export interface PostOptions {
   input: BufferRenderTarget;
   target: RenderTarget;
 }
 
-export class Post {
-  public entity: Entity;
-
+export class Post extends Entity {
   public constructor( options: PostOptions ) {
-    this.entity = new Entity();
-    this.entity.visible = false;
+    super();
+
+    this.visible = false;
 
     // -- post -------------------------------------------------------------------------------------
     const material = new Material(
       quadVert,
       postFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
     );
     material.addUniformTexture( 'sampler0', options.input.texture );
 
@@ -33,7 +35,7 @@ export class Post {
       }
     }
 
-    this.entity.components.push( new Quad( {
+    this.components.push( new Quad( {
       target: options.target,
       material,
       name: process.env.DEV && 'Post/quad',

@@ -10,16 +10,15 @@ export interface CubemapCameraEntityOptions {
   lights: LightEntity[];
 }
 
-export class CubemapCameraEntity {
+export class CubemapCameraEntity extends Entity {
   public root: Entity;
   public camera: PerspectiveCamera;
   public readonly target: CubemapRenderTarget;
-  public entity: Entity;
 
   public constructor( options: CubemapCameraEntityOptions ) {
-    this.root = options.root;
+    super();
 
-    this.entity = new Entity();
+    this.root = options.root;
 
     this.target = new CubemapRenderTarget( {
       width: CUBEMAP_RESOLUTION[ 0 ],
@@ -34,6 +33,6 @@ export class CubemapCameraEntity {
       name: 'CubemapCameraEntity/camera',
       materialTag: 'forward',
     } );
-    this.entity.components.push( this.camera );
+    this.components.push( this.camera );
   }
 }

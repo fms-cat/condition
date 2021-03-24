@@ -13,6 +13,8 @@ import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
 import { gl } from '../globals/canvas';
 import { randomTexture } from '../globals/randomTexture';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 export interface CameraEntityOptions {
   root: Entity;
@@ -22,29 +24,14 @@ export interface CameraEntityOptions {
   textureEnv: GLCatTexture;
 }
 
-export class CameraEntity {
-  private __root: Entity;
-
-  public get root(): Entity {
-    return this.__root;
-  }
-
-  private __camera: PerspectiveCamera;
-
-  public get camera(): PerspectiveCamera {
-    return this.__camera;
-  }
-
-  private __entity: Entity;
-
-  public get entity(): Entity {
-    return this.__entity;
-  }
+export class CameraEntity extends Entity {
+  public root: Entity;
+  public camera: PerspectiveCamera;
 
   public constructor( options: CameraEntityOptions ) {
-    this.__root = options.root;
+    super();
 
-    this.__entity = new Entity();
+    this.root = options.root;
 
     const cameraTarget = new BufferRenderTarget( {
       width: options.target.width,
@@ -52,15 +39,15 @@ export class CameraEntity {
       numBuffers: 4,
       name: 'CameraEntity/cameraTarget',
     } );
-    this.__camera = new PerspectiveCamera( {
-      scene: this.__root,
+    this.camera = new PerspectiveCamera( {
+      scene: this.root,
       renderTarget: cameraTarget,
       near: 0.1,
       far: 20.0,
       name: 'CameraEntity/camera',
       materialTag: 'deferred',
     } );
-    this.__entity.components.push( this.__camera );
+    this.components.push( this.camera );
 
     const aoTarget = new BufferRenderTarget( {
       width: AO_RESOLUTION_RATIO * options.target.width,
@@ -71,11 +58,12 @@ export class CameraEntity {
     const aoMaterial = new Material(
       quadVert,
       aoFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
     );
 
-    this.__entity.components.push( new Lambda( {
+    this.components.push( new Lambda( {
       onUpdate: () => {
-        const cameraView = this.__entity.transform.matrix.inverse!;
+        const cameraView = this.transform.matrix.inverse!;
 
         aoMaterial.addUniformVector(
           'cameraPV',
@@ -85,7 +73,6 @@ export class CameraEntity {
           ).elements
         );
       },
-      visible: false,
       name: process.env.DEV && 'CameraEntity/ao/setCameraUniforms',
     } ) );
 
@@ -103,7 +90,7 @@ export class CameraEntity {
       target: aoTarget,
       name: process.env.DEV && 'CameraEntity/ao/quad',
     } );
-    this.__entity.components.push( aoQuad );
+    this.components.push( aoQuad );
 
     const shadingMaterials = options.lights.map( ( light, iLight ) => {
       const shadingMaterial = new Material(
@@ -112,13 +99,14 @@ export class CameraEntity {
         {
           defines: {
             IS_FIRST_LIGHT: iLight === 0 ? 'true' : undefined
-          }
+          },
+          initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers },
         },
       );
 
-      this.__entity.components.push( new Lambda( {
+      this.components.push( new Lambda( {
         onUpdate: () => {
-          const cameraView = this.__entity.transform.matrix.inverse!;
+          const cameraView = this.transform.matrix.inverse!;
 
           shadingMaterial.addUniformVector(
             'cameraView',
@@ -151,13 +139,13 @@ export class CameraEntity {
           shadingMaterial.addUniform(
             'cameraPos',
             '3f',
-            ...this.__entity.transform.position.elements
+            ...this.transform.position.elements
           );
 
           shadingMaterial.addUniform(
             'lightPos',
             '3f',
-            ...light.entity.transform.position.elements
+            ...light.transform.position.elements
           );
 
           shadingMaterial.addUniform(
@@ -170,11 +158,10 @@ export class CameraEntity {
             'lightPV',
             'Matrix4fv',
             light.camera.projectionMatrix.multiply(
-              light.entity.transform.matrix.inverse!
+            light.transform.matrix.inverse!
             ).elements
           );
         },
-        visible: false,
         name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
       } ) );
 
@@ -198,7 +185,7 @@ export class CameraEntity {
         name: process.env.DEV && 'CameraEntity/shading/quad',
       } );
       shadingQuad.clear = iLight === 0 ? [] : false;
-      this.__entity.components.push( shadingQuad );
+      this.components.push( shadingQuad );
 
       return shadingMaterial;
     } );

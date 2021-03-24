@@ -6,6 +6,8 @@ import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
 import quadVert from '../shaders/quad.vert';
 import shadowBlurFrag from '../shaders/shadow-blur.frag';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 export interface LightEntityOptions {
   root: Entity;
@@ -17,37 +19,16 @@ export interface LightEntityOptions {
   namePrefix?: string;
 }
 
-export class LightEntity {
+export class LightEntity extends Entity {
   public color: [ number, number, number ] = [ 1.0, 1.0, 1.0 ];
-
-  private __root: Entity;
-
-  public get root(): Entity {
-    return this.__root;
-  }
-
-  private __shadowMapCamera: PerspectiveCamera;
-
-  public get camera(): PerspectiveCamera {
-    return this.__shadowMapCamera;
-  }
-
-  private __shadowMap: BufferRenderTarget;
-
-  public get shadowMap(): BufferRenderTarget {
-    return this.__shadowMap;
-  }
-
-  private __entity: Entity;
-
-  public get entity(): Entity {
-    return this.__entity;
-  }
+  public root: Entity;
+  public camera: PerspectiveCamera;
+  public shadowMap: BufferRenderTarget;
 
   public constructor( options: LightEntityOptions ) {
-    this.__root = options.root;
+    super();
 
-    this.__entity = new Entity();
+    this.root = options.root;
 
     const swapOptions = {
       width: options.shadowMapWidth ?? 1024,
@@ -70,19 +51,19 @@ export class LightEntity {
     const near = options.shadowMapNear ?? 0.1;
     const far = options.shadowMapFar ?? 100.0;
 
-    this.__shadowMapCamera = new PerspectiveCamera( {
+    this.camera = new PerspectiveCamera( {
       fov,
       near,
       far,
       renderTarget: swap.o,
-      scene: this.__root,
+      scene: this.root,
       name: process.env.DEV && `${ options.namePrefix }/shadowMapCamera`,
       materialTag: 'shadow',
     } );
-    this.__shadowMapCamera.clear = [ 1.0, 1.0, 1.0, 1.0 ];
-    this.__entity.components.push( this.__shadowMapCamera );
+    this.camera.clear = [ 1.0, 1.0, 1.0, 1.0 ];
+    this.components.push( this.camera );
 
-    this.__shadowMap = new BufferRenderTarget( {
+    this.shadowMap = new BufferRenderTarget( {
       width: options.shadowMapWidth ?? 1024,
       height: options.shadowMapHeight ?? 1024,
       name: process.env.DEV && `${ options.namePrefix }/shadowMap`,
@@ -94,13 +75,14 @@ export class LightEntity {
     for ( let i = 0; i < 2; i ++ ) {
       const material = new Material(
         quadVert,
-        shadowBlurFrag
+        shadowBlurFrag,
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
       );
       material.addUniform( 'isVert', '1i', i );
       material.addUniformTexture( 'sampler0', swap.i.texture );
 
-      this.__entity.components.push( new Quad( {
-        target: i === 0 ? swap.o : this.__shadowMap,
+      this.components.push( new Quad( {
+        target: i === 0 ? swap.o : this.shadowMap,
         material,
         name: process.env.DEV && `${ options.namePrefix }/quadShadowBlur${ i }`,
       } ) );

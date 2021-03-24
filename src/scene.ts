@@ -49,12 +49,11 @@ dog.root.components.push( new Lambda( {
     randomTexture.update();
     automaton.update( music.time );
   },
-  visible: false,
   name: process.env.DEV && 'main/update',
 } ) );
 
 // -- util -----------------------------------------------------------------------------------------
-class EntityReplacer<T extends { entity: Entity }> {
+class EntityReplacer<T extends Entity> {
   public current?: T;
   public creator: () => T;
 
@@ -64,7 +63,7 @@ class EntityReplacer<T extends { entity: Entity }> {
 
     if ( name ) {
       auto( `${ name }/active`, ( { uninit } ) => {
-        const entity = this.current?.entity;
+        const entity = this.current;
         if ( entity ) {
           entity.active = !uninit;
           entity.visible = !uninit;
@@ -76,16 +75,16 @@ class EntityReplacer<T extends { entity: Entity }> {
   public replace(): void {
     if ( process.env.DEV ) {
       if ( this.current ) {
-        arraySetDelete( dog.root.children, this.current.entity );
+        arraySetDelete( dog.root.children, this.current );
       }
     }
 
     this.current = this.creator();
-    dog.root.children.push( this.current.entity );
+    dog.root.children.push( this.current );
 
     // not visible by default
-    this.current.entity.active = false;
-    this.current.entity.visible = false;
+    this.current.active = false;
+    this.current.visible = false;
   }
 }
 
@@ -184,8 +183,8 @@ const light = new LightEntity( {
   namePrefix: process.env.DEV && 'light1',
 } );
 light.color = [ 0.1, 0.1, 0.1 ];
-light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
-dog.root.children.push( light.entity );
+light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+dog.root.children.push( light );
 
 // const light2 = new LightEntity( {
 //   root: dog.root,
@@ -195,8 +194,8 @@ dog.root.children.push( light.entity );
 //   namePrefix: process.env.DEV && 'light2',
 // } );
 // light2.color = [ 50.0, 30.0, 40.0 ];
-// light2.entity.transform.lookAt( new Vector3( [ -4.0, -2.0, 6.0 ] ) );
-// dog.root.children.push( light2.entity );
+// light2.transform.lookAt( new Vector3( [ -4.0, -2.0, 6.0 ] ) );
+// dog.root.children.push( light2 );
 
 const cubemapCamera = new CubemapCameraEntity( {
   root: dog.root,
@@ -205,12 +204,12 @@ const cubemapCamera = new CubemapCameraEntity( {
     // light2
   ],
 } );
-dog.root.children.push( cubemapCamera.entity );
+dog.root.children.push( cubemapCamera );
 
 const environmentMap = new EnvironmentMap( {
   cubemap: cubemapCamera.target,
 } );
-dog.root.children.push( environmentMap.entity );
+dog.root.children.push( environmentMap );
 
 const camera = new CameraEntity( {
   root: dog.root,
@@ -223,7 +222,7 @@ const camera = new CameraEntity( {
   textureEnv: environmentMap.texture,
 } );
 camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
-camera.entity.components.unshift( new Lambda( {
+camera.components.unshift( new Lambda( {
   onUpdate: ( event ) => {
     const t1 = 0.02 * Math.sin( event.time );
     const s1 = Math.sin( t1 );
@@ -233,48 +232,47 @@ camera.entity.components.unshift( new Lambda( {
     const c2 = Math.cos( t2 );
     const r = 5.0;
 
-    camera.entity.transform.lookAt( new Vector3( [
+    camera.transform.lookAt( new Vector3( [
       r * c1 * s2,
       r * s1,
       r * c1 * c2
     ] ) );
   },
-  visible: false,
   name: process.env.DEV && 'main/updateCamera',
 } ) );
-dog.root.children.push( camera.entity );
+dog.root.children.push( camera );
 
 swap.swap();
 const bloom = new Bloom( {
   input: swap.i,
   target: swap.o
 } );
-dog.root.children.push( bloom.entity );
+dog.root.children.push( bloom );
 
 swap.swap();
 const glitch = new Glitch( {
   input: swap.i,
   target: swap.o,
 } );
-dog.root.children.push( glitch.entity );
+dog.root.children.push( glitch );
 
 swap.swap();
 const pixelSorter = new PixelSorter( {
   input: swap.i,
   target: swap.o,
 } );
-dog.root.children.push( pixelSorter.entity );
+dog.root.children.push( pixelSorter );
 
 swap.swap();
 const post = new Post( {
   input: swap.i,
   target: canvasRenderTarget
 } );
-dog.root.children.push( post.entity );
+dog.root.children.push( post );
 
 if ( process.env.DEV ) {
   const rtInspector = new RTInspector( {
     target: canvasRenderTarget
   } );
-  dog.root.children.push( rtInspector.entity );
+  dog.root.children.push( rtInspector );
 }

@@ -12,8 +12,13 @@ export class Lambda extends Component {
   public constructor( options?: LambdaOptions ) {
     super( options );
 
-    this.onUpdate = options?.onUpdate;
-    this.onDraw = options?.onDraw;
+    const { onUpdate, onDraw } = options ?? {};
+
+    this.onUpdate = onUpdate;
+    this.active = onUpdate != null;
+
+    this.onDraw = onDraw;
+    this.visible = onDraw != null;
   }
 
   protected __updateImpl( event: ComponentUpdateEvent ): void {

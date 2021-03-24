@@ -9,19 +9,18 @@ export interface RTInspectorOptions {
   target: RenderTarget;
 }
 
-export class RTInspector {
-  public entity: Entity;
+export class RTInspector extends Entity {
   public entitySingle: Entity;
   public entityMultiple: Entity;
   public blitSingle: Blit;
   public blitsMultiple: Blit[];
 
   public constructor( options: RTInspectorOptions ) {
-    this.entity = new Entity();
+    super();
 
     // -- single -----------------------------------------------------------------------------------
     this.entitySingle = new Entity();
-    this.entity.children.push( this.entitySingle );
+    this.children.push( this.entitySingle );
 
     this.blitSingle = new Blit( {
       dst: options.target,
@@ -32,7 +31,7 @@ export class RTInspector {
 
     // -- multiple ---------------------------------------------------------------------------------
     this.entityMultiple = new Entity();
-    this.entity.children.push( this.entityMultiple );
+    this.children.push( this.entityMultiple );
 
     // count first?
     let count = 0;

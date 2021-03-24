@@ -1,8 +1,7 @@
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
-import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material, MaterialMap } from '../heck/Material';
+import { Material } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import depthFrag from '../shaders/depth.frag';
 import trailsComputeFrag from '../shaders/trails-compute.frag';
@@ -10,48 +9,37 @@ import trailsRenderFrag from '../shaders/trails-render.frag';
 import trailsRenderVert from '../shaders/trails-render.vert';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 const TRAILS = 4096;
 const TRAIL_LENGTH = 64;
 
-export class Trails {
-  public get entity(): Entity {
-    return this.gpuParticles.entity;
-  }
-
-  public gpuParticles: GPUParticles;
-
+export class Trails extends Entity {
   public constructor() {
-    this.gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute(),
-      geometryRender: this.__createGeometryRender(),
-      materialsRender: this.__createMaterialsRender(),
-      computeWidth: TRAIL_LENGTH,
-      computeHeight: TRAILS,
-      computeNumBuffers: 2,
-      namePrefix: process.env.DEV && 'Trails',
-    } );
-  }
+    super();
 
-  private __createMaterialCompute(): Material {
-    const material = new Material( quadVert, trailsComputeFrag );
-    material.addUniform( 'trails', '1f', TRAILS );
-    material.addUniform( 'trailLength', '1f', TRAIL_LENGTH );
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    // -- material compute -------------------------------------------------------------------------
+    const materialCompute = new Material(
+      quadVert,
+      trailsComputeFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+    );
+
+    materialCompute.addUniform( 'trails', '1f', TRAILS );
+    materialCompute.addUniform( 'trailLength', '1f', TRAIL_LENGTH );
+    materialCompute.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/trails-compute.frag', () => {
-          material.replaceShader( quadVert, trailsComputeFrag );
+          materialCompute.replaceShader( quadVert, trailsComputeFrag );
         } );
       }
     }
 
-    return material;
-  }
-
-  private __createGeometryRender(): Geometry {
-    const geometry = new InstancedGeometry();
+    // -- geometry render --------------------------------------------------------------------------
+    const geometryRender = new InstancedGeometry();
 
     const bufferComputeU = glCat.createBuffer();
     bufferComputeU.setVertexbuffer( ( () => {
@@ -65,7 +53,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.vao.bindVertexbuffer( bufferComputeU, 0, 1 );
+    geometryRender.vao.bindVertexbuffer( bufferComputeU, 0, 1 );
 
     const bufferComputeV = glCat.createBuffer();
     bufferComputeV.setVertexbuffer( ( () => {
@@ -76,7 +64,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.vao.bindVertexbuffer( bufferComputeV, 1, 1, 1 );
+    geometryRender.vao.bindVertexbuffer( bufferComputeV, 1, 1, 1 );
 
     const bufferTriIndex = glCat.createBuffer();
     bufferTriIndex.setVertexbuffer( ( () => {
@@ -89,7 +77,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.vao.bindVertexbuffer( bufferTriIndex, 2, 1 );
+    geometryRender.vao.bindVertexbuffer( bufferTriIndex, 2, 1 );
 
     const indexBuffer = glCat.createBuffer();
     indexBuffer.setIndexbuffer( ( () => {
@@ -108,25 +96,31 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.vao.bindIndexbuffer( indexBuffer );
+    geometryRender.vao.bindIndexbuffer( indexBuffer );
 
-    geometry.count = ( TRAIL_LENGTH - 1 ) * 18;
-    geometry.primcount = TRAILS;
-    geometry.mode = gl.TRIANGLES;
-    geometry.indexType = gl.UNSIGNED_SHORT;
+    geometryRender.count = ( TRAIL_LENGTH - 1 ) * 18;
+    geometryRender.primcount = TRAILS;
+    geometryRender.mode = gl.TRIANGLES;
+    geometryRender.indexType = gl.UNSIGNED_SHORT;
 
-    return geometry;
-  }
-
-  private __createMaterialsRender(): MaterialMap<'deferred' | 'shadow'> {
+    // -- materials render -------------------------------------------------------------------------
     const deferred = new Material(
       trailsRenderVert,
       trailsRenderFrag,
-      { defines: { 'DEFERRED': 'true' } },
+      {
+        defines: { 'DEFERRED': 'true' },
+        initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
+      },
     );
-    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    const shadow = new Material(
+      trailsRenderVert,
+      depthFrag,
+      { initOptions: { geometry: geometryRender, target: dummyRenderTargetOneDrawBuffers } },
+    );
 
-    const shadow = new Material( trailsRenderVert, depthFrag );
+    const materialsRender = { deferred, shadow };
+
+    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
     shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
@@ -144,6 +138,16 @@ export class Trails {
       }
     }
 
-    return { deferred, shadow };
+    // -- gpu particles ----------------------------------------------------------------------------
+    const gpuParticles = new GPUParticles( {
+      materialCompute,
+      geometryRender,
+      materialsRender,
+      computeWidth: TRAIL_LENGTH,
+      computeHeight: TRAILS,
+      computeNumBuffers: 2,
+      namePrefix: process.env.DEV && 'Trails',
+    } );
+    this.children.push( gpuParticles );
   }
 }

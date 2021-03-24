@@ -1,8 +1,7 @@
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
-import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material, MaterialMap } from '../heck/Material';
+import { Material } from '../heck/Material';
 import quadVert from '../shaders/quad.vert';
 import flickyParticleComputeFrag from '../shaders/flicky-particles-compute.frag';
 import flickyParticleRenderFrag from '../shaders/flicky-particles-render.frag';
@@ -10,53 +9,42 @@ import flickyParticleRenderVert from '../shaders/flicky-particles-render.vert';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 const PARTICLES_SQRT = 8;
 const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
 
-export class FlickyParticles {
-  public get entity(): Entity {
-    return this.gpuParticles.entity;
-  }
-
-  public gpuParticles: GPUParticles;
-
+export class FlickyParticles extends Entity {
   public constructor() {
-    this.gpuParticles = new GPUParticles( {
-      materialCompute: this.__createMaterialCompute(),
-      geometryRender: this.__createGeometryRender(),
-      materialsRender: this.__createMaterialsRender(),
-      computeWidth: PARTICLES_SQRT,
-      computeHeight: PARTICLES_SQRT,
-      computeNumBuffers: 1,
-      namePrefix: process.env.DEV && 'FlickyParticles',
-    } );
-  }
+    super();
 
-  private __createMaterialCompute(): Material {
-    const material = new Material( quadVert, flickyParticleComputeFrag );
-    material.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
-    material.addUniform( 'particles', '1f', PARTICLES );
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    // -- material compute -------------------------------------------------------------------------
+    const materialCompute = new Material(
+      quadVert,
+      flickyParticleComputeFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+    );
+
+    materialCompute.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
+    materialCompute.addUniform( 'particles', '1f', PARTICLES );
+    materialCompute.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/flicky-particles-compute.frag', () => {
-          material.replaceShader( quadVert, flickyParticleComputeFrag );
+          materialCompute.replaceShader( quadVert, flickyParticleComputeFrag );
         } );
       }
     }
 
-    return material;
-  }
-
-  private __createGeometryRender(): Geometry {
-    const geometry = new InstancedGeometry();
+    // -- geometry render --------------------------------------------------------------------------
+    const geometryRender = new InstancedGeometry();
 
     const bufferP = glCat.createBuffer();
     bufferP.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
 
-    geometry.vao.bindVertexbuffer( bufferP, 0, 2 );
+    geometryRender.vao.bindVertexbuffer( bufferP, 0, 2 );
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
@@ -73,36 +61,45 @@ export class FlickyParticles {
       return ret;
     } )() );
 
-    geometry.vao.bindVertexbuffer( bufferComputeUV, 1, 2, 1 );
+    geometryRender.vao.bindVertexbuffer( bufferComputeUV, 1, 2, 1 );
 
-    geometry.count = 4;
-    geometry.mode = gl.TRIANGLE_STRIP;
-    geometry.primcount = PARTICLES;
+    geometryRender.count = 4;
+    geometryRender.mode = gl.TRIANGLE_STRIP;
+    geometryRender.primcount = PARTICLES;
 
-    return geometry;
-  }
-
-  private __createMaterialsRender(): MaterialMap {
+    // -- materials render -------------------------------------------------------------------------
     const forward = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
-      { defines: { 'FORWARD': 'true' } },
+      {
+        defines: { 'FORWARD': 'true' },
+        initOptions: { geometry: geometryRender, target: dummyRenderTargetOneDrawBuffers },
+      },
     );
-    forward.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     const deferred = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
-      { defines: { 'DEFERRED': 'true' } },
+      {
+        defines: { 'DEFERRED': 'true' },
+        initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
+      },
     );
-    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     const shadow = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
-      { defines: { 'SHADOW': 'true' } },
+      {
+        defines: { 'SHADOW': 'true' },
+        initOptions: { geometry: geometryRender, target: dummyRenderTargetOneDrawBuffers },
+      },
     );
-    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+
+    const materialsRender = { forward, deferred, shadow };
+
+    for ( const material of Object.values( materialsRender ) ) {
+      material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    }
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -120,6 +117,16 @@ export class FlickyParticles {
       }
     }
 
-    return { forward, deferred, shadow };
+    // -- gpu particles ----------------------------------------------------------------------------
+    const gpuParticles = new GPUParticles( {
+      materialCompute,
+      geometryRender,
+      materialsRender,
+      computeWidth: PARTICLES_SQRT,
+      computeHeight: PARTICLES_SQRT,
+      computeNumBuffers: 1,
+      namePrefix: process.env.DEV && 'FlickyParticles',
+    } );
+    this.children.push( gpuParticles );
   }
 }

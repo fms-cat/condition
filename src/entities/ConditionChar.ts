@@ -64,11 +64,6 @@ export class ConditionChar extends Entity {
     geometry.indexType = gl.UNSIGNED_SHORT;
 
     // -- create materials -------------------------------------------------------------------------
-    const initOptions = {
-      geometry,
-      target: dummyRenderTargetFourDrawBuffers,
-    };
-
     const materials = {
       forward: new Material(
         svgVert,

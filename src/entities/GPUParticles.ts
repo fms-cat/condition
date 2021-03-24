@@ -18,102 +18,87 @@ export interface GPUParticlesOptions {
   namePrefix?: string;
 }
 
-export class GPUParticles {
-  private __entity: Entity;
+export class GPUParticles extends Entity {
+  public constructor( {
+    materialCompute,
+    geometryRender,
+    materialsRender,
+    computeWidth,
+    computeHeight,
+    computeNumBuffers,
+    namePrefix,
+  }: GPUParticlesOptions ) {
+    super();
 
-  public get entity(): Entity {
-    return this.__entity;
-  }
-
-  private __swapCompute: Swap<BufferRenderTarget>;
-
-  private __quadCompute: Quad;
-
-  private __meshRender: Mesh;
-
-  public get meshRender(): Mesh {
-    return this.__meshRender;
-  }
-
-  public get materialCompute(): Material {
-    return this.__quadCompute.material;
-  }
-
-  public get materialsRender(): Partial<MaterialMap<MaterialTag>> {
-    return this.__meshRender.materials;
-  }
-
-  public constructor( options: GPUParticlesOptions ) {
-    this.__entity = new Entity();
 
     const brtOptions: BufferRenderTargetOptions = {
-      width: options.computeWidth,
-      height: options.computeHeight,
-      numBuffers: options.computeNumBuffers,
+      width: computeWidth,
+      height: computeHeight,
+      numBuffers: computeNumBuffers,
     };
 
-    this.__swapCompute = new Swap(
+    const swapCompute = new Swap(
       new BufferRenderTarget( {
         ...brtOptions,
-        name: process.env.DEV && `${ options.namePrefix }/swap0`,
+        name: process.env.DEV && `${ namePrefix }/swap0`,
       } ),
       new BufferRenderTarget( {
         ...brtOptions,
-        name: process.env.DEV && `${ options.namePrefix }/swap1`,
+        name: process.env.DEV && `${ namePrefix }/swap1`,
       } ),
     );
 
-    // -- swapper ----------------------------------------------------------------------------------
-    this.__entity.components.push( new Lambda( {
-      onUpdate: () => {
-        this.__swapCompute.swap();
+    // -- compute ----------------------------------------------------------------------------------
+    const quadCompute = new Quad( {
+      target: swapCompute.o,
+      material: materialCompute,
+      name: process.env.DEV && `${ namePrefix }/quadCompute`,
+    } );
 
-        for ( let i = 0; i < options.computeNumBuffers; i ++ ) {
+    // -- render -----------------------------------------------------------------------------------
+    const meshRender = new Mesh( {
+      geometry: geometryRender,
+      materials: materialsRender,
+      name: process.env.DEV && `${ namePrefix }/meshRender`,
+    } );
+
+    for ( const material of Object.values( materialsRender ) ) {
+      material?.addUniform(
+        'resolutionCompute',
+        '2f',
+        computeWidth,
+        computeHeight
+      );
+    }
+
+    // -- swapper ----------------------------------------------------------------------------------
+    this.components.push( new Lambda( {
+      onUpdate: () => {
+        swapCompute.swap();
+
+        for ( let i = 0; i < computeNumBuffers; i ++ ) {
           const attachment = gl.COLOR_ATTACHMENT0 + i;
 
-          this.materialCompute.addUniformTexture(
+          materialCompute.addUniformTexture(
             `samplerCompute${ i }`,
-            this.__swapCompute.i.getTexture( attachment )
+            swapCompute.i.getTexture( attachment )
           );
 
-          for ( const material of Object.values( this.materialsRender ) ) {
+          for ( const material of Object.values( materialsRender ) ) {
             material?.addUniformTexture(
               `samplerCompute${ i }`,
-              this.__swapCompute.o.getTexture( attachment )
+              swapCompute.o.getTexture( attachment )
             );
           }
         }
 
-        this.__quadCompute.target = this.__swapCompute.o;
+        quadCompute.target = swapCompute.o;
       },
-      visible: false,
-      name: process.env.DEV && `${ options.namePrefix }/swapper`,
+      name: process.env.DEV && `${ namePrefix }/swapper`,
     } ) );
 
-    // -- compute ----------------------------------------------------------------------------------
-    this.__quadCompute = new Quad( {
-      target: this.__swapCompute.o,
-      material: options.materialCompute,
-      name: process.env.DEV && `${ options.namePrefix }/quadCompute`,
-    } );
-    this.__entity.components.push( this.__quadCompute );
-
-    // -- render -----------------------------------------------------------------------------------
-    this.__meshRender = new Mesh( {
-      geometry: options.geometryRender,
-      materials: options.materialsRender,
-      name: process.env.DEV && `${ options.namePrefix }/meshRender`,
-    } );
-
-    for ( const material of Object.values( options.materialsRender ) ) {
-      material?.addUniform(
-        'resolutionCompute',
-        '2f',
-        options.computeWidth,
-        options.computeHeight
-      );
-    }
-
-    this.__entity.components.push( this.__meshRender );
+    // -- rest of components -----------------------------------------------------------------------
+    this.components.push( quadCompute );
+    this.components.push( meshRender );
   }
 }

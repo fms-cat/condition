@@ -2,25 +2,20 @@ import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { genTorus } from '../geometries/genTorus';
 import { Mesh } from '../heck/components/Mesh';
 import { Entity } from '../heck/Entity';
-import { Geometry } from '../heck/Geometry';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material, MaterialMap } from '../heck/Material';
+import { Material } from '../heck/Material';
 import depthFrag from '../shaders/depth.frag';
 import ringsVert from '../shaders/rings.vert';
 import ringsFrag from '../shaders/rings.frag';
 import { gl, glCat } from '../globals/canvas';
 import { Lambda } from '../heck/components/Lambda';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 const PRIMCOUNT = 32;
 
-export class Rings {
-  public mesh: Mesh;
-  public geometry: Geometry;
-  public materials: MaterialMap;
-  public entity: Entity;
-
+export class Rings extends Entity {
   public constructor() {
-    this.entity = new Entity();
+    super();
 
     const rot0 = Quaternion.fromAxisAngle(
       new Vector3( [ 1.0, 0.0, 0.0 ] ),
@@ -29,34 +24,9 @@ export class Rings {
       new Vector3( [ 0.0, 0.0, 1.0 ] ),
       0.4,
     ) );
-    this.entity.transform.rotation = rot0;
+    this.transform.rotation = rot0;
 
-    this.geometry = this.__createGeometry();
-    this.materials = this.__createMaterials();
-
-    this.mesh = new Mesh( {
-      geometry: this.geometry,
-      materials: this.materials,
-      name: process.env.DEV && 'Rings/mesh',
-    } );
-    this.entity.components.push( this.mesh );
-
-    this.entity.components.push( new Lambda( {
-      onUpdate: ( { time } ) => {
-        this.entity.transform.rotation = rot0.multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 1.0, 0.0, 0.0 ] ), 1.0 )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
-        );
-      },
-      visible: false,
-      name: process.env.DEV && 'Rings/speen',
-    } ) );
-  }
-
-  private __createGeometry(): Geometry {
+    // -- geometry ---------------------------------------------------------------------------------
     const torus = genTorus( { segmentsRadial: 256 } );
 
     const geometry = new InstancedGeometry();
@@ -76,23 +46,30 @@ export class Rings {
     geometry.mode = torus.mode;
     geometry.indexType = gl.UNSIGNED_SHORT;
 
-    return geometry;
-  }
-
-  private __createMaterials(): MaterialMap {
-    const forward = new Material(
-      ringsVert,
-      ringsFrag,
-      { defines: { 'FORWARD': 'true' } },
-    );
-
-    const deferred = new Material(
-      ringsVert,
-      ringsFrag,
-      { defines: { 'DEFERRED': 'true' } },
-    );
-
-    const shadow = new Material( ringsVert, depthFrag );
+    // -- materials --------------------------------------------------------------------------------
+    const materials = {
+      forward: new Material(
+        ringsVert,
+        ringsFrag,
+        {
+          defines: { 'FORWARD': 'true' },
+          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+        },
+      ),
+      deferred: new Material(
+        ringsVert,
+        ringsFrag,
+        {
+          defines: { 'DEFERRED': 'true' },
+          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+        },
+      ),
+      shadow: new Material(
+        ringsVert,
+        depthFrag,
+        { initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers } },
+      ),
+    }
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -102,14 +79,33 @@ export class Rings {
             '../shaders/rings.frag',
           ],
           () => {
-            forward.replaceShader( ringsVert, ringsFrag );
-            deferred.replaceShader( ringsVert, ringsFrag );
-            shadow.replaceShader( ringsVert, depthFrag );
+            materials.forward.replaceShader( ringsVert, ringsFrag );
+            materials.deferred.replaceShader( ringsVert, ringsFrag );
+            materials.shadow.replaceShader( ringsVert, depthFrag );
           },
         );
       }
     }
 
-    return { forward, deferred, shadow };
+    // -- mesh -------------------------------------------------------------------------------------
+    const mesh = new Mesh( {
+      geometry: geometry,
+      materials: materials,
+      name: process.env.DEV && 'Rings/mesh',
+    } );
+    this.components.push( mesh );
+
+    this.components.push( new Lambda( {
+      onUpdate: ( { time } ) => {
+        this.transform.rotation = rot0.multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
+        ).multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 1.0, 0.0, 0.0 ] ), 1.0 )
+        ).multiply(
+          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
+        );
+      },
+      name: process.env.DEV && 'Rings/speen',
+    } ) );
   }
 }

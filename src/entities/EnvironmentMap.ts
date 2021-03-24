@@ -11,20 +11,20 @@ import { Lambda } from '../heck/components/Lambda';
 import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { gl } from '../globals/canvas';
 import { auto } from '../globals/automaton';
+import { quadGeometry } from '../globals/quadGeometry';
+import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
 const WIDTH = 1024;
 const HEIGHT = 512;
 
-export class EnvironmentMap {
-  public entity: Entity;
-
+export class EnvironmentMap extends Entity {
   public readonly texture: GLCatTexture;
 
   public constructor( { cubemap }: {
     cubemap: CubemapRenderTarget;
   } ) {
-    this.entity = new Entity();
-    this.entity.visible = false;
+    super();
+    this.visible = false;
 
     const rng = new Xorshift( 114514 );
 
@@ -50,6 +50,7 @@ export class EnvironmentMap {
     const materialIntegrate = new Material(
       quadVert,
       environmentMapFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
     );
     materialIntegrate.addUniform( 'uniformSeed', '4f', rng.gen(), rng.gen(), rng.gen(), rng.gen() );
     materialIntegrate.addUniformTexture( 'sampler0', swap.i.texture );
@@ -63,7 +64,7 @@ export class EnvironmentMap {
       }
     }
 
-    this.entity.components.push( new Quad( {
+    this.components.push( new Quad( {
       target: swap.o,
       material: materialIntegrate,
       name: process.env.DEV && 'EnvironmentMap/quadIntegrate',
@@ -75,6 +76,7 @@ export class EnvironmentMap {
     const materialMerge = new Material(
       quadVert,
       environmentMapMergeFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
     );
     materialMerge.addUniformTexture( 'sampler0', swap.i.texture );
 
@@ -86,7 +88,7 @@ export class EnvironmentMap {
       }
     }
 
-    this.entity.components.push( new Quad( {
+    this.components.push( new Quad( {
       target: swap.o,
       material: materialMerge,
       name: process.env.DEV && 'EnvironmentMap/quadMerge',
@@ -101,7 +103,7 @@ export class EnvironmentMap {
     } );
 
     // -- updater ----------------------------------------------------------------------------------
-    this.entity.components.push( new Lambda( {
+    this.components.push( new Lambda( {
       onUpdate: () => {
         materialIntegrate.addUniform(
           'uniformSeed',
@@ -112,7 +114,6 @@ export class EnvironmentMap {
           rng.gen(),
         );
       },
-      visible: false,
       name: process.env.DEV && 'EnvironmentMap/updater',
     } ) );
   }

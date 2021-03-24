@@ -11,14 +11,12 @@ import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { auto } from '../globals/automaton';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
 
-export class Raymarcher {
-  public mesh: Mesh;
-  public readonly entity: Entity;
-
+export class Raymarcher extends Entity {
   public constructor() {
-    this.entity = new Entity();
-    this.entity.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
-    this.entity.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
+    super();
+
+    this.transform.position = new Vector3( [ 0.0, 0.0, 0.3 ] );
+    this.transform.scale = new Vector3( [ 16.0, 9.0, 1.0 ] ).scale( 0.15 );
 
     // -- geometry ---------------------------------------------------------------------------------
     const geometry = new Geometry();
@@ -68,7 +66,7 @@ export class Raymarcher {
     }
 
     // -- updater ----------------------------------------------------------------------------------
-    this.entity.components.push( new Lambda( {
+    this.components.push( new Lambda( {
       onDraw: ( event ) => {
         for ( const material of Object.values( materials ) ) {
           material.addUniform(
@@ -89,17 +87,16 @@ export class Raymarcher {
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         }
       },
-      active: false,
       name: process.env.DEV && 'Raymarcher/updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
-    this.mesh = new Mesh( {
+    const mesh = new Mesh( {
       geometry: geometry,
       materials: materials,
       name: process.env.DEV && 'Raymarcher/mesh',
     } );
-    this.mesh.cull = MeshCull.None;
-    this.entity.components.push( this.mesh );
+    mesh.cull = MeshCull.None;
+    this.components.push( mesh );
   }
 }

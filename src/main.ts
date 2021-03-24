@@ -5,11 +5,6 @@ import { music } from './globals/music';
 import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
 import { dog } from './scene';
 
-// == music ========================================================================================
-if ( process.env.DEV ) {
-  music.isPlaying = true;
-}
-
 // == dom ==========================================================================================
 document.body.style.margin = '0';
 document.body.style.padding = '0';
@@ -74,4 +69,9 @@ if ( !process.env.DEV ) {
 if ( process.env.DEV ) {
   console.info( Component.nameMap );
   console.info( BufferRenderTarget.nameMap );
+}
+
+// == music ========================================================================================
+if ( process.env.DEV ) {
+  music.isPlaying = true;
 }

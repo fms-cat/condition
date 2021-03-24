@@ -6,8 +6,8 @@ import { BufferRenderTarget } from '../BufferRenderTarget';
 export interface BlitOptions extends ComponentOptions {
   src?: BufferRenderTarget;
   dst?: RenderTarget;
-  srcRect?: [ number, number, number, number ];
-  dstRect?: [ number, number, number, number ];
+  srcRect?: [ number, number, number, number ] | null;
+  dstRect?: [ number, number, number, number ] | null;
   attachment?: GLenum;
   mask?: GLenum;
   filter?: GLenum;
