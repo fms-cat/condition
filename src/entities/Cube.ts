@@ -9,7 +9,7 @@ import depthFrag from '../shaders/depth.frag';
 import { genCube } from '../geometries/genCube';
 import { Lambda } from '../heck/components/Lambda';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export class Cube extends Entity {
   public mesh: Mesh;
@@ -55,7 +55,7 @@ export class Cube extends Entity {
       shadow: new Material(
         cubeVert,
         depthFrag,
-        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       ),
     };
 

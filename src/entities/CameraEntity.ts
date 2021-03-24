@@ -14,7 +14,7 @@ import shadingFrag from '../shaders/shading.frag';
 import { gl } from '../globals/canvas';
 import { randomTexture } from '../globals/randomTexture';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface CameraEntityOptions {
   root: Entity;
@@ -58,7 +58,7 @@ export class CameraEntity extends Entity {
     const aoMaterial = new Material(
       quadVert,
       aoFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
 
     this.components.push( new Lambda( {
@@ -100,7 +100,7 @@ export class CameraEntity extends Entity {
           defines: {
             IS_FIRST_LIGHT: iLight === 0 ? 'true' : undefined
           },
-          initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry: quadGeometry, target: dummyRenderTarget },
         },
       );
 

@@ -8,7 +8,7 @@ import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { auto } from '../globals/automaton';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { genOctahedron } from '../geometries/genOctahedron';
 
 export class Raymarcher extends Entity {
@@ -45,7 +45,7 @@ export class Raymarcher extends Entity {
         raymarcherFrag,
         {
           defines: { 'SHADOW': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers }
+          initOptions: { geometry, target: dummyRenderTarget }
         },
       ),
     };

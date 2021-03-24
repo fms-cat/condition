@@ -7,7 +7,7 @@ import { Swap } from '@fms-cat/experimental';
 import quadVert from '../shaders/quad.vert';
 import shadowBlurFrag from '../shaders/shadow-blur.frag';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface LightEntityOptions {
   root: Entity;
@@ -76,7 +76,7 @@ export class LightEntity extends Entity {
       const material = new Material(
         quadVert,
         shadowBlurFrag,
-        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       );
       material.addUniform( 'isVert', '1i', i );
       material.addUniformTexture( 'sampler0', swap.i.texture );

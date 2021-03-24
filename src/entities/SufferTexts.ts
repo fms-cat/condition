@@ -14,7 +14,7 @@ import { Lambda } from '../heck/components/Lambda';
 import { auto } from '../globals/automaton';
 import { sufferList } from '../sufferList';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const PARTICLES = 256;
 
@@ -29,7 +29,7 @@ export class SufferTexts extends Entity {
     const materialCompute = new Material(
       quadVert,
       sufferTextsComputeFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     if ( process.env.DEV ) {
       if ( module.hot ) {

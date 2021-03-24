@@ -6,7 +6,7 @@ import { createSVGTableTexture } from '../utils/createSVGTableTexture';
 import conditionVert from '../shaders/condition.vert';
 import conditionFrag from '../shaders/condition.frag';
 import { Material } from '../heck/Material';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { Mesh } from '../heck/components/Mesh';
 import { auto } from '../globals/automaton';
 
@@ -107,7 +107,7 @@ export class Condition extends Entity {
         conditionFrag,
         {
           defines: { 'FORWARD': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
       deferred: new Material(
@@ -123,7 +123,7 @@ export class Condition extends Entity {
         conditionFrag,
         {
           defines: { 'SHADOW': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
     };

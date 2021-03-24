@@ -9,7 +9,7 @@ import { Swap } from '@fms-cat/experimental';
 import { Lambda } from '../heck/components/Lambda';
 import { vdc } from '../utils/vdc';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const IBL_SIZE = 256;
 
@@ -46,7 +46,7 @@ export class IBLLUT {
     const material = new Material(
       quadVert,
       iblLutFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     material.addUniform( 'samples', '1f', samples );
     material.addUniform( 'vdc', '1f', vdc( samples, 2.0 ) );

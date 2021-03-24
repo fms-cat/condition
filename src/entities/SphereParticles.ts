@@ -11,7 +11,7 @@ import sphereParticleRenderVert from '../shaders/sphere-particles-render.vert';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const PARTICLES_SQRT = 256;
 const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
@@ -24,7 +24,7 @@ export class SphereParticles extends Entity {
     const materialCompute = new Material(
       quadVert,
       sphereParticleComputeFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
 
     materialCompute.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
@@ -83,7 +83,7 @@ export class SphereParticles extends Entity {
     const shadow = new Material(
       sphereParticleRenderVert,
       depthFrag,
-      { initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers } },
+      { initOptions: { geometry: geometryRender, target: dummyRenderTarget } },
     );
 
     const materialsRender = { deferred, shadow };

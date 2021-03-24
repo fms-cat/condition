@@ -6,7 +6,7 @@ import postFrag from '../shaders/post.frag';
 import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface PostOptions {
   input: BufferRenderTarget;
@@ -23,7 +23,7 @@ export class Post extends Entity {
     const material = new Material(
       quadVert,
       postFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     material.addUniformTexture( 'sampler0', options.input.texture );
 

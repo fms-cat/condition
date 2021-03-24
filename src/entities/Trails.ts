@@ -10,7 +10,7 @@ import trailsRenderVert from '../shaders/trails-render.vert';
 import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const TRAILS = 4096;
 const TRAIL_LENGTH = 64;
@@ -23,7 +23,7 @@ export class Trails extends Entity {
     const materialCompute = new Material(
       quadVert,
       trailsComputeFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
 
     materialCompute.addUniform( 'trails', '1f', TRAILS );
@@ -115,7 +115,7 @@ export class Trails extends Entity {
     const shadow = new Material(
       trailsRenderVert,
       depthFrag,
-      { initOptions: { geometry: geometryRender, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: geometryRender, target: dummyRenderTarget } },
     );
 
     const materialsRender = { deferred, shadow };

@@ -8,7 +8,7 @@ import { gl, glCat } from '../globals/canvas';
 import { Vector3 } from '@fms-cat/experimental';
 import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { auto } from '../globals/automaton';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const POINTS_MAX = 256;
 
@@ -70,7 +70,7 @@ export class ConditionChar extends Entity {
         conditionCharFrag,
         {
           defines: { 'FORWARD': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
       deferred: new Material(
@@ -86,7 +86,7 @@ export class ConditionChar extends Entity {
         conditionCharFrag,
         {
           defines: { 'SHADOW': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
     };

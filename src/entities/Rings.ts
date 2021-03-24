@@ -9,7 +9,7 @@ import ringsVert from '../shaders/rings.vert';
 import ringsFrag from '../shaders/rings.frag';
 import { gl, glCat } from '../globals/canvas';
 import { Lambda } from '../heck/components/Lambda';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const PRIMCOUNT = 32;
 
@@ -53,7 +53,7 @@ export class Rings extends Entity {
         ringsFrag,
         {
           defines: { 'FORWARD': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
       deferred: new Material(
@@ -61,13 +61,13 @@ export class Rings extends Entity {
         ringsFrag,
         {
           defines: { 'DEFERRED': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers },
+          initOptions: { geometry, target: dummyRenderTarget },
         },
       ),
       shadow: new Material(
         ringsVert,
         depthFrag,
-        { initOptions: { geometry, target: dummyRenderTargetOneDrawBuffers } },
+        { initOptions: { geometry, target: dummyRenderTarget } },
       ),
     }
 

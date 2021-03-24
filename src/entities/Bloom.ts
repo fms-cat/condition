@@ -9,7 +9,7 @@ import bloomPreFrag from '../shaders/bloom-pre.frag';
 import bloomBlurFrag from '../shaders/bloom-blur.frag';
 import bloomPostFrag from '../shaders/bloom-post.frag';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { Blit } from '../heck/components/Blit';
 import { gl } from '../globals/canvas';
 
@@ -41,7 +41,7 @@ export class Bloom extends Entity {
     const materialBloomPre = new Material(
       quadVert,
       bloomPreFrag,
-      { initOptions: { target: dummyRenderTargetOneDrawBuffers, geometry: quadGeometry } },
+      { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
     );
     materialBloomPre.addUniformTexture( 'sampler0', options.input.texture );
 
@@ -72,7 +72,7 @@ export class Bloom extends Entity {
       const material = new Material(
         quadVert,
         bloomBlurFrag,
-        { initOptions: { target: dummyRenderTargetOneDrawBuffers, geometry: quadGeometry } },
+        { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
       );
       material.addUniform( 'isVert', '1i', i );
       material.addUniformTexture( 'sampler0', swap.i.texture );
@@ -90,7 +90,7 @@ export class Bloom extends Entity {
     const materialBloomPost = new Material(
       quadVert,
       bloomPostFrag,
-      { initOptions: { target: dummyRenderTargetOneDrawBuffers, geometry: quadGeometry } },
+      { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
     );
     materialBloomPost.addUniformTexture( 'samplerDry', options.input.texture );
     materialBloomPost.addUniformTexture( 'samplerWet', swap.i.texture );

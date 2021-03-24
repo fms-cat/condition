@@ -8,7 +8,7 @@ import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface GlitchOptions {
   input: BufferRenderTarget;
@@ -42,7 +42,7 @@ export class Glitch extends Entity {
     this.material = new Material(
       quadVert,
       glitchFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     this.material.addUniformTexture( 'sampler0', options.input.texture );
 

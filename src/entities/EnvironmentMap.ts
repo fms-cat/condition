@@ -12,7 +12,7 @@ import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { gl } from '../globals/canvas';
 import { auto } from '../globals/automaton';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const WIDTH = 1024;
 const HEIGHT = 512;
@@ -50,7 +50,7 @@ export class EnvironmentMap extends Entity {
     const materialIntegrate = new Material(
       quadVert,
       environmentMapFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     materialIntegrate.addUniform( 'uniformSeed', '4f', rng.gen(), rng.gen(), rng.gen(), rng.gen() );
     materialIntegrate.addUniformTexture( 'sampler0', swap.i.texture );
@@ -76,7 +76,7 @@ export class EnvironmentMap extends Entity {
     const materialMerge = new Material(
       quadVert,
       environmentMapMergeFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     materialMerge.addUniformTexture( 'sampler0', swap.i.texture );
 

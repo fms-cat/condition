@@ -10,7 +10,7 @@ import { Swap } from '@fms-cat/experimental';
 import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
 import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetOneDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface PixelSorterOptions {
   input: BufferRenderTarget;
@@ -69,7 +69,7 @@ export class PixelSorter extends Entity {
       const material = new Material(
         quadVert,
         pixelSorterIndexFrag,
-        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       );
       material.addUniform( 'mul', '1f', mul );
       material.addUniformTexture(
@@ -104,7 +104,7 @@ export class PixelSorter extends Entity {
       const material = new Material(
         quadVert,
         pixelSorterFrag,
-        { initOptions: { geometry: quadGeometry, target: dummyRenderTargetOneDrawBuffers } },
+        { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       );
       material.addUniform( 'dir', '1f', dir );
       material.addUniform( 'comp', '1f', comp );
