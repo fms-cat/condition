@@ -26,6 +26,7 @@ export class Cube {
       0.4,
     ) );
 
+    this.entity.transform.position = new Vector3( [ 0.0, 0.0, -2.0 ] );
     this.entity.transform.rotation = rot0;
     this.entity.transform.scale = this.entity.transform.scale.scale( 0.8 );
 

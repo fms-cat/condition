@@ -34,7 +34,7 @@ void main() {
   #ifdef DEFERRED
     fragPosition = vPosition;
     fragNormal = vec4( normalize( vNormal ), 1.0 );
-    fragColor = vec4( vec3( 0.02, 0.04, 0.9 ), 1.0 );
-    fragWTF = vec4( vec3( 0.02 + 0.03 * rough, 0.87, 0.0 ), MTL_PBR );
+    fragColor = vec4( vec3( 0.5 ), 1.0 );
+    fragWTF = vec4( vec3( 0.4 + 0.03 * rough, 0.17, 0.0 ), MTL_PBR );
   #endif
 }

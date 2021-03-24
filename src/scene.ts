@@ -1,6 +1,7 @@
 import { Swap, Vector3 } from '@fms-cat/experimental';
 import { Bloom } from './entities/Bloom';
 import { CameraEntity } from './entities/CameraEntity';
+import { Condition } from './entities/Condition';
 import { Cube } from './entities/Cube';
 import { CubemapCameraEntity } from './entities/CubemapCameraEntity';
 import { EnvironmentMap } from './entities/EnvironmentMap';
@@ -103,6 +104,13 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
+const replacerSVGTest = new EntityReplacer( () => new Condition(), 'Condition' );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/Condition', () => {
+    replacerSVGTest.replace();
+  } );
+}
+
 const replacerTrails = new EntityReplacer( () => new Trails(), 'Trails' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Trails', () => {
@@ -175,7 +183,7 @@ const light = new LightEntity( {
   shadowMapFar: 20.0,
   namePrefix: process.env.DEV && 'light1',
 } );
-light.color = [ 30.0, 1.0, 5.0 ];
+light.color = [ 0.1, 0.1, 0.1 ];
 light.entity.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
 dog.root.children.push( light.entity );
 

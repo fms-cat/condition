@@ -24,7 +24,7 @@ export class Dog {
           time: music.time,
           deltaTime: music.deltaTime,
           globalTransform: new Transform(),
-          parent: null
+          parent: null,
         } );
       }
 

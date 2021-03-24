@@ -14,7 +14,7 @@ export class GPUTimer {
 
     this.stack = [];
 
-    this.ext = glCat.getExtension( 'EXT_disjoint_timer_query_webgl2' );
+    this.ext = glCat.getExtension( 'EXT_disjoint_timer_query_webgl2', true );
 
     this.__loopTasks = new Set();
   }
