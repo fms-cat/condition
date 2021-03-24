@@ -20,8 +20,8 @@ const float TAU = 6.283185307;
 
 // -------------------------------------------------------------------------------------------------
 
-in vec2 computeUV;
-in vec2 position;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 computeUV;
 
 out float vLife;
 out float vMode;

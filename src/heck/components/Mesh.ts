@@ -56,8 +56,6 @@ export class Mesh extends Component {
       gl.cullFace( meshCullMap[ this.cull ] );
     }
 
-    this.geometry.assignBuffers( material );
-
     material.setUniforms();
 
     program.uniform1f( 'time', event.time );

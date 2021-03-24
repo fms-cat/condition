@@ -56,11 +56,7 @@ export class FlickyParticles {
     const bufferP = glCat.createBuffer();
     bufferP.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
 
-    geometry.addAttribute( 'position', {
-      buffer: bufferP,
-      size: 2,
-      type: gl.FLOAT,
-    } );
+    geometry.vao.bindVertexbuffer( bufferP, 0, 2 );
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
@@ -77,12 +73,7 @@ export class FlickyParticles {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'computeUV', {
-      buffer: bufferComputeUV,
-      size: 2,
-      divisor: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferComputeUV, 1, 2, 1 );
 
     geometry.count = 4;
     geometry.mode = gl.TRIANGLE_STRIP;

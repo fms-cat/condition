@@ -57,9 +57,9 @@ export class SphereParticles {
 
     const geometry = new InstancedGeometry();
 
-    geometry.addAttribute( 'position', octahedron.position );
-    geometry.addAttribute( 'normal', octahedron.normal );
-    geometry.setIndex( octahedron.index );
+    geometry.vao.bindVertexbuffer( octahedron.position, 0, 3 );
+    geometry.vao.bindVertexbuffer( octahedron.normal, 1, 3 );
+    geometry.vao.bindIndexbuffer( octahedron.index );
 
     const bufferComputeUV = glCat.createBuffer();
     bufferComputeUV.setVertexbuffer( ( () => {
@@ -76,16 +76,12 @@ export class SphereParticles {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'computeUV', {
-      buffer: bufferComputeUV,
-      size: 2,
-      divisor: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferComputeUV, 2, 2, 1 );
 
     geometry.count = octahedron.count;
     geometry.mode = octahedron.mode;
     geometry.primcount = PARTICLES_SQRT * PARTICLES_SQRT;
+    geometry.indexType = gl.UNSIGNED_SHORT;
 
     return geometry;
   }

@@ -83,19 +83,12 @@ export class ConditionChar extends Entity {
     // -- create attributes ------------------------------------------------------------------------
     const geometry = new Geometry();
 
-    geometry.addAttribute( 'what', {
-      buffer: bufferPos,
-      size: 2,
-      type: gl.FLOAT,
-    } );
-
-    geometry.setIndex( {
-      buffer: bufferInd,
-      type: gl.UNSIGNED_SHORT,
-    } );
+    geometry.vao.bindVertexbuffer( bufferPos, 0, 2 );
+    geometry.vao.bindIndexbuffer( bufferInd );
 
     geometry.count = 18 * POINTS_MAX;
     geometry.mode = gl.TRIANGLES;
+    geometry.indexType = gl.UNSIGNED_SHORT;
 
     return geometry;
   }

@@ -1,10 +1,10 @@
+import { GLCatBuffer } from '@fms-cat/glcat-ts';
 import { gl, glCat } from '../globals/canvas';
-import { GeometryAttribute, GeometryIndex } from '../heck/Geometry';
 
 interface ResultGenCube {
-  position: GeometryAttribute;
-  normal: GeometryAttribute;
-  index: GeometryIndex;
+  position: GLCatBuffer;
+  normal: GLCatBuffer;
+  index: GLCatBuffer;
   count: number;
   mode: GLenum;
 }
@@ -51,25 +51,14 @@ export function genCube(): ResultGenCube {
     ind.push( ...[ 0, 1, 3, 0, 3, 2 ].map( ( v ) => v + 4 * i ) );
   }
 
-  const position: GeometryAttribute = {
-    buffer: glCat.createBuffer(),
-    type: gl.FLOAT,
-    size: 3
-  };
-  position.buffer.setVertexbuffer( new Float32Array( pos ) );
+  const position = glCat.createBuffer();
+  position.setVertexbuffer( new Float32Array( pos ) );
 
-  const normal: GeometryAttribute = {
-    buffer: glCat.createBuffer(),
-    type: gl.FLOAT,
-    size: 3
-  };
-  normal.buffer.setVertexbuffer( new Float32Array( nor ) );
+  const normal = glCat.createBuffer();
+  normal.setVertexbuffer( new Float32Array( nor ) );
 
-  const index: GeometryIndex = {
-    buffer: glCat.createBuffer(),
-    type: gl.UNSIGNED_SHORT
-  };
-  index.buffer.setIndexbuffer( new Uint16Array( ind ) );
+  const index = glCat.createBuffer();
+  index.setIndexbuffer( new Uint16Array( ind ) );
 
   return {
     position,

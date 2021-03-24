@@ -61,24 +61,20 @@ export class Rings {
 
     const geometry = new InstancedGeometry();
 
-    geometry.addAttribute( 'position', torus.position );
-    geometry.addAttribute( 'normal', torus.normal );
-    geometry.setIndex( torus.index );
+    geometry.vao.bindVertexbuffer( torus.position, 0, 3 );
+    geometry.vao.bindVertexbuffer( torus.normal, 1, 3 );
+    geometry.vao.bindIndexbuffer( torus.index );
 
     const arrayInstanceId = new Array( PRIMCOUNT ).fill( 0 ).map( ( _, i ) => i );
     const bufferInstanceId = glCat.createBuffer();
     bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
 
-    geometry.addAttribute( 'instanceId', {
-      buffer: bufferInstanceId,
-      size: 1,
-      divisor: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferInstanceId, 2, 1, 1 );
 
     geometry.count = torus.count;
     geometry.primcount = PRIMCOUNT;
     geometry.mode = torus.mode;
+    geometry.indexType = gl.UNSIGNED_SHORT;
 
     return geometry;
   }

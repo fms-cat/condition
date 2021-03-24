@@ -1,20 +1,5 @@
-import { GLCatBuffer, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
+import { GLCatTransformFeedback, GLCatVertexArray } from '@fms-cat/glcat-ts';
 import { gl, glCat } from '../globals/canvas';
-import { Material } from './Material';
-
-export interface GeometryAttribute {
-  buffer: GLCatBuffer;
-  size: number;
-  divisor?: number;
-  type: GLenum;
-  stride?: number;
-  offset?: number;
-}
-
-export interface GeometryIndex {
-  buffer: GLCatBuffer;
-  type: GLenum;
-}
 
 export class Geometry {
   public static typeSizeMap = {
@@ -30,46 +15,15 @@ export class Geometry {
 
   public transformFeedback?: GLCatTransformFeedback | null;
 
-  protected __attributes: {
-    [ name: string ]: GeometryAttribute;
-  } = {};
-  protected __index: GeometryIndex | null = null;
-
-  public mode: GLenum = /* GL_TRIANGLES */ 4;
+  public mode: GLenum = gl.TRIANGLES;
   public first = 0;
   public count = 0;
-  public primcount: number | null = null;
+  public indexType: GLenum | null = null; // null to not use index buffer
 
-  public addAttribute( name: string, attribute: GeometryAttribute ): void {
-    this.__attributes[ name ] = attribute;
-  }
+  public vao: GLCatVertexArray;
 
-  public removeAttribute( name: string, alsoDisposeBuffer = true ): void {
-    if ( alsoDisposeBuffer ) {
-      this.__attributes[ name ].buffer.dispose();
-    }
-
-    delete this.__attributes[ name ];
-  }
-
-  public setIndex( index: GeometryIndex | null ): void {
-    this.__index = index;
-  }
-
-  public assignBuffers( material: Material ): void {
-    const program = material.program;
-
-    Object.entries( this.__attributes ).forEach( ( [ name, attr ] ) => {
-      program.attribute(
-        name,
-        attr.buffer,
-        attr.size,
-        attr.divisor,
-        attr.type,
-        attr.stride,
-        attr.offset
-      );
-    } );
+  public constructor() {
+    this.vao = glCat.createVertexArray();
   }
 
   public draw(): void {
@@ -92,23 +46,23 @@ export class Geometry {
   }
 
   public drawElementsOrArrays(): void {
-    if ( this.__index ) {
-      glCat.bindIndexBuffer( this.__index.buffer, () => {
+    glCat.bindVertexArray( this.vao, () => {
+      if ( this.indexType != null ) {
         gl.drawElements(
           this.mode,
           this.count,
-          this.__index!.type,
-          this.first * Geometry.typeSizeMap[ this.__index!.type ]
+          this.indexType!,
+          this.first * Geometry.typeSizeMap[ this.indexType! ],
         );
-      } );
-    } else {
-      gl.drawArrays( this.mode, this.first, this.count );
-    }
+      } else {
+        gl.drawArrays( this.mode, this.first, this.count );
+      }
+    } );
   }
 
   public disposeBuffers(): void {
-    Object.values( this.__attributes ).forEach( ( attr ) => {
-      attr.buffer.dispose();
-    } );
+    if ( process.env.DEV ) {
+      throw new Error( 'Not Implemented' );
+    }
   }
 }

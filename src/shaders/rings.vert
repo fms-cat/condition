@@ -2,14 +2,12 @@
 
 const float TAU = 6.283185307;
 
-in float instanceId;
-in vec3 position;
-in vec3 normal;
-in vec2 uv;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in float instanceId;
 
 out vec4 vPosition;
 out vec3 vNormal;
-out vec2 vUv;
 
 uniform float time;
 uniform vec2 resolution;
@@ -51,6 +49,4 @@ void main() {
   gl_Position = outPos;
 
   vPosition.w = outPos.z / outPos.w;
-
-  vUv = uv;
 }

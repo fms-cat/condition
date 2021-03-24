@@ -2,7 +2,7 @@
 
 const float TAU = 6.283185307;
 
-in vec2 what;
+layout (location = 0) in vec2 what;
 
 out float vPhase;
 out vec3 vNormal;

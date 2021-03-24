@@ -7,8 +7,8 @@
 
 // -------------------------------------------------------------------------------------------------
 
-in float computeX;
-in vec2 position;
+layout (location = 0) in vec2 position;
+layout (location = 1) in float computeX;
 
 out float vLife;
 out vec2 vUv;

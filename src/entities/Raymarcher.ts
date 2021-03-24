@@ -70,11 +70,8 @@ export class Raymarcher {
 
     const bufferPos = glCat.createBuffer();
     bufferPos.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
-    geometry.addAttribute( 'p', {
-      buffer: bufferPos,
-      size: 2,
-      type: gl.FLOAT
-    } );
+
+    geometry.vao.bindVertexbuffer( bufferPos, 0, 2 );
 
     geometry.count = 4;
     geometry.mode = gl.TRIANGLE_STRIP;

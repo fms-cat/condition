@@ -18,9 +18,9 @@ const float TAU = 6.283185307;
 
 // -------------------------------------------------------------------------------------------------
 
-in vec2 computeUV;
-in vec3 position;
-in vec3 normal;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 computeUV;
 
 out float vLife;
 out vec2 vUv;

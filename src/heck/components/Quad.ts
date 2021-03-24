@@ -1,22 +1,8 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
-import { Geometry } from '../Geometry';
 import { Material } from '../Material';
 import { RenderTarget } from '../RenderTarget';
-import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { glCat } from '../../globals/canvas';
-
-const quadBuffer = glCat.createBuffer();
-quadBuffer.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
-
-const quadGeometry = new Geometry();
-quadGeometry.addAttribute( 'p', {
-  buffer: quadBuffer,
-  size: 2,
-  type: /* GL_FLOAT */ 5126
-} );
-
-quadGeometry.count = 4;
-quadGeometry.mode = /* GL_TRIANGLE_STRIP */ 5;
+import { quadGeometry } from '../../globals/quadGeometry';
 
 export interface QuadOptions extends ComponentOptions {
   material: Material;
@@ -54,8 +40,6 @@ export class Quad extends Component {
     if ( this.clear ) {
       glCat.clear( ...this.clear );
     }
-
-    quadGeometry.assignBuffers( this.material );
 
     this.material.setUniforms();
 

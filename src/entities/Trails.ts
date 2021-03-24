@@ -65,11 +65,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'computeU', {
-      buffer: bufferComputeU,
-      size: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferComputeU, 0, 1 );
 
     const bufferComputeV = glCat.createBuffer();
     bufferComputeV.setVertexbuffer( ( () => {
@@ -80,12 +76,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'computeV', {
-      buffer: bufferComputeV,
-      size: 1,
-      divisor: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferComputeV, 1, 1, 1 );
 
     const bufferTriIndex = glCat.createBuffer();
     bufferTriIndex.setVertexbuffer( ( () => {
@@ -98,11 +89,7 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'triIndex', {
-      buffer: bufferTriIndex,
-      size: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferTriIndex, 2, 1 );
 
     const indexBuffer = glCat.createBuffer();
     indexBuffer.setIndexbuffer( ( () => {
@@ -121,14 +108,12 @@ export class Trails {
       return ret;
     } )() );
 
-    geometry.setIndex( {
-      buffer: indexBuffer,
-      type: gl.UNSIGNED_SHORT
-    } );
+    geometry.vao.bindIndexbuffer( indexBuffer );
 
     geometry.count = ( TRAIL_LENGTH - 1 ) * 18;
     geometry.primcount = TRAILS;
     geometry.mode = gl.TRIANGLES;
+    geometry.indexType = gl.UNSIGNED_SHORT;
 
     return geometry;
   }

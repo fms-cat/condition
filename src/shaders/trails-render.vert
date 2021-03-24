@@ -11,9 +11,9 @@ const float COLOR_VAR = 0.1;
 #define lofir(i,m) (floor((i+0.5)/(m))*(m))
 
 // -------------------------------------------------------------------------------------------------
-in float computeU;
-in float computeV;
-in float triIndex;
+layout (location = 0) in float computeU;
+layout (location = 1) in float computeV;
+layout (location = 2) in float triIndex;
 
 out float vLife;
 out vec3 vNormal;

@@ -1,6 +1,6 @@
 #version 300 es
 
-in vec2 p;
+layout (location = 0) in vec2 p;
 
 out vec2 vUv;
 

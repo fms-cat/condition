@@ -8,6 +8,7 @@ import cubeFrag from '../shaders/cube.frag';
 import depthFrag from '../shaders/depth.frag';
 import { genCube } from '../geometries/genCube';
 import { Lambda } from '../heck/components/Lambda';
+import { gl } from '../globals/canvas';
 
 export class Cube {
   public mesh: Mesh;
@@ -60,12 +61,13 @@ export class Cube {
 
     const geometry = new Geometry();
 
-    geometry.addAttribute( 'position', cube.position );
-    geometry.addAttribute( 'normal', cube.normal );
-    geometry.setIndex( cube.index );
+    geometry.vao.bindVertexbuffer( cube.position, 0, 3 );
+    geometry.vao.bindVertexbuffer( cube.normal, 1, 3 );
+    geometry.vao.bindIndexbuffer( cube.index );
 
     geometry.count = cube.count;
     geometry.mode = cube.mode;
+    geometry.indexType = gl.UNSIGNED_SHORT;
 
     return geometry;
   }

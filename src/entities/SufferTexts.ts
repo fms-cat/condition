@@ -86,14 +86,10 @@ export class SufferTexts {
     const bufferP = glCat.createBuffer();
     bufferP.setVertexbuffer( new Float32Array( TRIANGLE_STRIP_QUAD ) );
 
-    geometry.addAttribute( 'position', {
-      buffer: bufferP,
-      size: 2,
-      type: gl.FLOAT,
-    } );
+    geometry.vao.bindVertexbuffer( bufferP, 0, 2 );
 
-    const bufferComputeUV = glCat.createBuffer();
-    bufferComputeUV.setVertexbuffer( ( () => {
+    const bufferComputeX = glCat.createBuffer();
+    bufferComputeX.setVertexbuffer( ( () => {
       const ret = new Float32Array( PARTICLES );
       for ( let ix = 0; ix < PARTICLES; ix ++ ) {
         const s = ( ix + 0.5 ) / PARTICLES;
@@ -102,12 +98,7 @@ export class SufferTexts {
       return ret;
     } )() );
 
-    geometry.addAttribute( 'computeX', {
-      buffer: bufferComputeUV,
-      size: 1,
-      divisor: 1,
-      type: gl.FLOAT
-    } );
+    geometry.vao.bindVertexbuffer( bufferComputeX, 1, 1, 1 );
 
     geometry.count = 4;
     geometry.mode = gl.TRIANGLE_STRIP;
