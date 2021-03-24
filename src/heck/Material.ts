@@ -1,6 +1,8 @@
 import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
-import { gl } from '../globals/canvas';
+import { gl, glCat } from '../globals/canvas';
 import { injectCodeToShader } from '../utils/injectCodeToShader';
+import { Geometry } from './Geometry';
+import { RenderTarget } from './RenderTarget';
 import { SHADERPOOL } from './ShaderPool';
 
 export type MaterialTag =
@@ -9,6 +11,11 @@ export type MaterialTag =
   | 'shadow';
 
 export type MaterialMap<T extends MaterialTag = MaterialTag> = { [ tag in T ]: Material };
+
+export interface MaterialInitOptions {
+  target: RenderTarget;
+  geometry: Geometry;
+}
 
 export class Material {
   protected __linkOptions: GLCatProgramLinkOptions;
@@ -76,15 +83,24 @@ export class Material {
   public constructor(
     vert: string,
     frag: string,
-    options?: {
+    { defines, linkOptions, initOptions }: {
       defines?: { [ key: string ]: ( string | undefined ) },
       linkOptions?: GLCatProgramLinkOptions,
-    },
+      initOptions?: MaterialInitOptions,
+    } = {},
   ) {
     this.__vert = vert;
     this.__frag = frag;
-    this.__linkOptions = options?.linkOptions ?? {};
-    this.__defines = options?.defines ?? {};
+    this.__linkOptions = linkOptions ?? {};
+    this.__defines = defines ?? {};
+
+    if ( initOptions ) {
+      this.d3dSucks( initOptions );
+    } else {
+      if ( process.env.DEV ) {
+        console.warn( 'Material created without initOptions' );
+      }
+    }
   }
 
   public addUniform( name: string, type: GLCatProgramUniformType, ...value: number[] ): void {
@@ -161,6 +177,16 @@ export class Material {
 
       SHADERPOOL.discardProgram( this, prevVert, prevFrag );
     }
+  }
+
+  /**
+   * https://scrapbox.io/fms-cat/WebGL:_%E3%82%B7%E3%82%A7%E3%83%BC%E3%83%80%E3%81%AE%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB%E3%81%8C%E9%81%85%E3%81%84
+   */
+  public d3dSucks( { geometry, target }: MaterialInitOptions ): void {
+    target.bind();
+    glCat.useProgram( this.program, () => {
+      geometry.drawElementsOrArrays();
+    } );
   }
 
   protected __withDefines( code: string ): string {
