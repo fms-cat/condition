@@ -10,6 +10,7 @@ const int MTL_UNLIT = 1;
 in float vPhase;
 in vec3 vNormal;
 in vec4 vPosition;
+in vec4 vHuh;
 
 #ifdef FORWARD
   out vec4 fragColor;
@@ -30,22 +31,23 @@ in vec4 vPosition;
 #endif
 
 uniform float time;
-uniform float svgi;
 uniform float phaseOffset;
 uniform float phaseWidth;
 
 void main() {
-  float phase = fract( 2.0 * vPhase + 0.1 * time + 0.1 * svgi + phaseOffset );
+  float phase = fract( 2.0 * vPhase + 0.01 * vHuh.z + 0.1 * time + 0.1 * vHuh.y + phaseOffset );
   if ( phase > phaseWidth ) { discard; }
 
+  vec3 color = 2.0 * vec3( exp( -0.2 * vHuh.z ) );
+
   #ifdef FORWARD
-    fragColor = vec4( 1.0 );
+    fragColor = vec4( color, 1.0 );
   #endif
 
   #ifdef DEFERRED
     fragPosition = vPosition;
     fragNormal = vec4( vNormal, 1.0 );
-    fragColor = vec4( 1.0 );
+    fragColor = vec4( color, 1.0 );
     fragWTF = vec4( vec3( 0.0, 0.0, 0.0 ), MTL_UNLIT );
   #endif
 

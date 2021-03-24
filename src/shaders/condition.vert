@@ -3,10 +3,12 @@
 const float TAU = 6.283185307;
 
 layout (location = 0) in vec2 what;
+layout (location = 1) in vec4 huh;
 
 out float vPhase;
 out vec3 vNormal;
 out vec4 vPosition;
+out vec4 vHuh;
 
 uniform float time;
 uniform vec2 resolution;
@@ -20,9 +22,11 @@ uniform sampler2D samplerSvg;
 
 void main() {
   vPhase = what.x;
-  vec4 tex = texture( samplerSvg, vec2( what.x, 0.5 ) );
+  vHuh = huh;
 
-  vPosition = vec4( tex.xy, 0.0, 1.0 );
+  vec4 tex = texture( samplerSvg, vec2( what.x, huh.x ) );
+
+  vPosition = vec4( tex.xy + vec2( huh.y, 0.0 ), 6.0 - 12.0 * huh.z, 1.0 );
 
   mat3 basis = orthBasis( vec3( tex.zw, 0.0 ) );
   float theta = what.y / 3.0 * TAU;
