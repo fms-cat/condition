@@ -2,8 +2,14 @@ import { Entity } from '../heck/Entity';
 import { RenderTarget } from '../heck/RenderTarget';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME, RTINSPECTOR_MULTIPLE } from '../config-hot';
-import { gl } from '../globals/canvas';
+import quadVert from '../shaders/quad.vert';
+import inspectorFrag from '../shaders/inspector.frag';
+import { canvas, gl } from '../globals/canvas';
 import { Blit } from '../heck/components/Blit';
+import { Material } from '../heck/Material';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
+import { Quad } from '../heck/components/Quad';
 
 export interface RTInspectorOptions {
   target: RenderTarget;
@@ -12,7 +18,8 @@ export interface RTInspectorOptions {
 export class RTInspector extends Entity {
   public entitySingle: Entity;
   public entityMultiple: Entity;
-  public blitSingle: Blit;
+  public materialSingle: Material;
+  public quadSingle: Quad;
   public blitsMultiple: Blit[];
 
   public constructor( options: RTInspectorOptions ) {
@@ -22,12 +29,28 @@ export class RTInspector extends Entity {
     this.entitySingle = new Entity();
     this.children.push( this.entitySingle );
 
-    this.blitSingle = new Blit( {
-      dst: options.target,
-      name: process.env.DEV && 'RTInspector/blitSingle',
+    this.materialSingle = new Material(
+      quadVert,
+      inspectorFrag,
+      { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
+    );
+
+    this.quadSingle = new Quad( {
+      target: options.target,
+      material: this.materialSingle,
+      name: `RTInspector/quadSingle`,
       ignoreBreakpoints: true,
     } );
-    this.entitySingle.components.push( this.blitSingle );
+    this.entitySingle.components.push( this.quadSingle );
+
+    // -- mouse listener ---------------------------------------------------------------------------
+    canvas.addEventListener( 'mousemove', ( { offsetX, offsetY } ) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = offsetX / rect.width;
+      const y = 1.0 - offsetY / rect.height;
+
+      this.materialSingle.addUniform( 'mouse', '2f', x, y );
+    } );
 
     // -- multiple ---------------------------------------------------------------------------------
     this.entityMultiple = new Entity();
@@ -106,8 +129,9 @@ export class RTInspector extends Entity {
         return;
       }
 
-      this.blitSingle.src = target;
-      this.blitSingle.attachment = attachment;
+      const texture = target.getTexture( attachment );
+      this.materialSingle.addUniformTexture( 'sampler0', texture );
+
       this.entitySingle.active = true;
     } else {
       // fallback to not render it
