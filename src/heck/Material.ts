@@ -78,13 +78,14 @@ export class Material {
     );
   }
 
-  public blend: [ GLenum, GLenum ] = [ gl.ONE, gl.ZERO ];
+  public blend: [ GLenum, GLenum ];
 
   public constructor(
     vert: string,
     frag: string,
-    { defines, linkOptions, initOptions }: {
+    { defines, blend, linkOptions, initOptions }: {
       defines?: { [ key: string ]: ( string | undefined ) },
+      blend?: [ GLenum, GLenum ],
       linkOptions?: GLCatProgramLinkOptions,
       initOptions?: MaterialInitOptions,
     } = {},
@@ -93,6 +94,7 @@ export class Material {
     this.__frag = frag;
     this.__linkOptions = linkOptions ?? {};
     this.__defines = defines ?? {};
+    this.blend = blend ?? [ gl.ONE, gl.ZERO ];
 
     if ( initOptions ) {
       this.d3dSucks( initOptions );

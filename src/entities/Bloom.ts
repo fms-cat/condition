@@ -5,13 +5,12 @@ import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import { Swap } from '@fms-cat/experimental';
 import quadVert from '../shaders/quad.vert';
-import bloomPreFrag from '../shaders/bloom-pre.frag';
-import bloomBlurFrag from '../shaders/bloom-blur.frag';
-import bloomPostFrag from '../shaders/bloom-post.frag';
+import bloomUpFrag from '../shaders/bloom-up.frag';
+import bloomDownFrag from '../shaders/bloom-down.frag';
 import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
-import { Blit } from '../heck/components/Blit';
 import { gl } from '../globals/canvas';
+import { Blit } from '../heck/components/Blit';
 
 export interface BloomOptions {
   input: BufferRenderTarget;
@@ -37,68 +36,76 @@ export class Bloom extends Entity {
       } ),
     );
 
-    // -- pre ----------------------------------------------------------------------------------------
-    const materialBloomPre = new Material(
-      quadVert,
-      bloomPreFrag,
-      { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
-    );
-    materialBloomPre.addUniformTexture( 'sampler0', options.input.texture );
-
-    this.components.push( new Quad( {
-      target: swap.o,
-      material: materialBloomPre,
-      range: [ -1.0, -1.0, 0.0, 0.0 ],
-      name: process.env.DEV && 'Bloom/quadPre',
+    // -- dry --------------------------------------------------------------------------------------
+    this.components.push( new Blit( {
+      src: options.input,
+      dst: options.target,
+      name: 'Glitch/blitDry',
     } ) );
 
-    swap.swap();
-
-    // -- dup ----------------------------------------------------------------------------------------
+    // -- down -------------------------------------------------------------------------------------
     for ( let i = 0; i < 6; i ++ ) {
-      this.components.push( new Blit( {
-        src: swap.i,
-        dst: swap.o,
-        dstRect: i === 0 ? null : [ width / 2, height / 2, width, height ],
-        name: `Bloom/blitDup${ i }`,
-        filter: gl.LINEAR,
-      } ) );
+      const isFirst = i === 0;
 
-      swap.swap();
-    }
-
-    // -- blur ---------------------------------------------------------------------------------------
-    for ( let i = 0; i < 2; i ++ ) {
       const material = new Material(
         quadVert,
-        bloomBlurFrag,
+        bloomDownFrag,
         { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
       );
-      material.addUniform( 'isVert', '1i', i );
-      material.addUniformTexture( 'sampler0', swap.i.texture );
+
+      material.addUniform( 'level', '1f', i );
+      material.addUniformTexture(
+        'sampler0',
+        isFirst ? options.input.texture : swap.i.texture,
+      );
+
+      const p = 2.0 * Math.pow( 0.5, i );
+      const range: [ number, number, number, number ] = isFirst
+        ? [ -1.0, -1.0, 0.0, 0.0 ]
+        : [ 1.0 - p, 1.0 - p, 1.0 - 0.5 * p, 1.0 - 0.5 * p ];
 
       this.components.push( new Quad( {
         target: swap.o,
         material,
-        name: process.env.DEV && `Bloom/quadBlur${ i }`,
+        range,
+        name: `Bloom/quadDown${ i }`,
       } ) );
 
       swap.swap();
     }
 
-    // -- post ---------------------------------------------------------------------------------------
-    const materialBloomPost = new Material(
-      quadVert,
-      bloomPostFrag,
-      { initOptions: { target: dummyRenderTarget, geometry: quadGeometry } },
-    );
-    materialBloomPost.addUniformTexture( 'samplerDry', options.input.texture );
-    materialBloomPost.addUniformTexture( 'samplerWet', swap.i.texture );
+    // -- up ---------------------------------------------------------------------------------------
+    for ( let i = 5; i >= 0; i -- ) {
+      const isLast = i === 0;
 
-    this.components.push( new Quad( {
-      target: options.target,
-      material: materialBloomPost,
-      name: process.env.DEV && 'Bloom/quadPost',
-    } ) );
+      const material = new Material(
+        quadVert,
+        bloomUpFrag,
+        {
+          initOptions: { target: dummyRenderTarget, geometry: quadGeometry },
+          blend: [ gl.ONE, gl.ONE ],
+        },
+      );
+
+      material.addUniform( 'level', '1f', i );
+      material.addUniformTexture(
+        'sampler0',
+        swap.i.texture,
+      );
+
+      const p = 4.0 * Math.pow( 0.5, i );
+      const range: [ number, number, number, number ] = isLast
+        ? [ -1.0, -1.0, 1.0, 1.0 ]
+        : [ 1.0 - p, 1.0 - p, 1.0 - 0.5 * p, 1.0 - 0.5 * p ];
+
+      this.components.push( new Quad( {
+        target: isLast ? options.target : swap.o,
+        material,
+        range,
+        name: `Bloom/quadUp${ i }`,
+      } ) );
+
+      swap.swap();
+    }
   }
 }

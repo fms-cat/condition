@@ -1,4 +1,5 @@
 import { Swap, Vector3 } from '@fms-cat/experimental';
+import { Antialias } from './entities/Antialias';
 import { Bloom } from './entities/Bloom';
 import { CameraEntity } from './entities/CameraEntity';
 import { Condition } from './entities/Condition';
@@ -282,6 +283,13 @@ camera.components.unshift( new Lambda( {
   name: process.env.DEV && 'main/updateCamera',
 } ) );
 dog.root.children.push( camera );
+
+swap.swap();
+const antialias = new Antialias( {
+  input: swap.i,
+  target: swap.o
+} );
+dog.root.children.push( antialias );
 
 swap.swap();
 const bloom = new Bloom( {
