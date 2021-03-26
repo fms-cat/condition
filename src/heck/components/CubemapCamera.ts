@@ -56,7 +56,7 @@ export class CubemapCamera extends Camera {
     const { renderTarget } = this;
 
     if ( !renderTarget ) {
-      throw new Error( process.env.DEV && 'You must assign a renderTarget to the Camera' );
+      throw process.env.DEV && new Error( 'You must assign a renderTarget to the Camera' );
     }
 
     for ( let i = 0; i < 6; i ++ ) {

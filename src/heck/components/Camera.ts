@@ -45,11 +45,11 @@ export abstract class Camera extends Component {
     const { renderTarget, scene } = this;
 
     if ( !renderTarget ) {
-      throw new Error( process.env.DEV && 'You must assign a renderTarget to the Camera' );
+      throw process.env.DEV && new Error( 'You must assign a renderTarget to the Camera' );
     }
 
     if ( !scene ) {
-      throw new Error( process.env.DEV && 'You must assign a scene to the Camera' );
+      throw process.env.DEV && new Error( 'You must assign a scene to the Camera' );
     }
 
     const viewMatrix = event.globalTransform.matrix.inverse!;
