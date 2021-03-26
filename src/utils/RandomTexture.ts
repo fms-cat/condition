@@ -1,6 +1,6 @@
 import { Xorshift } from '@fms-cat/experimental';
-import GLCat, { GLCatTexture } from '@fms-cat/glcat-ts';
 import { gl } from '../globals/canvas';
+import GLCat, { GLCatTexture } from '@fms-cat/glcat-ts';
 
 export class RandomTexture {
   private __texture: GLCatTexture;

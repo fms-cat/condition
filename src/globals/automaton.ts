@@ -1,9 +1,9 @@
 import { Automaton } from '@fms-cat/automaton';
 import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
-import automatonData from '../automaton.json';
-import { music } from './music';
-import { getDivAutomaton } from './dom';
 import { fxDefinitions } from '../automaton-fxs/fxDefinitions';
+import { getDivAutomaton } from './dom';
+import { music } from './music';
+import automatonData from '../automaton.json';
 
 export const automaton = ( () => {
   if ( process.env.DEV ) {

@@ -1,16 +1,16 @@
+import { Blit } from '../heck/components/Blit';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
 import { Swap } from '@fms-cat/experimental';
-import quadVert from '../shaders/quad.vert';
-import bloomUpFrag from '../shaders/bloom-up.frag';
-import bloomDownFrag from '../shaders/bloom-down.frag';
-import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl } from '../globals/canvas';
-import { Blit } from '../heck/components/Blit';
+import { quadGeometry } from '../globals/quadGeometry';
+import bloomDownFrag from '../shaders/bloom-down.frag';
+import bloomUpFrag from '../shaders/bloom-up.frag';
+import quadVert from '../shaders/quad.vert';
 
 export interface BloomOptions {
   input: BufferRenderTarget;

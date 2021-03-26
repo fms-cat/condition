@@ -1,20 +1,20 @@
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
+import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
+import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
+import { auto } from '../globals/automaton';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { gl, glCat } from '../globals/canvas';
+import { quadGeometry } from '../globals/quadGeometry';
+import { randomTextureStatic } from '../globals/randomTexture';
+import { sufferList } from '../sufferList';
+import { tinyCharTexture } from '../globals/tinyCharTexture';
 import quadVert from '../shaders/quad.vert';
 import sufferTextsComputeFrag from '../shaders/suffer-texts-compute.frag';
 import sufferTextsRenderFrag from '../shaders/suffer-texts-render.frag';
 import sufferTextsRenderVert from '../shaders/suffer-texts-render.vert';
-import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
-import { gl, glCat } from '../globals/canvas';
-import { randomTextureStatic } from '../globals/randomTexture';
-import { tinyCharTexture } from '../globals/tinyCharTexture';
-import { Lambda } from '../heck/components/Lambda';
-import { auto } from '../globals/automaton';
-import { sufferList } from '../sufferList';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const PARTICLES = 256;
 

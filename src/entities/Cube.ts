@@ -1,18 +1,18 @@
-import { Quaternion, Vector3 } from '@fms-cat/experimental';
-import { Mesh } from '../heck/components/Mesh';
 import { Entity } from '../heck/Entity';
-import { Material } from '../heck/Material';
-import cubeVert from '../shaders/cube.vert';
-import cubeFrag from '../shaders/cube.frag';
-import depthFrag from '../shaders/depth.frag';
-import { genCube } from '../geometries/genCube';
-import { Lambda } from '../heck/components/Lambda';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
-import { glCat } from '../globals/canvas';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { objectValuesMap } from '../utils/objectEntriesMap';
+import { Lambda } from '../heck/components/Lambda';
+import { Material } from '../heck/Material';
+import { Mesh } from '../heck/components/Mesh';
+import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { genCube } from '../geometries/genCube';
+import { glCat } from '../globals/canvas';
+import { objectValuesMap } from '../utils/objectEntriesMap';
+import { quadGeometry } from '../globals/quadGeometry';
+import cubeFrag from '../shaders/cube.frag';
+import cubeVert from '../shaders/cube.vert';
+import depthFrag from '../shaders/depth.frag';
 
 const PRIMCOUNT = 512;
 
@@ -54,20 +54,20 @@ export class Cube extends Entity {
     geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
-      const deferred = new Material(
-        cubeVert,
-        cubeFrag,
-        {
-          defines: [ 'DEFERRED 1' ],
-          initOptions: { geometry: quadGeometry, target: dummyRenderTargetFourDrawBuffers },
-        },
-      );
+    const deferred = new Material(
+      cubeVert,
+      cubeFrag,
+      {
+        defines: [ 'DEFERRED 1' ],
+        initOptions: { geometry: quadGeometry, target: dummyRenderTargetFourDrawBuffers },
+      },
+    );
 
-      const depth = new Material(
-        cubeVert,
-        depthFrag,
-        { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
-      );
+    const depth = new Material(
+      cubeVert,
+      depthFrag,
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
+    );
 
     const materials = { deferred, depth };
 

@@ -1,5 +1,5 @@
-import { gl, glCat } from '../globals/canvas';
 import { Geometry } from './Geometry';
+import { gl, glCat } from '../globals/canvas';
 
 export class InstancedGeometry extends Geometry {
   public primcount: number = 0;

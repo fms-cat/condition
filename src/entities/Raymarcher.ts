@@ -1,16 +1,16 @@
-import { Mesh, MeshCull } from '../heck/components/Mesh';
-import { Vector3 } from '@fms-cat/experimental';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
-import { Material } from '../heck/Material';
-import raymarchObjectVert from '../shaders/raymarch-object.vert';
-import raymarcherFrag from '../shaders/raymarcher.frag';
 import { Lambda } from '../heck/components/Lambda';
-import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import { Material } from '../heck/Material';
+import { Mesh, MeshCull } from '../heck/components/Mesh';
+import { Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genOctahedron } from '../geometries/genOctahedron';
 import { objectValuesMap } from '../utils/objectEntriesMap';
+import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
+import raymarchObjectVert from '../shaders/raymarch-object.vert';
+import raymarcherFrag from '../shaders/raymarcher.frag';
 
 export class Raymarcher extends Entity {
   public constructor() {

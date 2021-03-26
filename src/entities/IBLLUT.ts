@@ -1,15 +1,15 @@
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { GLCatTexture } from '@fms-cat/glcat-ts';
+import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
+import { Swap } from '@fms-cat/experimental';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
+import { vdc } from '../utils/vdc';
 import iblLutFrag from '../shaders/ibl-lut.frag';
 import quadVert from '../shaders/quad.vert';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { Swap } from '@fms-cat/experimental';
-import { Lambda } from '../heck/components/Lambda';
-import { vdc } from '../utils/vdc';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const IBL_SIZE = 256;
 

@@ -29,7 +29,7 @@ export function genCube(): ResultGenCube {
   ];
 
   for ( let i = 0; i < 6; i ++ ) {
-    let func = ( v: number[] ) => {
+    const func = ( v: number[] ): number[] => {
       const vt: number[] = [];
 
       if ( i < 4 ) {

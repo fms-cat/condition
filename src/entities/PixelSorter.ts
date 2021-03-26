@@ -1,16 +1,16 @@
+import { Blit } from '../heck/components/Blit';
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
-import pixelSorterIndexFrag from '../shaders/pixel-sorter-index.frag';
-import pixelSorterFrag from '../shaders/pixel-sorter.frag';
-import quadVert from '../shaders/quad.vert';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Swap } from '@fms-cat/experimental';
-import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
-import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
+import pixelSorterFrag from '../shaders/pixel-sorter.frag';
+import pixelSorterIndexFrag from '../shaders/pixel-sorter-index.frag';
+import quadVert from '../shaders/quad.vert';
 
 export interface PixelSorterOptions {
   input: BufferRenderTarget;

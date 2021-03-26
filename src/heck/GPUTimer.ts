@@ -59,7 +59,7 @@ export class GPUTimer {
 
   public check( query: WebGLQuery ): Promise<number> {
     return new Promise( ( resolve ) => {
-      const task = () => {
+      const task = (): void => {
         const isAvailable = gl.getQueryParameter( query, gl.QUERY_RESULT_AVAILABLE );
 
         if ( isAvailable ) {

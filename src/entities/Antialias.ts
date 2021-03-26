@@ -1,12 +1,12 @@
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
 import fxaaFrag from '../shaders/fxaa.frag';
 import quadVert from '../shaders/quad.vert';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface PostOptions {
   input: BufferRenderTarget;

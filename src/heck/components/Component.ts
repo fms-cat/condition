@@ -1,12 +1,12 @@
+import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
 import { Camera } from './Camera';
 import { Entity } from '../Entity';
+import { GPUTimer } from '../GPUTimer';
+import { MaterialTag } from '../Material';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
-import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
-import { GPUTimer } from '../GPUTimer';
 import { getDivComponentsDraw, getDivComponentsUpdate } from '../../globals/dom';
-import { MaterialTag } from '../Material';
 
 export interface ComponentUpdateEvent {
   frameCount: number;
@@ -212,7 +212,7 @@ export class Component {
 }
 
 if ( process.env.DEV ) {
-  const checkBreakpointNames = () => {
+  const checkBreakpointNames = (): void => {
     if (
       COMPONENT_UPDATE_BREAKPOINT != null &&
       Component.nameMap.get( COMPONENT_UPDATE_BREAKPOINT ?? '' ) == null

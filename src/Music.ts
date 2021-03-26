@@ -1,13 +1,13 @@
+import { Channel } from '@fms-cat/automaton';
 import { GLCat, GLCatBuffer, GLCatProgram, GLCatTexture, GLCatTransformFeedback } from '@fms-cat/glcat-ts';
 import { MUSIC_AUTOMATON_TEXTURE_HEIGHT, MUSIC_BPM, MUSIC_BUFFER_LENGTH } from './config';
 import { Pool } from './utils/Pool';
-import musicVert from './shaders/music.vert';
-import { gl, glCat } from './globals/canvas';
-import samplesOpus from './samples.opus';
-import { randomTextureStatic } from './globals/randomTexture';
 import { automaton } from './globals/automaton';
-import { Channel } from '@fms-cat/automaton';
+import { gl, glCat } from './globals/canvas';
 import { injectCodeToShader } from './utils/injectCodeToShader';
+import { randomTextureStatic } from './globals/randomTexture';
+import musicVert from './shaders/music.vert';
+import samplesOpus from './samples.opus';
 import type { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
@@ -34,7 +34,7 @@ export class Music {
   private __arrayAutomaton: Float32Array;
   private __textureAutomaton: GLCatTexture;
 
-  constructor( glCat: GLCat, audio: AudioContext ) {
+  public constructor( glCat: GLCat, audio: AudioContext ) {
     this.audio = audio;
 
     // == yoinked from wavenerd-deck ===============================================================
@@ -100,7 +100,7 @@ export class Music {
 
     // == hot hot hot hot hot ======================================================================
     if ( process.env.DEV && module.hot ) {
-      const recompileShader = async () => {
+      const recompileShader = async (): Promise<void> => {
         const program = await glCat.lazyProgramAsync(
           injectCodeToShader( musicVert, this.__automatonDefineString ),
           discardFrag,
@@ -300,4 +300,4 @@ export class Music {
       } );
     } );
   }
-};
+}

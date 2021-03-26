@@ -1,6 +1,6 @@
 import { GLCatFramebuffer, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
-import { gl, glCat } from '../globals/canvas';
 import { RenderTarget } from './RenderTarget';
+import { gl, glCat } from '../globals/canvas';
 
 export interface CubemapRenderTargetOptions {
   width: number;

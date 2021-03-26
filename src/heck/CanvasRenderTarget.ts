@@ -1,5 +1,5 @@
-import { canvas, gl, glCat } from '../globals/canvas';
 import { RenderTarget } from './RenderTarget';
+import { canvas, gl, glCat } from '../globals/canvas';
 
 export class CanvasRenderTarget extends RenderTarget {
   public get width(): number {

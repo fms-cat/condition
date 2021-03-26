@@ -1,14 +1,14 @@
+import { Blit } from '../heck/components/Blit';
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
-import quadVert from '../shaders/quad.vert';
-import glitchFrag from '../shaders/glitch.frag';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { Blit } from '../heck/components/Blit';
 import { auto } from '../globals/automaton';
-import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
+import glitchFrag from '../shaders/glitch.frag';
+import quadVert from '../shaders/quad.vert';
 
 export interface GlitchOptions {
   input: BufferRenderTarget;

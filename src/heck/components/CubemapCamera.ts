@@ -1,11 +1,11 @@
 import { Camera } from './Camera';
-import { Entity } from '../Entity';
-import { Matrix4, Quaternion, Vector3 } from '@fms-cat/experimental';
 import { ComponentOptions, ComponentUpdateEvent } from './Component';
 import { CubemapRenderTarget } from '../CubemapRenderTarget';
-import { gl } from '../../globals/canvas';
-import { Transform } from '../Transform';
+import { Entity } from '../Entity';
 import { MaterialTag } from '../Material';
+import { Matrix4, Quaternion, Vector3 } from '@fms-cat/experimental';
+import { Transform } from '../Transform';
+import { gl } from '../../globals/canvas';
 
 const INV_SQRT2 = 1.0 / Math.sqrt( 2.0 );
 

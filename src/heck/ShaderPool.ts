@@ -1,6 +1,6 @@
 import { GLCatProgram, GLCatProgramLinkOptions } from '@fms-cat/glcat-ts';
-import { glCat } from '../globals/canvas';
 import { Material } from './Material';
+import { glCat } from '../globals/canvas';
 
 export class ShaderPool<TUser> {
   private __programMap: Map<string, GLCatProgram> = new Map();

@@ -1,18 +1,18 @@
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
+import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { Entity } from '../heck/Entity';
 import { GLCatTexture } from '@fms-cat/glcat-ts';
+import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
+import { Swap, Xorshift } from '@fms-cat/experimental';
+import { auto } from '../globals/automaton';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { gl } from '../globals/canvas';
+import { quadGeometry } from '../globals/quadGeometry';
 import environmentMapFrag from '../shaders/environment-map.frag';
 import environmentMapMergeFrag from '../shaders/environment-map-merge.frag';
 import quadVert from '../shaders/quad.vert';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { Swap, Xorshift } from '@fms-cat/experimental';
-import { Lambda } from '../heck/components/Lambda';
-import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
-import { gl } from '../globals/canvas';
-import { auto } from '../globals/automaton';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 const WIDTH = 1024;
 const HEIGHT = 512;

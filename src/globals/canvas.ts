@@ -1,5 +1,5 @@
-import { RESOLUTION } from '../config';
 import { GLCat } from '@fms-cat/glcat-ts';
+import { RESOLUTION } from '../config';
 
 export const canvas = document.createElement( 'canvas' );
 canvas.width = RESOLUTION[ 0 ];

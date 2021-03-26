@@ -1,9 +1,9 @@
 import { Camera } from './components/Camera';
 import { Component } from './components/Component';
+import { MaterialTag } from './Material';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from './RenderTarget';
 import { Transform } from './Transform';
-import { MaterialTag } from './Material';
 
 export interface EntityUpdateEvent {
   frameCount: number;

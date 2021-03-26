@@ -1,20 +1,20 @@
-import { GLCatTexture } from '@fms-cat/glcat-ts';
+import { AO_RESOLUTION_RATIO } from '../config';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
+import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Lambda } from '../heck/components/Lambda';
 import { LightEntity } from './LightEntity';
 import { Material } from '../heck/Material';
 import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
-import { AO_RESOLUTION_RATIO } from '../config';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { gl } from '../globals/canvas';
+import { quadGeometry } from '../globals/quadGeometry';
+import { randomTexture } from '../globals/randomTexture';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
-import { gl } from '../globals/canvas';
-import { randomTexture } from '../globals/randomTexture';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface CameraEntityOptions {
   root: Entity;
@@ -39,6 +39,7 @@ export class CameraEntity extends Entity {
       numBuffers: 4,
       name: 'CameraEntity/cameraTarget',
     } );
+
     this.camera = new PerspectiveCamera( {
       scene: this.root,
       renderTarget: cameraTarget,
@@ -47,7 +48,6 @@ export class CameraEntity extends Entity {
       name: 'CameraEntity/camera',
       materialTag: 'deferred',
     } );
-    this.components.push( this.camera );
 
     const aoTarget = new BufferRenderTarget( {
       width: AO_RESOLUTION_RATIO * options.target.width,
@@ -61,7 +61,7 @@ export class CameraEntity extends Entity {
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
 
-    this.components.push( new Lambda( {
+    const lambdaAoSetCameraUniforms = new Lambda( {
       onUpdate: () => {
         const cameraView = this.transform.matrix.inverse!;
 
@@ -74,7 +74,7 @@ export class CameraEntity extends Entity {
         );
       },
       name: process.env.DEV && 'CameraEntity/ao/setCameraUniforms',
-    } ) );
+    } );
 
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
       aoMaterial.addUniformTexture(
@@ -90,7 +90,6 @@ export class CameraEntity extends Entity {
       target: aoTarget,
       name: process.env.DEV && 'CameraEntity/ao/quad',
     } );
-    this.components.push( aoQuad );
 
     const shadingMaterials = options.lights.map( ( light, iLight ) => {
       const shadingMaterial = new Material(
@@ -102,7 +101,12 @@ export class CameraEntity extends Entity {
         },
       );
 
-      let shadingQuad: Quad;
+      const shadingQuad = new Quad( {
+        material: shadingMaterial,
+        target: options.target,
+        name: process.env.DEV && 'CameraEntity/shading/quad',
+      } );
+      shadingQuad.clear = iLight === 0 ? [] : false;
 
       const lambda = new Lambda( {
         onUpdate: ( { frameCount } ) => {
@@ -164,14 +168,12 @@ export class CameraEntity extends Entity {
             'lightPV',
             'Matrix4fv',
             light.camera.projectionMatrix.multiply(
-            light.transform.matrix.inverse!
+              light.transform.matrix.inverse!
             ).elements
           );
         },
         name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
       } );
-
-      this.components.push( lambda );
 
       for ( let i = 0; i < 4; i ++ ) {
         shadingMaterial.addUniformTexture(
@@ -187,14 +189,13 @@ export class CameraEntity extends Entity {
       shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
       shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
-      shadingQuad = new Quad( {
-        material: shadingMaterial,
-        target: options.target,
-        name: process.env.DEV && 'CameraEntity/shading/quad',
-      } );
-      shadingQuad.clear = iLight === 0 ? [] : false;
-
-      this.components.push( shadingQuad );
+      this.components.push(
+        this.camera,
+        lambdaAoSetCameraUniforms,
+        aoQuad,
+        lambda,
+        shadingQuad,
+      );
 
       return shadingMaterial;
     } );

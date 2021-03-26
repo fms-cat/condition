@@ -1,9 +1,9 @@
 import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
-import { gl, glCat } from '../globals/canvas';
-import { injectCodeToShader } from '../utils/injectCodeToShader';
 import { Geometry } from './Geometry';
 import { RenderTarget } from './RenderTarget';
 import { SHADERPOOL } from './ShaderPool';
+import { gl, glCat } from '../globals/canvas';
+import { injectCodeToShader } from '../utils/injectCodeToShader';
 
 export type MaterialTag =
   | 'deferred'

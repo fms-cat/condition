@@ -1,10 +1,10 @@
-import { canvas } from './globals/canvas';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { Component } from './heck/components/Component';
-import { music } from './globals/music';
-import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
-import { dog } from './scene';
 import { START_POSITION } from './config';
+import { canvas } from './globals/canvas';
+import { dog } from './scene';
+import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
+import { music } from './globals/music';
 
 // == dom ==========================================================================================
 document.body.style.margin = '0';

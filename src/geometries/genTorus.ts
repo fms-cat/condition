@@ -1,4 +1,4 @@
-import GLCat, { GLCatBuffer } from '@fms-cat/glcat-ts';
+import { GLCatBuffer } from '@fms-cat/glcat-ts';
 import { gl, glCat } from '../globals/canvas';
 
 interface ResultGenTorus {

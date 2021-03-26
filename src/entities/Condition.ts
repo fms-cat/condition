@@ -1,15 +1,15 @@
-import { Vector3 } from '@fms-cat/experimental';
-import { gl, glCat } from '../globals/canvas';
 import { Entity } from '../heck/Entity';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { createSVGTableTexture } from '../utils/createSVGTableTexture';
-import conditionVert from '../shaders/condition.vert';
-import conditionFrag from '../shaders/condition.frag';
 import { Material } from '../heck/Material';
-import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { Mesh } from '../heck/components/Mesh';
+import { Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
+import { createSVGTableTexture } from '../utils/createSVGTableTexture';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { gl, glCat } from '../globals/canvas';
 import { objectValuesMap } from '../utils/objectEntriesMap';
+import conditionFrag from '../shaders/condition.frag';
+import conditionVert from '../shaders/condition.vert';
 
 const POINTS_MAX = 256;
 
@@ -163,7 +163,7 @@ export class Condition extends Entity {
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && `Condition/mesh`,
+      name: process.env.DEV && 'Condition/mesh',
     } );
     this.components.push( mesh );
   }

@@ -1,15 +1,15 @@
-import { Quaternion, Vector3 } from '@fms-cat/experimental';
-import { genTorus } from '../geometries/genTorus';
-import { Mesh } from '../heck/components/Mesh';
 import { Entity } from '../heck/Entity';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Material } from '../heck/Material';
-import depthFrag from '../shaders/depth.frag';
-import ringsVert from '../shaders/rings.vert';
-import ringsFrag from '../shaders/rings.frag';
-import { gl, glCat } from '../globals/canvas';
 import { Lambda } from '../heck/components/Lambda';
+import { Material } from '../heck/Material';
+import { Mesh } from '../heck/components/Mesh';
+import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { genTorus } from '../geometries/genTorus';
+import { glCat } from '../globals/canvas';
+import depthFrag from '../shaders/depth.frag';
+import ringsFrag from '../shaders/rings.frag';
+import ringsVert from '../shaders/rings.vert';
 
 const PRIMCOUNT = 32;
 
@@ -35,7 +35,7 @@ export class Rings extends Entity {
     geometry.vao.bindVertexbuffer( torus.normal, 1, 3 );
     geometry.vao.bindIndexbuffer( torus.index );
 
-    const arrayInstanceId = [ ...Array( PRIMCOUNT).keys() ];
+    const arrayInstanceId = [ ...Array( PRIMCOUNT ).keys() ];
     const bufferInstanceId = glCat.createBuffer();
     bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
 
@@ -75,7 +75,7 @@ export class Rings extends Entity {
       forward,
       deferred,
       depth,
-    }
+    };
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

@@ -1,10 +1,10 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
 import { Entity } from '../Entity';
+import { MaterialTag } from '../Material';
 import { Matrix4 } from '@fms-cat/experimental';
 import { RenderTarget } from '../RenderTarget';
 import { Transform } from '../Transform';
 import { glCat } from '../../globals/canvas';
-import { MaterialTag } from '../Material';
 
 export interface CameraOptions extends ComponentOptions {
   renderTarget?: RenderTarget;

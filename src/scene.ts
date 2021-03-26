@@ -1,36 +1,33 @@
-import { Swap, Vector3 } from '@fms-cat/experimental';
 import { Antialias } from './entities/Antialias';
 import { Bloom } from './entities/Bloom';
+import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { CameraEntity } from './entities/CameraEntity';
+import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
+import { Component } from './heck/components/Component';
 import { Condition } from './entities/Condition';
 import { Cube } from './entities/Cube';
 import { CubemapCameraEntity } from './entities/CubemapCameraEntity';
+import { Dog } from './heck/Dog';
+import { Entity } from './heck/Entity';
 import { EnvironmentMap } from './entities/EnvironmentMap';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
+import { Lambda } from './heck/components/Lambda';
 import { LightEntity } from './entities/LightEntity';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
+import { RTInspector } from './entities/RTInspector';
 import { Raymarcher } from './entities/Raymarcher';
 import { Rings } from './entities/Rings';
-import { RTInspector } from './entities/RTInspector';
 import { SphereParticles } from './entities/SphereParticles';
 import { SufferTexts } from './entities/SufferTexts';
+import { Swap, Vector3 } from '@fms-cat/experimental';
 import { Trails } from './entities/Trails';
+import { arraySetDelete } from './utils/arraySetDelete';
 import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
 import { randomTexture } from './globals/randomTexture';
-import { BufferRenderTarget } from './heck/BufferRenderTarget';
-import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
-import { Component } from './heck/components/Component';
-import { Lambda } from './heck/components/Lambda';
-import { Dog } from './heck/Dog';
-import { Entity } from './heck/Entity';
-import { arraySetDelete } from './utils/arraySetDelete';
-
-let totalFrame = 0;
-let isInitialFrame = true;
 
 // -- dog ------------------------------------------------------------------------------------------
 export const dog = new Dog();
@@ -40,9 +37,6 @@ const canvasRenderTarget = new CanvasRenderTarget();
 // Mr. Update Everything
 dog.root.components.push( new Lambda( {
   onUpdate: () => {
-    totalFrame ++;
-    isInitialFrame = false;
-
     if ( process.env.DEV ) {
       Component.gpuTimer!.update();
     }

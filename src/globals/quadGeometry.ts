@@ -1,5 +1,5 @@
-import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { Geometry } from '../heck/Geometry';
+import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { gl, glCat } from './canvas';
 
 const quadBuffer = glCat.createBuffer();

@@ -4,7 +4,7 @@
  * @param i Index of the sequence
  * @param base Base of the sequence
  */
-export function vdc( i: number, base: number ) {
+export function vdc( i: number, base: number ): number {
   let r = 0;
   let denom = 1;
 

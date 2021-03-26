@@ -1,15 +1,15 @@
-import { Entity } from '../heck/Entity';
-import { RenderTarget } from '../heck/RenderTarget';
-import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME, RTINSPECTOR_MULTIPLE } from '../config-hot';
-import quadVert from '../shaders/quad.vert';
-import inspectorFrag from '../shaders/inspector.frag';
-import { canvas, gl } from '../globals/canvas';
 import { Blit } from '../heck/components/Blit';
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
+import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
+import { Quad } from '../heck/components/Quad';
+import { RTINSPECTOR_CAPTURE_INDEX, RTINSPECTOR_CAPTURE_NAME, RTINSPECTOR_MULTIPLE } from '../config-hot';
+import { RenderTarget } from '../heck/RenderTarget';
+import { canvas, gl } from '../globals/canvas';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { quadGeometry } from '../globals/quadGeometry';
-import { Quad } from '../heck/components/Quad';
+import inspectorFrag from '../shaders/inspector.frag';
+import quadVert from '../shaders/quad.vert';
 
 export interface RTInspectorOptions {
   target: RenderTarget;
@@ -38,7 +38,7 @@ export class RTInspector extends Entity {
     this.quadSingle = new Quad( {
       target: options.target,
       material: this.materialSingle,
-      name: `RTInspector/quadSingle`,
+      name: 'RTInspector/quadSingle',
       ignoreBreakpoints: true,
     } );
     this.entitySingle.components.push( this.quadSingle );

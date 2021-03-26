@@ -1,9 +1,9 @@
+import { CUBEMAP_RESOLUTION } from '../config';
+import { CubemapCamera } from '../heck/components/CubemapCamera';
+import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { Entity } from '../heck/Entity';
 import { LightEntity } from './LightEntity';
 import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
-import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
-import { CubemapCamera } from '../heck/components/CubemapCamera';
-import { CUBEMAP_RESOLUTION } from '../config';
 
 export interface CubemapCameraEntityOptions {
   root: Entity;

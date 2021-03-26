@@ -1,6 +1,6 @@
-import { glCat } from './canvas';
 import { RANDOM_RESOLUTION, STATIC_RANDOM_RESOLUTION } from '../config';
 import { RandomTexture } from '../utils/RandomTexture';
+import { glCat } from './canvas';
 
 export const randomTexture = new RandomTexture(
   glCat,

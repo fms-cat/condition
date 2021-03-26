@@ -1,6 +1,6 @@
+import { Component } from './components/Component';
 import { Entity } from './Entity';
 import { Transform } from './Transform';
-import { Component } from './components/Component';
 import { music } from '../globals/music';
 
 /**

@@ -4,10 +4,10 @@ import { Material } from '../heck/Material';
 import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { quadGeometry } from '../globals/quadGeometry';
 import quadVert from '../shaders/quad.vert';
 import shadowBlurFrag from '../shaders/shadow-blur.frag';
-import { quadGeometry } from '../globals/quadGeometry';
-import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 
 export interface LightEntityOptions {
   root: Entity;
