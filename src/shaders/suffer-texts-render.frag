@@ -31,10 +31,17 @@ void main() {
   float tex = texture( samplerTinyChar, vUv ).x;
   if ( tex < 0.5 ) { discard; }
 
+  vec3 color = vec3( 1.0 );
+  color = mix(
+    step( 2.0, mod( 40.0 * vLife + vec3( 0.0, 1.0, 2.0 ), 3.0 ) ),
+    color,
+    smoothstep( 0.0, 0.3, vLife ) * smoothstep( 1.0, 0.7, vLife )
+  );
+
   #ifdef DEFERRED
     fragPosition = vPosition;
     fragNormal = vec4( vNormal, 1.0 );
-    fragColor = vec4( 1.0 );
+    fragColor = vec4( color, 1.0 );
     fragWTF = vec4( vec3( 0.0 ), MTL_UNLIT );
   #endif
 }
