@@ -54,21 +54,22 @@ export class Cube extends Entity {
     geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
-    const materials = {
-      deferred: new Material(
+      const deferred = new Material(
         cubeVert,
         cubeFrag,
         {
-          defines: { 'DEFERRED': 'true' },
+          defines: [ 'DEFERRED 1' ],
           initOptions: { geometry: quadGeometry, target: dummyRenderTargetFourDrawBuffers },
         },
-      ),
-      shadow: new Material(
+      );
+
+      const depth = new Material(
         cubeVert,
         depthFrag,
         { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
-      ),
-    };
+      );
+
+    const materials = { deferred, depth };
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -78,8 +79,8 @@ export class Cube extends Entity {
             '../shaders/cube.frag',
           ],
           () => {
-            materials.deferred.replaceShader( cubeVert, cubeFrag );
-            materials.shadow.replaceShader( cubeVert, depthFrag );
+            deferred.replaceShader( cubeVert, cubeFrag );
+            depth.replaceShader( cubeVert, depthFrag );
           },
         );
       }

@@ -47,28 +47,34 @@ export class Rings extends Entity {
     geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
+    const forward = new Material(
+      ringsVert,
+      ringsFrag,
+      {
+        defines: [ 'FORWARD 1' ],
+        initOptions: { geometry, target: dummyRenderTarget },
+      },
+    );
+
+    const deferred = new Material(
+      ringsVert,
+      ringsFrag,
+      {
+        defines: [ 'DEFERRED 1' ],
+        initOptions: { geometry, target: dummyRenderTarget },
+      },
+    );
+
+    const depth = new Material(
+      ringsVert,
+      depthFrag,
+      { initOptions: { geometry, target: dummyRenderTarget } },
+    );
+
     const materials = {
-      forward: new Material(
-        ringsVert,
-        ringsFrag,
-        {
-          defines: { 'FORWARD': 'true' },
-          initOptions: { geometry, target: dummyRenderTarget },
-        },
-      ),
-      deferred: new Material(
-        ringsVert,
-        ringsFrag,
-        {
-          defines: { 'DEFERRED': 'true' },
-          initOptions: { geometry, target: dummyRenderTarget },
-        },
-      ),
-      shadow: new Material(
-        ringsVert,
-        depthFrag,
-        { initOptions: { geometry, target: dummyRenderTarget } },
-      ),
+      forward,
+      deferred,
+      depth,
     }
 
     if ( process.env.DEV ) {
@@ -79,9 +85,9 @@ export class Rings extends Entity {
             '../shaders/rings.frag',
           ],
           () => {
-            materials.forward.replaceShader( ringsVert, ringsFrag );
-            materials.deferred.replaceShader( ringsVert, ringsFrag );
-            materials.shadow.replaceShader( ringsVert, depthFrag );
+            forward.replaceShader( ringsVert, ringsFrag );
+            deferred.replaceShader( ringsVert, ringsFrag );
+            depth.replaceShader( ringsVert, depthFrag );
           },
         );
       }
@@ -89,8 +95,8 @@ export class Rings extends Entity {
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
-      geometry: geometry,
-      materials: materials,
+      geometry,
+      materials,
       name: process.env.DEV && 'Rings/mesh',
     } );
     this.components.push( mesh );

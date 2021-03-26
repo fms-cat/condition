@@ -1,10 +1,39 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+const TerserPlugin = require( 'terser-webpack-plugin' );
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const packageJson = require( './package.json' );
 const path = require( 'path' );
 const webpack = require( 'webpack' );
+
+/**
+ * @type TerserPlugin.TerserPluginOptions[ 'terserOptions' ]
+ */
+const terserOptions = {
+  compress: {
+    arguments: true,
+    booleans_as_integers: true,
+    drop_console: true,
+    keep_fargs: false,
+    passes: 1,
+    unsafe_arrows: true,
+    unsafe_math: true,
+  },
+  mangle: {
+    properties: {
+      regex: /.+/,
+      reserved: [
+        // material tags
+        'forward',
+        'deferred',
+        'depth',
+      ]
+    },
+  },
+  module: true,
+  toplevel: true,
+};
 
 module.exports = ( env, argv ) => {
   const VERSION = packageJson.version;
@@ -67,6 +96,7 @@ module.exports = ( env, argv ) => {
     },
     optimization: {
       minimize: !DEV,
+      minimizer: [ new TerserPlugin( { terserOptions } ) ],
       moduleIds: DEV ? 'named' : undefined,
       usedExports: !DEV,
     },

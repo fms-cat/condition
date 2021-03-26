@@ -10,6 +10,7 @@ import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { auto } from '../globals/automaton';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { genOctahedron } from '../geometries/genOctahedron';
+import { objectValuesMap } from '../utils/objectEntriesMap';
 
 export class Raymarcher extends Entity {
   public constructor() {
@@ -31,45 +32,46 @@ export class Raymarcher extends Entity {
     geometry.indexType = octahedron.indexType;
 
     // -- materials --------------------------------------------------------------------------------
-    const materials = {
-      deferred: new Material(
-        raymarchObjectVert,
-        raymarcherFrag,
-        {
-          defines: { 'DEFERRED': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
-        },
-      ),
-      shadow: new Material(
-        raymarchObjectVert,
-        raymarcherFrag,
-        {
-          defines: { 'SHADOW': 'true' },
-          initOptions: { geometry, target: dummyRenderTarget }
-        },
-      ),
-    };
+    const deferred = new Material(
+      raymarchObjectVert,
+      raymarcherFrag,
+      {
+        defines: [ 'DEFERRED 1' ],
+        initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
+      },
+    );
+
+    const depth = new Material(
+      raymarchObjectVert,
+      raymarcherFrag,
+      {
+        defines: [ 'SHADOW 1' ],
+        initOptions: { geometry, target: dummyRenderTarget }
+      },
+    );
+
+    const materials = { deferred, depth };
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/raymarcher.frag', () => {
-          materials.deferred.replaceShader( raymarchObjectVert, raymarcherFrag );
-          materials.shadow.replaceShader( raymarchObjectVert, raymarcherFrag );
+          deferred.replaceShader( raymarchObjectVert, raymarcherFrag );
+          depth.replaceShader( raymarchObjectVert, raymarcherFrag );
         } );
       }
     }
 
-    for ( const material of Object.values( materials ) ) {
+    objectValuesMap( materials, ( material ) => {
       material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
 
       material.addUniformTexture( 'samplerRandom', randomTexture.texture );
       material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    }
+    } );
 
     // -- updater ----------------------------------------------------------------------------------
     this.components.push( new Lambda( {
       onDraw: ( event ) => {
-        for ( const material of Object.values( materials ) ) {
+        objectValuesMap( materials, ( material ) => {
           material.addUniform(
             'cameraNearFar',
             '2f',
@@ -90,15 +92,15 @@ export class Raymarcher extends Entity {
           material.addUniform( 'deformAmp', '1f', auto( 'Music/NEURO_WUB_AMP' ) );
           material.addUniform( 'deformFreq', '1f', auto( 'Music/NEURO_WUB_FREQ' ) + auto( 'Music/NEURO_DETUNE' ) );
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
-        }
+        } );
       },
       name: process.env.DEV && 'Raymarcher/updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
-      geometry: geometry,
-      materials: materials,
+      geometry,
+      materials,
       name: process.env.DEV && 'Raymarcher/mesh',
     } );
     mesh.cull = MeshCull.None;

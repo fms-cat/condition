@@ -1,9 +1,6 @@
 import type { FxDefinition } from '@fms-cat/automaton';
 
 export const transpose: FxDefinition = {
-  params: {
-    note: { name: 'Note', type: 'float', default: 0.0 }
-  },
   func( context ) {
     if ( context.init ) {
       context.state.v0 = context.value;
@@ -17,3 +14,11 @@ export const transpose: FxDefinition = {
     return v0 + ( context.value - v0 ) * Math.pow( 2.0, context.params.note / 12.0 );
   }
 };
+
+if ( process.env.DEV ) {
+  transpose.name = 'Transpose';
+  transpose.description = 'I probably don\'t need it...';
+  transpose.params = {
+    note: { name: 'Note', type: 'float', default: 0.0 },
+  };
+}

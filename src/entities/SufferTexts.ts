@@ -68,7 +68,7 @@ export class SufferTexts extends Entity {
       sufferTextsRenderVert,
       sufferTextsRenderFrag,
       {
-        defines: { 'DEFERRED': 'true' },
+        defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
       },
     );

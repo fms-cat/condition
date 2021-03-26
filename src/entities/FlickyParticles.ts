@@ -11,6 +11,7 @@ import { gl, glCat } from '../globals/canvas';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { objectValuesMap } from '../utils/objectEntriesMap';
 
 const PARTICLES_SQRT = 8;
 const PARTICLES = PARTICLES_SQRT * PARTICLES_SQRT;
@@ -72,7 +73,7 @@ export class FlickyParticles extends Entity {
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
       {
-        defines: { 'FORWARD': 'true' },
+        defines: [ 'FORWARD 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTarget },
       },
     );
@@ -81,7 +82,7 @@ export class FlickyParticles extends Entity {
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
       {
-        defines: { 'DEFERRED': 'true' },
+        defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
       },
     );
@@ -90,16 +91,16 @@ export class FlickyParticles extends Entity {
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
       {
-        defines: { 'SHADOW': 'true' },
+        defines: [ 'SHADOW 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTarget },
       },
     );
 
     const materialsRender = { forward, deferred, shadow };
 
-    for ( const material of Object.values( materialsRender ) ) {
+    objectValuesMap( materialsRender, ( material ) => {
       material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    }
+    } );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

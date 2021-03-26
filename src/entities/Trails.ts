@@ -108,20 +108,20 @@ export class Trails extends Entity {
       trailsRenderVert,
       trailsRenderFrag,
       {
-        defines: { 'DEFERRED': 'true' },
+        defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
       },
     );
-    const shadow = new Material(
+    const depth = new Material(
       trailsRenderVert,
       depthFrag,
       { initOptions: { geometry: geometryRender, target: dummyRenderTarget } },
     );
 
-    const materialsRender = { deferred, shadow };
+    const materialsRender = { deferred, depth };
 
     deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    depth.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -132,7 +132,7 @@ export class Trails extends Entity {
           ],
           () => {
             deferred.replaceShader( trailsRenderVert, trailsRenderFrag );
-            shadow.replaceShader( trailsRenderVert, depthFrag );
+            depth.replaceShader( trailsRenderVert, depthFrag );
           }
         );
       }

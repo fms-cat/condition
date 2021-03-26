@@ -7,6 +7,7 @@ import { Mesh } from '../heck/components/Mesh';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
 import { gl } from '../globals/canvas';
+import { objectValuesMap } from '../utils/objectEntriesMap';
 
 export interface GPUParticlesOptions {
   materialCompute: Material;
@@ -62,14 +63,14 @@ export class GPUParticles extends Entity {
       name: process.env.DEV && `${ namePrefix }/meshRender`,
     } );
 
-    for ( const material of Object.values( materialsRender ) ) {
+    objectValuesMap( materialsRender, ( material ) => {
       material?.addUniform(
         'resolutionCompute',
         '2f',
         computeWidth,
         computeHeight
       );
-    }
+    } );
 
     // -- swapper ----------------------------------------------------------------------------------
     this.components.push( new Lambda( {
@@ -84,12 +85,12 @@ export class GPUParticles extends Entity {
             swapCompute.i.getTexture( attachment )
           );
 
-          for ( const material of Object.values( materialsRender ) ) {
+          objectValuesMap( materialsRender, ( material ) => {
             material?.addUniformTexture(
               `samplerCompute${ i }`,
               swapCompute.o.getTexture( attachment )
             );
-          }
+          } );
         }
 
         quadCompute.target = swapCompute.o;

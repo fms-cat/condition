@@ -4,6 +4,7 @@ import { Component } from './heck/components/Component';
 import { music } from './globals/music';
 import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
 import { dog } from './scene';
+import { START_POSITION } from './config';
 
 // == dom ==========================================================================================
 document.body.style.margin = '0';
@@ -20,6 +21,9 @@ if ( process.env.DEV ) {
   canvas.style.margin = 'auto';
   canvas.style.maxWidth = '100%';
   canvas.style.maxHeight = '100%';
+
+  music.isPlaying = true;
+  music.time = START_POSITION;
 } else {
   canvas.style.position = 'fixed';
   canvas.style.left = '0';
@@ -34,6 +38,7 @@ if ( process.env.DEV ) {
   button.onclick = () => {
     document.body.appendChild( canvas );
     music.isPlaying = true;
+    music.time = START_POSITION;
     document.body.requestFullscreen();
   };
 }
@@ -69,9 +74,4 @@ if ( !process.env.DEV ) {
 if ( process.env.DEV ) {
   console.info( Component.nameMap );
   console.info( BufferRenderTarget.nameMap );
-}
-
-// == music ========================================================================================
-if ( process.env.DEV ) {
-  music.isPlaying = true;
 }

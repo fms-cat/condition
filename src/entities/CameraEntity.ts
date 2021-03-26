@@ -97,9 +97,7 @@ export class CameraEntity extends Entity {
         quadVert,
         shadingFrag,
         {
-          defines: {
-            IS_FIRST_LIGHT: iLight === 0 ? 'true' : undefined
-          },
+          defines: iLight === 0 ? [ 'IS_FIRST_LIGHT' ] : [],
           initOptions: { geometry: quadGeometry, target: dummyRenderTarget },
         },
       );

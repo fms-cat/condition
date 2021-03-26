@@ -75,21 +75,21 @@ export class SphereParticles extends Entity {
       sphereParticleRenderVert,
       sphereParticleRenderFrag,
       {
-        defines: { 'DEFERRED': 'true' },
+        defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
       },
     );
 
-    const shadow = new Material(
+    const depth = new Material(
       sphereParticleRenderVert,
       depthFrag,
       { initOptions: { geometry: geometryRender, target: dummyRenderTarget } },
     );
 
-    const materialsRender = { deferred, shadow };
+    const materialsRender = { deferred, depth };
 
     deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    shadow.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    depth.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -100,7 +100,7 @@ export class SphereParticles extends Entity {
           ],
           () => {
             deferred.replaceShader( sphereParticleRenderVert, sphereParticleRenderFrag );
-            shadow.replaceShader( sphereParticleRenderVert, depthFrag );
+            depth.replaceShader( sphereParticleRenderVert, depthFrag );
           }
         );
       }

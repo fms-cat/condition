@@ -102,32 +102,34 @@ export class Condition extends Entity {
     geometry.primcount = 12 * 16;
 
     // -- create materials -------------------------------------------------------------------------
-    const materials = {
-      forward: new Material(
-        conditionVert,
-        conditionFrag,
-        {
-          defines: { 'FORWARD': 'true' },
-          initOptions: { geometry, target: dummyRenderTarget },
-        },
-      ),
-      deferred: new Material(
-        conditionVert,
-        conditionFrag,
-        {
-          defines: { 'DEFERRED': 'true' },
-          initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
-        },
-      ),
-      shadow: new Material(
-        conditionVert,
-        conditionFrag,
-        {
-          defines: { 'SHADOW': 'true' },
-          initOptions: { geometry, target: dummyRenderTarget },
-        },
-      ),
-    };
+    const forward = new Material(
+      conditionVert,
+      conditionFrag,
+      {
+        defines: [ 'FORWARD 1' ],
+        initOptions: { geometry, target: dummyRenderTarget },
+      },
+    );
+
+    const deferred = new Material(
+      conditionVert,
+      conditionFrag,
+      {
+        defines: [ 'DEFERRED 1' ],
+        initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
+      },
+    );
+
+    const depth = new Material(
+      conditionVert,
+      conditionFrag,
+      {
+        defines: [ 'SHADOW 1' ],
+        initOptions: { geometry, target: dummyRenderTarget },
+      },
+    );
+
+    const materials = { forward, deferred, depth };
 
     objectValuesMap( materials, ( material ) => {
       material.addUniformTexture( 'samplerSvg', texture );
@@ -149,9 +151,9 @@ export class Condition extends Entity {
             '../shaders/condition.frag',
           ],
           () => {
-            materials.forward.replaceShader( conditionVert, conditionFrag );
-            materials.deferred.replaceShader( conditionVert, conditionFrag );
-            materials.shadow.replaceShader( conditionVert, conditionFrag );
+            forward.replaceShader( conditionVert, conditionFrag );
+            deferred.replaceShader( conditionVert, conditionFrag );
+            depth.replaceShader( conditionVert, conditionFrag );
           },
         );
       }

@@ -8,7 +8,7 @@ import { SHADERPOOL } from './ShaderPool';
 export type MaterialTag =
   | 'deferred'
   | 'forward'
-  | 'shadow';
+  | 'depth';
 
 export type MaterialMap<T extends MaterialTag = MaterialTag> = { [ tag in T ]: Material };
 
@@ -20,9 +20,7 @@ export interface MaterialInitOptions {
 export class Material {
   protected __linkOptions: GLCatProgramLinkOptions;
 
-  protected __defines: {
-    [ name: string ]: ( string | undefined );
-  };
+  protected __defines: string[];
 
   protected __uniforms: {
     [ name: string ]: {
@@ -84,7 +82,7 @@ export class Material {
     vert: string,
     frag: string,
     { defines, blend, linkOptions, initOptions }: {
-      defines?: { [ key: string ]: ( string | undefined ) },
+      defines?: string[],
       blend?: [ GLenum, GLenum ],
       linkOptions?: GLCatProgramLinkOptions,
       initOptions?: MaterialInitOptions,
@@ -93,7 +91,7 @@ export class Material {
     this.__vert = vert;
     this.__frag = frag;
     this.__linkOptions = linkOptions ?? {};
-    this.__defines = defines ?? {};
+    this.__defines = defines ?? [];
     this.blend = blend ?? [ gl.ONE, gl.ZERO ];
 
     if ( initOptions ) {
@@ -153,12 +151,12 @@ export class Material {
     vert: string,
     frag: string,
     options?: {
-      defines?: { [ key: string ]: ( string | undefined ) },
+      defines?: string[],
       linkOptions?: GLCatProgramLinkOptions,
     },
   ): Promise<void> {
     if ( options?.defines ) {
-      this.__defines = { ...options.defines };
+      this.__defines = [ ...options.defines ];
     }
 
     const program = await SHADERPOOL.getProgramAsync(
@@ -194,9 +192,9 @@ export class Material {
   protected __withDefines( code: string ): string {
     let inject = '';
 
-    Object.entries( this.__defines ).map( ( [ key, value ] ) => {
+    this.__defines.map( ( value ) => {
       if ( value != null ) {
-        inject += `#define ${key} ${value}\n`;
+        inject += `#define ${value}\n`;
       }
     } );
 

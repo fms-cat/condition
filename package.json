@@ -5,7 +5,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack-cli serve --mode development",
-    "build": "webpack --mode production && ruby pnginator.rb ./dist/bundle.js ./dist/out.png.html"
+    "build": "yarn build-js && yarn build-png",
+    "build-js": "webpack --mode production",
+    "build-png": "jsexe -cn -po ./dist/bundle.js ./dist/out.png.html",
+    "h": "start http://localhost:8081/out.png.html && http-server ./dist"
   },
   "devDependencies": {
     "@fms-cat/automaton": "^4.1.0",

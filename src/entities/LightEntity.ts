@@ -58,7 +58,7 @@ export class LightEntity extends Entity {
       renderTarget: swap.o,
       scene: this.root,
       name: process.env.DEV && `${ options.namePrefix }/shadowMapCamera`,
-      materialTag: 'shadow',
+      materialTag: 'depth',
     } );
     this.camera.clear = [ 1.0, 1.0, 1.0, 1.0 ];
     this.components.push( this.camera );
