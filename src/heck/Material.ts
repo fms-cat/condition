@@ -1,4 +1,4 @@
-import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
+import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformMatrixVectorType, GLCatProgramUniformType, GLCatProgramUniformVectorType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
 import { Geometry } from './Geometry';
 import { RenderTarget } from './RenderTarget';
 import { SHADERPOOL } from './ShaderPool';
@@ -31,8 +31,16 @@ export class Material {
 
   protected __uniformVectors: {
     [ name: string ]: {
-      type: GLCatProgramUniformType;
+      type: GLCatProgramUniformVectorType;
       value: Float32List | Int32List;
+    };
+  } = {};
+
+  protected __uniformMatrixVectors: {
+    [ name: string ]: {
+      type: GLCatProgramUniformMatrixVectorType;
+      value: Float32List | Int32List;
+      transpose?: boolean;
     };
   } = {};
 
@@ -109,10 +117,18 @@ export class Material {
 
   public addUniformVector(
     name: string,
-    type: GLCatProgramUniformType,
+    type: GLCatProgramUniformVectorType,
     value: Float32List | Int32List
   ): void {
     this.__uniformVectors[ name ] = { type, value };
+  }
+
+  public addUniformMatrixVector(
+    name: string,
+    type: GLCatProgramUniformMatrixVectorType,
+    value: Float32List | Int32List
+  ): void {
+    this.__uniformMatrixVectors[ name ] = { type, value };
   }
 
   public addUniformTexture( name: string, texture: GLCatTexture | null ): void {
@@ -133,6 +149,12 @@ export class Material {
     Object.entries( this.__uniformVectors ).forEach( ( [ name, { type, value } ] ) => {
       program.uniformVector( name, type, value );
     } );
+
+    Object.entries( this.__uniformMatrixVectors ).forEach(
+      ( [ name, { type, value, transpose } ] ) => {
+        program.uniformMatrixVector( name, type, value, transpose );
+      }
+    );
 
     Object.entries( this.__uniformTextures ).forEach( ( [ name, { texture } ] ) => {
       program.uniformTexture( name, texture );

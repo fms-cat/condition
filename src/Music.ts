@@ -251,22 +251,24 @@ export class Music {
     const sixteenBarLength = 3840.0 / MUSIC_BPM;
 
     program.attribute( 'off', this.__bufferOff, 1 );
-    program.uniform1f( 'bpm', MUSIC_BPM );
-    program.uniform1f( 'bufferLength', MUSIC_BUFFER_LENGTH );
-    program.uniform1f( '_deltaSample', 1.0 / this.audio.sampleRate );
-    program.uniform4f(
+    program.uniform( 'bpm', '1f', MUSIC_BPM );
+    program.uniform( 'bufferLength', '1f', MUSIC_BUFFER_LENGTH );
+    program.uniform( '_deltaSample', '1f', 1.0 / this.audio.sampleRate );
+    program.uniform(
       'timeLength',
+      '4f',
       beatLength,
       barLength,
       sixteenBarLength,
       1E16
     );
-    program.uniform4f(
+    program.uniform(
       '_timeHead',
+      '4f',
       time % beatLength,
       time % barLength,
       time % sixteenBarLength,
-      time
+      time,
     );
 
     program.uniformTexture( 'samplerRandom', randomTextureStatic.texture );

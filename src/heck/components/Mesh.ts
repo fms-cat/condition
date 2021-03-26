@@ -58,16 +58,16 @@ export class Mesh extends Component {
 
     material.setUniforms();
 
-    program.uniform1f( 'time', event.time );
-    program.uniform1f( 'frameCount', event.frameCount );
-    program.uniform2f( 'resolution', event.renderTarget.width, event.renderTarget.height );
-    program.uniform3f( 'cameraPos', ...event.cameraTransform.position.elements );
-    program.uniform2f( 'cameraNearFar', event.camera.near, event.camera.far );
+    program.uniform( 'time', '1f', event.time );
+    program.uniform( 'frameCount', '1f', event.frameCount );
+    program.uniform( 'resolution', '2f', event.renderTarget.width, event.renderTarget.height );
+    program.uniform( 'cameraPos', '3f', ...event.cameraTransform.position.elements );
+    program.uniform( 'cameraNearFar', '2f', event.camera.near, event.camera.far );
 
-    program.uniformMatrix4fv( 'normalMatrix', event.globalTransform.matrix.inverse!.transpose.elements );
-    program.uniformMatrix4fv( 'modelMatrix', event.globalTransform.matrix.elements );
-    program.uniformMatrix4fv( 'viewMatrix', event.viewMatrix.elements );
-    program.uniformMatrix4fv( 'projectionMatrix', event.projectionMatrix.elements );
+    program.uniformMatrixVector( 'normalMatrix', 'Matrix4fv', event.globalTransform.matrix.inverse!.transpose.elements );
+    program.uniformMatrixVector( 'modelMatrix', 'Matrix4fv', event.globalTransform.matrix.elements );
+    program.uniformMatrixVector( 'viewMatrix', 'Matrix4fv', event.viewMatrix.elements );
+    program.uniformMatrixVector( 'projectionMatrix', 'Matrix4fv', event.projectionMatrix.elements );
 
     this.geometry.draw();
   }

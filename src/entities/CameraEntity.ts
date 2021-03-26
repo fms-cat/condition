@@ -65,7 +65,7 @@ export class CameraEntity extends Entity {
       onUpdate: () => {
         const cameraView = this.transform.matrix.inverse!;
 
-        aoMaterial.addUniformVector(
+        aoMaterial.addUniformMatrixVector(
           'cameraPV',
           'Matrix4fv',
           this.camera.projectionMatrix.multiply(
@@ -118,13 +118,13 @@ export class CameraEntity extends Entity {
 
           const cameraView = this.transform.matrix.inverse!;
 
-          shadingMaterial.addUniformVector(
+          shadingMaterial.addUniformMatrixVector(
             'cameraView',
             'Matrix4fv',
             cameraView.elements
           );
 
-          shadingMaterial.addUniformVector(
+          shadingMaterial.addUniformMatrixVector(
             'cameraPV',
             'Matrix4fv',
             this.camera.projectionMatrix.multiply(
@@ -164,7 +164,7 @@ export class CameraEntity extends Entity {
             ...light.color
           );
 
-          shadingMaterial.addUniformVector(
+          shadingMaterial.addUniformMatrixVector(
             'lightPV',
             'Matrix4fv',
             light.camera.projectionMatrix.multiply(

@@ -79,7 +79,7 @@ export class Raymarcher extends Entity {
             event.camera.far
           );
 
-          material.addUniformVector(
+          material.addUniformMatrixVector(
             'inversePVM',
             'Matrix4fv',
             event.projectionMatrix

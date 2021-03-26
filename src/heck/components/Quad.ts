@@ -45,11 +45,11 @@ export class Quad extends Component {
 
     const program = this.material.program;
 
-    program.uniform1f( 'time', event.time );
-    program.uniform1f( 'deltaTime', event.deltaTime );
-    program.uniform1f( 'frameCount', event.frameCount );
-    program.uniform2f( 'resolution', this.target.width, this.target.height );
-    program.uniform4f( 'range', ...this.range );
+    program.uniform( 'time', '1f', event.time );
+    program.uniform( 'deltaTime', '1f', event.deltaTime );
+    program.uniform( 'frameCount', '1f', event.frameCount );
+    program.uniform( 'resolution', '2f', this.target.width, this.target.height );
+    program.uniform( 'range', '4f', ...this.range );
 
     quadGeometry.draw();
   }
