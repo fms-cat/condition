@@ -6,7 +6,7 @@ precision highp float;
 
 const int MTL_PBR = 2;
 
-in float vLife;
+in float vInstanceId;
 in vec3 vNormal;
 in vec4 vPosition;
 in vec4 vPositionWithoutModel;
@@ -27,7 +27,7 @@ vec3 cyclicNoise( vec3 p ) {
   float amp = 0.5;
 
   for ( int i = 0; i < 8; i ++ ) {
-    p = p.zxy * 1.4 + 0.5;
+    p = p.zxy * 1.4 + vInstanceId;
     vec3 pt = lofi( p, 0.5 );
     sum += sin( cross( cos( pt ), sin( pt.yzx ) ) ) * amp;
     p += sum;

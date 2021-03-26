@@ -9,6 +9,7 @@ import { Material } from '../heck/Material';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { Mesh } from '../heck/components/Mesh';
 import { auto } from '../globals/automaton';
+import { objectValuesMap } from '../utils/objectEntriesMap';
 
 const POINTS_MAX = 256;
 
@@ -128,17 +129,17 @@ export class Condition extends Entity {
       ),
     };
 
-    for ( const material of Object.values( materials ) ) {
+    objectValuesMap( materials, ( material ) => {
       material.addUniformTexture( 'samplerSvg', texture );
-
-      auto( 'Condition/phaseOffset', ( { value } ) => {
-        material.addUniform( 'phaseOffset', '1f', value );
-      } );
 
       auto( 'Condition/phaseWidth', ( { value } ) => {
         material.addUniform( 'phaseWidth', '1f', value );
       } );
-    }
+
+      auto( 'Sync/first/clap', ( { value } ) => {
+        material.addUniform( 'phaseOffset', '1f', 0.2 * value );
+      } );
+    } );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

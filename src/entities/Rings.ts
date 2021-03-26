@@ -35,7 +35,7 @@ export class Rings extends Entity {
     geometry.vao.bindVertexbuffer( torus.normal, 1, 3 );
     geometry.vao.bindIndexbuffer( torus.index );
 
-    const arrayInstanceId = new Array( PRIMCOUNT ).fill( 0 ).map( ( _, i ) => i );
+    const arrayInstanceId = [ ...Array( PRIMCOUNT).keys() ];
     const bufferInstanceId = glCat.createBuffer();
     bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
 

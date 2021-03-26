@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { Mesh } from '../heck/components/Mesh';
 import { Entity } from '../heck/Entity';
-import { Geometry } from '../heck/Geometry';
 import { Material } from '../heck/Material';
 import cubeVert from '../shaders/cube.vert';
 import cubeFrag from '../shaders/cube.frag';
@@ -10,6 +9,12 @@ import { genCube } from '../geometries/genCube';
 import { Lambda } from '../heck/components/Lambda';
 import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTargetFourDrawBuffers, dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { glCat } from '../globals/canvas';
+import { InstancedGeometry } from '../heck/InstancedGeometry';
+import { objectValuesMap } from '../utils/objectEntriesMap';
+import { auto } from '../globals/automaton';
+
+const PRIMCOUNT = 512;
 
 export class Cube extends Entity {
   public mesh: Mesh;
@@ -25,22 +30,28 @@ export class Cube extends Entity {
       0.4,
     ) );
 
-    this.transform.position = new Vector3( [ 0.0, 0.0, -2.0 ] );
+    this.transform.position = new Vector3( [ 0.0, 0.0, 0.0 ] );
     this.transform.rotation = rot0;
-    this.transform.scale = this.transform.scale.scale( 0.8 );
+    this.transform.scale = this.transform.scale.scale( 0.2 );
 
     // -- geometry ---------------------------------------------------------------------------------
     const cube = genCube();
 
-    const geometry = new Geometry();
+    const geometry = new InstancedGeometry();
 
     geometry.vao.bindVertexbuffer( cube.position, 0, 3 );
     geometry.vao.bindVertexbuffer( cube.normal, 1, 3 );
     geometry.vao.bindIndexbuffer( cube.index );
 
+    const arrayInstanceId = [ ...Array( PRIMCOUNT ).keys() ];
+    const bufferInstanceId = glCat.createBuffer();
+    bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
+    geometry.vao.bindVertexbuffer( bufferInstanceId, 2, 1, 1 );
+
     geometry.count = cube.count;
     geometry.mode = cube.mode;
     geometry.indexType = cube.indexType;
+    geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
     const materials = {
@@ -84,6 +95,10 @@ export class Cube extends Entity {
         ).multiply(
           Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
         );
+
+        objectValuesMap( materials, ( material ) => (
+          material.addUniform( 'clap', '1f', auto( 'Sync/first/clap' ) )
+        ) );
       },
       name: process.env.DEV && 'Cube/speen',
     } ) );
