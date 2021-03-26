@@ -193,7 +193,7 @@ const replacerLightPink = new EntityReplacer( () => {
     namePrefix: process.env.DEV && 'lightPink',
   } );
   light.color = [ 60.0, 1.0, 5.0 ];
-  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+  light.transform.lookAt( new Vector3( [ -1.0, 4.0, 4.0 ] ) );
   return light;
 }, 'LightPink' );
 const lightPink = replacerLightPink.current;

@@ -2,6 +2,7 @@
 
 precision highp float;
 
+#define fs(i) (fract(sin((i)*114.514)*1919.810))
 #define saturate(x) clamp(x,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 
@@ -10,8 +11,8 @@ const int MTL_UNLIT = 1;
 const int MTL_PBR = 2;
 const int MTL_GRADIENT = 3;
 const int MTL_IRIDESCENT = 4;
-
-in vec2 vP;
+const float PI = 3.14159265;
+const float TAU = PI * 2.0;
 
 #ifdef DEFERRED
   layout (location = 0) out vec4 fragPosition;
@@ -42,6 +43,12 @@ vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
 }
 
+// https://www.iquilezles.org/www/articles/smin/smin.htm
+float smin( float a, float b, float k ) {
+  float h = max( k - abs( a - b ), 0.0 ) / k;
+  return min( a, b ) - h * h * h * k * ( 1.0 / 6.0 );
+}
+
 mat2 rot2d( float t ) {
   float c = cos( t );
   float s = sin( t );
@@ -49,18 +56,16 @@ mat2 rot2d( float t ) {
 }
 
 #pragma glslify: noise = require( ./-simplex4d );
-#pragma glslify: distFunc = require( ./-distFunc );
 
 float box( vec3 p, vec3 s ) {
   vec3 d = abs( p ) - s;
   return min( 0.0, max( d.x, max( d.y, d.z ) ) ) + length( max( vec3( 0.0 ), d ) );
 }
 
-float fDistFunc( vec3 p ) {
+float distFunc( vec3 p ) {
+  // if ( length( p ) > 2.0 ) { return length( p ) - 1.8; }
+
   float distSlasher;
-
-  if ( length( p ) > 2.0 ) { return length( p ) - 1.8; }
-
   {
     vec3 pt = p;
 
@@ -71,23 +76,37 @@ float fDistFunc( vec3 p ) {
     distSlasher = box( pt, vec3( 1E1, 0.015, 1E1 ) );
   }
 
-  float dist = distFunc( p, time );
-  dist += 0.5 * deformAmp / deformFreq * noise( vec4( deformFreq * p.xyz, 4.0 * deformFreq * deformTime ) );
+  float distMetaball;
+  {
+    distMetaball = length( p ) - 0.4;
+    for ( int i = 0; i < 3; i ++ ) {
+      float fi = float( i );
+      vec3 offset = fs( fi * vec3( 2.8, 4.55, 3.12 ) );
+      vec3 freq = 1.0 + 3.0 * fs( fi * vec3( 4.14, 2.15, 0.18 ) );
+      vec3 trans = 0.5 * sin( 6.0 * offset + time * freq );
+      distMetaball = smin( distMetaball, length( p - trans ) - 0.4, 1.0 );
+      distMetaball = smin( distMetaball, length( p + trans ) - 0.4, 1.0 );
+    }
+  }
 
-  return max( distSlasher, dist );
+  distMetaball += 0.5 * deformAmp / deformFreq * noise(
+    vec4( deformFreq * p.xyz, 4.0 * deformFreq * deformTime )
+  );
+
+  return max( distSlasher, distMetaball );
 }
 
 vec3 normalFunc( vec3 p, float dd ) {
   vec2 d = vec2( 0.0, dd );
   return normalize( vec3(
-    fDistFunc( p + d.yxx ) - fDistFunc( p - d.yxx ),
-    fDistFunc( p + d.xyx ) - fDistFunc( p - d.xyx ),
-    fDistFunc( p + d.xxy ) - fDistFunc( p - d.xxy )
+    distFunc( p + d.yxx ) - distFunc( p - d.yxx ),
+    distFunc( p + d.xyx ) - distFunc( p - d.xyx ),
+    distFunc( p + d.xxy ) - distFunc( p - d.xxy )
   ) );
 }
 
 void main() {
-  vec2 p = vP;
+  vec2 p = ( gl_FragCoord.xy * 2.0 - resolution ) / resolution.y;
 
   vec3 rayOri = divideByW( inversePVM * vec4( p, 0.0, 1.0 ) );
   vec3 farPos = divideByW( inversePVM * vec4( p, 1.0, 1.0 ) );
@@ -97,7 +116,7 @@ void main() {
   float dist;
 
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
-    dist = fDistFunc( rayPos );
+    dist = distFunc( rayPos );
     rayLen += 0.5 * dist;
     rayPos = rayOri + rayDir * rayLen;
 
