@@ -19,6 +19,9 @@ out vec4 fragColor;
 uniform float time;
 uniform vec2 resolution;
 uniform sampler2D sampler0;
+uniform sampler2D samplerRandom;
+
+#pragma glslify: prng = require( ./-prng );
 
 vec3 colorMap( vec3 i ) {
   return vec3(
@@ -58,7 +61,12 @@ void main() {
 
   tex = mix( vec3( 0.0 ), tex, vig );
 
-  vec3 col = pow( saturate( tex.xyz ), vec3( 0.4545 ) );
+  vec3 col = tex.xyz;
+  vec4 seed = texture( samplerRandom, uv );
+  prng( seed );
+  prng( seed );
+  col += ( pow( prng( seed ), 2.2 ) - 0.25 ) * 0.002;
+  col = pow( saturate( col ), vec3( 0.4545 ) );
   col.x = linearstep( 0.0, 1.2, col.x + 0.2 * uv.y );
   col.z = linearstep( -0.1, 1.0, col.z );
   col = colorMap( col );

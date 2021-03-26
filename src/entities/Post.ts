@@ -7,6 +7,7 @@ import quadVert from '../shaders/quad.vert';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { quadGeometry } from '../globals/quadGeometry';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { randomTexture } from '../globals/randomTexture';
 
 export interface PostOptions {
   input: BufferRenderTarget;
@@ -26,6 +27,7 @@ export class Post extends Entity {
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     material.addUniformTexture( 'sampler0', options.input.texture );
+    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
