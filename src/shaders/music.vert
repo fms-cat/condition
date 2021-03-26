@@ -249,11 +249,11 @@ vec2 mainAudio( vec4 time ) {
   );
 
   const int chordsB[48] = int[](
-    -4, 0, 3, 5, 10, 19,
+    -4, 3, 5, 10, 12, 19,
     -5, 2, 9, 10, 12, 17,
     0, 5, 7, 14, 15, 22,
-    -3, 0, 2, 5, 12, 19,
-    -4, 0, 5, 7, 14, 19,
+    -3, 4, 11, 12, 14, 19,
+    -4, 5, 7, 12, 14, 19,
     -5, 2, 9, 10, 12, 17,
     0, 5, 7, 15, 22, 26,
     -3, 3, 7, 12, 17, 22
@@ -472,19 +472,19 @@ vec2 mainAudio( vec4 time ) {
     vec2 sum = vec2( 0.0 );
 
     float t = mod( time.z, 8.0 * BEAT );
-    vec2 radius = vec2( 0.01 + 0.01 * ( 1.0 - exp( -t ) ) );
+    vec2 radius = vec2( 0.02 + 0.01 * ( 1.0 - exp( -t ) ) );
 
     for ( int i = 0; i < 18; i ++ ) {
       float freq = n2f( chordsB[ ( i % 6 ) + progB ] ) * 0.5;
-      freq *= 1.0 + 0.02 * ( 0.5 - fs( float( i ) ) );
+      freq *= 1.0 + 0.05 * ( 0.5 - fs( float( i ) ) );
       float phase = 0.4 * saw( t * freq ) + t;
-      float fm = 0.3 * wavetable( phase, radius, vec2( 0.2 + 0.3 * float( i ) ) ).x;
-      sum += 0.4 * mix( 0.0, 1.0, sidechain ) * wavetable( phase + fm, radius, vec2( 0.3 * float( i ) ) );
+      float fm = 0.2 * wavetable( phase, radius, vec2( 0.2 + 0.3 * float( i ) ) ).x;
+      sum += 0.3 * mix( 0.0, 1.0, sidechain ) * wavetable( phase + fm, radius, vec2( 0.3 * float( i ) ) );
     }
 
     for ( int i = 0; i < 6; i ++ ) {
       float rate = n2r( float( chordsB[ i + progB ] ) );
-      sum += 0.3 * mix( 0.0, 1.0, sidechain ) * choir( t * rate * 0.5 );
+      sum += 0.4 * mix( 0.0, 1.0, sidechain ) * choir( t * rate * 0.5 );
     }
 
     dest += 0.09 * inRangeSmooth( t, 0.0, 4.0 * BEAT, 1E3 ) * aSaturate( 2.0 * sum );
