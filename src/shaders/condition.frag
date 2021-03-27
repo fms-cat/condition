@@ -2,11 +2,14 @@
 
 precision highp float;
 
+const float RADIUS_CULL_SPHERE = 1.5;
+
 const int MTL_UNLIT = 1;
 
 #define saturate(i) clamp(i,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 
+in float vScale;
 in float vPhase;
 in vec3 vNormal;
 in vec4 vPosition;
@@ -35,10 +38,18 @@ uniform float phaseOffset;
 uniform float phaseWidth;
 
 void main() {
-  float phase = fract( 2.0 * vPhase + vHuh.z + 0.1 * time + vHuh.y + phaseOffset );
+  float phase = fract( 2.0 * vPhase + vHuh.z + 0.1 * time + vHuh.y + phaseOffset / vScale );
   if ( phase > phaseWidth ) { discard; }
 
-  vec3 color = vec3( 2.0 );
+  float lenFromCenter = length( vPosition.xyz );
+  if ( lenFromCenter < RADIUS_CULL_SPHERE ) { discard; }
+
+  float colorPhase = exp( -4.0 * ( lenFromCenter - RADIUS_CULL_SPHERE ) );
+  vec3 color = mix(
+    vec3( 2.0 ),
+    vec3( 0.0 ),
+    colorPhase
+  );
 
   #ifdef FORWARD
     fragColor = vec4( color, 1.0 );

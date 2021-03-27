@@ -8,6 +8,7 @@ layout (location = 0) in vec2 what;
 layout (location = 1) in vec4 huh;
 
 out float vPhase;
+out float vScale;
 out vec3 vNormal;
 out vec4 vPosition;
 out vec4 vHuh;
@@ -35,6 +36,9 @@ void main() {
   float theta = what.y / 3.0 * TAU;
   vec3 tube = 0.1 * basis * vec3( sin( theta ), cos( theta ), 0.0 );
   vNormal = ( normalMatrix * vec4( tube, 1.0 ) ).xyz;
+
+  vScale = exp( 2.0 * fs( huh.z + 2.56 * huh.y ) );
+  vPosition.xyz *= vScale;
 
   vPosition.xyz += tube;
 
