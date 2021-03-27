@@ -10,6 +10,7 @@ import { CubemapCameraEntity } from './entities/CubemapCameraEntity';
 import { Dog } from './heck/Dog';
 import { Entity } from './heck/Entity';
 import { EnvironmentMap } from './entities/EnvironmentMap';
+import { FlashyTerrain } from './entities/FlashyTerrain';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
@@ -20,6 +21,7 @@ import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
 import { Raymarcher } from './entities/Raymarcher';
 import { Rings } from './entities/Rings';
+import { Serial } from './entities/Serial';
 import { SphereParticles } from './entities/SphereParticles';
 import { SufferTexts } from './entities/SufferTexts';
 import { Swap, Vector3 } from '@fms-cat/experimental';
@@ -98,10 +100,17 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerSVGTest = new EntityReplacer( () => new Condition(), 'Condition' );
+const replacerCondition = new EntityReplacer( () => new Condition(), 'Condition' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Condition', () => {
-    replacerSVGTest.replace();
+    replacerCondition.replace();
+  } );
+}
+
+const replacerFlashyTerrain = new EntityReplacer( () => new FlashyTerrain(), 'FlashyTerrain' );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/FlashyTerrain', () => {
+    replacerFlashyTerrain.replace();
   } );
 }
 
@@ -245,9 +254,13 @@ const camera = new CameraEntity( {
 camera.camera.clear = [ 0.0, 0.0, 0.0, 0.0 ];
 camera.components.unshift( new Lambda( {
   onUpdate: ( { time } ) => {
-    const r = auto( 'Camera/r' );
-    const t = auto( 'Camera/t' );
-    const p = auto( 'Camera/p' );
+    const r = auto( 'Camera/rot/r' );
+    const t = auto( 'Camera/rot/t' );
+    const p = auto( 'Camera/rot/p' );
+    const x = auto( 'Camera/pos/x' );
+    const y = auto( 'Camera/pos/y' );
+    const z = auto( 'Camera/pos/z' );
+    const roll = auto( 'Camera/roll' );
 
     const st = Math.sin( t );
     const ct = Math.cos( t );
@@ -261,17 +274,17 @@ camera.components.unshift( new Lambda( {
 
     camera.transform.lookAt(
       new Vector3( [
-        r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ),
-        r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ),
-        r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ),
+        r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ) + x,
+        r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ) + y,
+        r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ) + z,
       ] ),
       new Vector3( [
-        wubTarAmp * Math.sin( wubTarTheta ),
-        wubTarAmp * Math.sin( 2.0 + wubTarTheta ),
-        wubTarAmp * Math.sin( 4.0 + wubTarTheta ),
+        wubTarAmp * Math.sin( wubTarTheta ) + x,
+        wubTarAmp * Math.sin( 2.0 + wubTarTheta ) + y,
+        wubTarAmp * Math.sin( 4.0 + wubTarTheta ) + z,
       ] ),
       undefined,
-      0.02 * Math.sin( 2.74 * time ),
+      0.02 * Math.sin( 2.74 * time ) + roll,
     );
   },
   name: process.env.DEV && 'main/updateCamera',
@@ -305,6 +318,13 @@ const pixelSorter = new PixelSorter( {
   target: swap.o,
 } );
 dog.root.children.push( pixelSorter );
+
+swap.swap();
+const serial = new Serial( {
+  input: swap.i,
+  target: swap.o,
+} );
+dog.root.children.push( serial );
 
 swap.swap();
 const post = new Post( {

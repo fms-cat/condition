@@ -122,7 +122,7 @@ void main() {
   ) {
     dt = time - timing;
 
-    pos = 15.0 * randomSphere( seed );
+    pos = 10.0 * randomSphere( seed );
 
     vel = 1.0 * randomSphere( seed );
 
