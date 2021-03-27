@@ -11,6 +11,15 @@ yarn
 yarn build
 ```
 
+## Keyboard Controls
+
+Only works in development build
+
+- `Escape`: Panic
+- `Space`: Play / Pause
+- `Left`: Rewind 8 beats
+- `Right`: Skip 8 beats
+
 ## Minification
 
 [terser's](https://terser.org/docs/api-reference.html) mangler is spicy
