@@ -79,7 +79,7 @@ void main() {
   // == compute size ===============================================================================
   vPosition = vec4( tex0.xyz, 1.0 );
 
-  float size = vDice.x * 0.05;
+  float size = vDice.x * 0.01;
   size *= sin( PI * saturate( vLife ) );
 
   vec3 shape = position * size;

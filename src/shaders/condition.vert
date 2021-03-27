@@ -26,7 +26,7 @@ void main() {
 
   vec4 tex = texture( samplerSvg, vec2( what.x, huh.x ) );
 
-  vPosition = vec4( tex.xy + vec2( huh.y, 0.0 ), 6.0 - 12.0 * huh.z, 1.0 );
+  vPosition = vec4( tex.xy + vec2( huh.y, 0.0 ), 60.0 - 120.0 * huh.z, 1.0 );
 
   mat3 basis = orthBasis( vec3( tex.zw, 0.0 ) );
   float theta = what.y / 3.0 * TAU;
@@ -35,7 +35,9 @@ void main() {
 
   vPosition.xyz += tube;
 
-  vec4 outPos = projectionMatrix * viewMatrix * modelMatrix * vPosition;
+  vPosition = modelMatrix * vPosition;
+
+  vec4 outPos = projectionMatrix * viewMatrix * vPosition;
   outPos.x *= resolution.y / resolution.x;
   gl_Position = outPos;
 

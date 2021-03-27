@@ -38,7 +38,7 @@ void main() {
   float phase = fract( 2.0 * vPhase + 0.01 * vHuh.z + 0.1 * time + 0.1 * vHuh.y + phaseOffset );
   if ( phase > phaseWidth ) { discard; }
 
-  vec3 color = 2.0 * vec3( exp( -0.2 * vHuh.z ) );
+  vec3 color = vec3( 2.0 );
 
   #ifdef FORWARD
     fragColor = vec4( color, 1.0 );

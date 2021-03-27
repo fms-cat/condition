@@ -110,6 +110,8 @@ struct AngularInfo {
   vec3 V;
   vec3 L;
   vec3 H;
+  float lenL;
+  float lenV;
   float dotNV;
   float dotNL;
   float dotNH;
@@ -118,8 +120,14 @@ struct AngularInfo {
 
 AngularInfo genAngularInfo( Isect isect ) {
   AngularInfo aI;
-  aI.V = normalize( cameraPos - isect.position );
-  aI.L = normalize( lightPos - isect.position );
+  aI.V = cameraPos - isect.position;
+  aI.lenV = length( aI.V );
+  aI.V = normalize( aI.V );
+
+  aI.L = lightPos - isect.position;
+  aI.lenL = length( aI.L );
+  aI.L = normalize( aI.L );
+
   aI.H = normalize( aI.V + aI.L );
   aI.dotNV = clamp( dot( isect.normal, aI.V ), EPSILON, 1.0 );
   aI.dotNL = clamp( dot( isect.normal, aI.L ), EPSILON, 1.0 );
@@ -175,8 +183,7 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   float ao = texture( samplerAo, isect.screenUv ).x;
   shadow *= ao;
 
-  float lenL = length( isect.position - lightPos );
-  float decay = 1.0 / ( lenL * lenL );
+  float decayL = 1.0 / ( aI.lenL * aI.lenL );
 
   vec3 albedo = mix( isect.color * ONE_SUB_DIELECTRIC_SPECULAR, vec3( 0.0 ), metallic );
   vec3 f0 = mix( DIELECTRIC_SPECULAR, isect.color, metallic );
@@ -184,7 +191,7 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   vec3 diffuse = brdfLambert( f0, albedo, aI.dotVH );
   vec3 spec = brdfSpecularGGX( f0, roughness, aI.dotVH, aI.dotNL, aI.dotNV, aI.dotNH );
 
-  vec3 shade = PI * lightColor * decay * shadow * aI.dotNL * ( diffuse + spec );
+  vec3 shade = PI * lightColor * decayL * shadow * aI.dotNL * ( diffuse + spec );
 
   vec3 color = shade;
 
@@ -253,6 +260,8 @@ void main() {
 
   vec3 color = vec3( 0.0 );
 
+  AngularInfo aI = genAngularInfo( isect );
+
   if ( isect.materialId == MTL_NONE ) {
     // do nothing
 
@@ -262,14 +271,12 @@ void main() {
 #endif
 
   } else if ( isect.materialId == MTL_PBR ) {
-    AngularInfo aI = genAngularInfo( isect );
     color = shadePBR( isect, aI );
 
   } else if ( isect.materialId == MTL_GRADIENT ) {
     color = shadeGradient( isect );
 
   } else if ( isect.materialId == MTL_IRIDESCENT ) {
-    AngularInfo aI = genAngularInfo( isect );
     isect.color *= mix(
       vec3( 1.0 ),
       catColor( isect.materialParams.x * aI.dotNV ),
@@ -279,6 +286,8 @@ void main() {
     color = shadePBR( isect, aI );
 
   }
+
+  color *= exp( -0.4 * max( aI.lenV - 3.0, 0.0 ) );
 
 #ifdef IS_FIRST_LIGHT
   // color = 0.5 + 0.5 * isect.normal;

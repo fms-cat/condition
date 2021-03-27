@@ -25,12 +25,7 @@ void main() {
 
   vPositionWithoutModel = vec4( position, 1.0 );
 
-  vec3 clapScaleSeed = vec3( 14.0, 5.2, 8.7 ) + 100.0 * instanceId;
-  vec3 clapScale = mix(
-    fs( clapScaleSeed + floor( clap ) ),
-    fs( clapScaleSeed + floor( clap + 1.0 ) ),
-    fract( clap )
-  );
+  vec3 clapScale = fs( vec3( 14.0, 5.2, 8.7 ) + 100.0 * instanceId );
   vPositionWithoutModel.xyz *= clapScale;
 
   vPosition = vPositionWithoutModel;

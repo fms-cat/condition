@@ -32,21 +32,6 @@ uniform float noisePhase;
 
 // ------
 
-#pragma glslify: distFunc = require( ./-distFunc );
-
-float fDistFunc( vec3 p ) {
-  return distFunc( p, time );
-}
-
-vec3 normalFunc( vec3 p, float dd ) {
-  vec2 d = vec2( 0.0, dd );
-  return normalize( vec3(
-    fDistFunc( p + d.yxx ) - fDistFunc( p - d.yxx ),
-    fDistFunc( p + d.xyx ) - fDistFunc( p - d.xyx ),
-    fDistFunc( p + d.xxy ) - fDistFunc( p - d.xxy )
-  ) );
-}
-
 vec2 uvInvT( vec2 _uv ) {
   return vec2( 0.0, 1.0 ) + vec2( 1.0, -1.0 ) * _uv;
 }
@@ -171,14 +156,6 @@ void main() {
   }
 
   // == update particles ===========================================================================
-  // distFunc
-  float dist = fDistFunc( pos.xyz ) - 0.2;
-  vec3 nor = normalFunc( pos.xyz, 1E-4 );
-  vel -= dt * 100.0 * dist * nor;
-
-  // spin around center
-  vel.zx += dt * 20.0 * vec2( -1.0, 1.0 ) * normalize( nor.xz );
-
   // noise field
   vel += 40.0 * vec3(
     noise( vec4( pos.xyz, 1.485 + sin( time * 0.1 ) + noisePhase ) ),

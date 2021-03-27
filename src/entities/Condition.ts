@@ -80,8 +80,8 @@ export class Condition extends Entity {
         arrayIter.push(
           ( tablePos[ j * 2 + 0 ] + 0.5 ) / 7.0,
           tablePos[ j * 2 + 1 ],
-          i,
-          j,
+          i / 16.0,
+          j / 12.0,
         );
       }
     }

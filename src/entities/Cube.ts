@@ -14,7 +14,7 @@ import cubeFrag from '../shaders/cube.frag';
 import cubeVert from '../shaders/cube.vert';
 import depthFrag from '../shaders/depth.frag';
 
-const PRIMCOUNT = 512;
+const PRIMCOUNT = 64;
 
 export class Cube extends Entity {
   public mesh: Mesh;
@@ -32,7 +32,7 @@ export class Cube extends Entity {
 
     this.transform.position = new Vector3( [ 0.0, 0.0, 0.0 ] );
     this.transform.rotation = rot0;
-    this.transform.scale = this.transform.scale.scale( 0.2 );
+    this.transform.scale = this.transform.scale.scale( 0.3 );
 
     // -- geometry ---------------------------------------------------------------------------------
     const cube = genCube();
