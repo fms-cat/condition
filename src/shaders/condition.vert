@@ -1,5 +1,7 @@
 #version 300 es
 
+#define fs(i) (fract(sin((i)*114.514)*1919.810))
+
 const float TAU = 6.283185307;
 
 layout (location = 0) in vec2 what;
@@ -26,16 +28,23 @@ void main() {
 
   vec4 tex = texture( samplerSvg, vec2( what.x, huh.x ) );
 
-  vPosition = vec4( tex.xy + vec2( huh.y, 0.0 ), 60.0 - 120.0 * huh.z, 1.0 );
+  vPosition = vec4( tex.xy, 0.0, 1.0 );
+  // vPosition.x += huh.y;
 
   mat3 basis = orthBasis( vec3( tex.zw, 0.0 ) );
   float theta = what.y / 3.0 * TAU;
-  vec3 tube = 0.2 * basis * vec3( sin( theta ), cos( theta ), 0.0 );
+  vec3 tube = 0.1 * basis * vec3( sin( theta ), cos( theta ), 0.0 );
   vNormal = ( normalMatrix * vec4( tube, 1.0 ) ).xyz;
 
   vPosition.xyz += tube;
 
   vPosition = modelMatrix * vPosition;
+
+  vec3 randomPos = fs( vec3( 5.0, 8.6, 1.9 ) + huh.z + 2.56 * huh.y ) - 0.5;
+  randomPos.z = mod( randomPos.z + 0.1 * time, 1.0 ) - 0.5;
+  vPosition.xyz += vec3( 5.0, 5.0, 20.0 ) * randomPos;
+
+  // vPosition.z += 6.0 - 1.2 * huh.z;
 
   vec4 outPos = projectionMatrix * viewMatrix * vPosition;
   outPos.x *= resolution.y / resolution.x;

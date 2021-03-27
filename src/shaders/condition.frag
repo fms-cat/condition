@@ -35,7 +35,7 @@ uniform float phaseOffset;
 uniform float phaseWidth;
 
 void main() {
-  float phase = fract( 2.0 * vPhase + 0.01 * vHuh.z + 0.1 * time + 0.1 * vHuh.y + phaseOffset );
+  float phase = fract( 2.0 * vPhase + vHuh.z + 0.1 * time + vHuh.y + phaseOffset );
   if ( phase > phaseWidth ) { discard; }
 
   vec3 color = vec3( 2.0 );

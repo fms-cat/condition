@@ -13,6 +13,7 @@ const float NOISE_CLUTCH = 0.1;
 const vec2 CHROMA_FREQ = vec2( 227.5, 120.0 );
 const mat3 RGB_TO_YCBCR = mat3( 0.299, -0.168736, 0.5, 0.587, -0.331264, -0.418688, 0.114, 0.5, -0.081312 );
 
+#define fs(i) (fract(sin((i)*114.514)*1919.810))
 #define saturate(i) clamp(i,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 #define lofi(i,m) (floor((i)/(m))*(m))
@@ -25,7 +26,6 @@ uniform float time;
 uniform vec2 resolution;
 uniform sampler2D sampler0;
 
-#pragma glslify: fractSin = require( ./modules/fractSin );
 #pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
 
 // https://www.shadertoy.com/view/3sKSzW
@@ -68,7 +68,7 @@ void main() {
   ); // cb as cosine of subcarrier
 
   // static noise
-  signal += 0.01 * ( fractSin( noise.x ) - 0.5 );
+  signal += 0.01 * ( fs( noise.x ) - 0.5 );
 
   // high peak noise
   float bump = exp( -2.0 * fract( 10.0 * hnoise.z * ( 1.0 * hnoise.x + uv.x ) ) );
