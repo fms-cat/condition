@@ -6,6 +6,7 @@ import { canvas } from './globals/canvas';
 import { dog } from './scene';
 import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
 import { music } from './globals/music';
+import type { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 
 // == dom ==========================================================================================
 document.body.style.margin = '0';
@@ -54,7 +55,7 @@ if ( process.env.DEV ) {
       music.isPlaying = false;
       checkboxActive.checked = false;
     } else if ( event.key === ' ' ) {
-      music.isPlaying = !music.isPlaying;
+      ( automaton as AutomatonWithGUI ).togglePlay();
     } else if ( event.key === 'ArrowLeft' ) {
       music.time -= 480.0 / MUSIC_BPM;
       automaton.reset();

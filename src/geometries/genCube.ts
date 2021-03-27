@@ -10,7 +10,11 @@ interface ResultGenCube {
   indexType: GLenum;
 }
 
-export function genCube(): ResultGenCube {
+export function genCube( options?: {
+  dimension?: [ number, number, number ]
+} ): ResultGenCube {
+  const dimension = options?.dimension ?? [ 1, 1, 1 ];
+
   const pos: number[] = [];
   const nor: number[] = [];
   const ind: number[] = [];
@@ -29,7 +33,7 @@ export function genCube(): ResultGenCube {
   ];
 
   for ( let i = 0; i < 6; i ++ ) {
-    const func = ( v: number[] ): number[] => {
+    const rotate = ( v: number[] ): number[] => {
       const vt: number[] = [];
 
       if ( i < 4 ) {
@@ -47,8 +51,16 @@ export function genCube(): ResultGenCube {
       return vt;
     };
 
-    pos.push( ...p.map( func ).flat() );
-    nor.push( ...n.map( func ).flat() );
+    const scale = ( v: number[] ): number[] => {
+      return [
+        v[ 0 ] * dimension[ 0 ],
+        v[ 1 ] * dimension[ 1 ],
+        v[ 2 ] * dimension[ 2 ],
+      ];
+    };
+
+    pos.push( ...p.map( rotate ).map( scale ).flat() );
+    nor.push( ...n.map( rotate ).flat() );
     ind.push( ...[ 0, 1, 3, 0, 3, 2 ].map( ( v ) => v + 4 * i ) );
   }
 

@@ -2,7 +2,7 @@ import { BufferRenderTarget, BufferRenderTargetOptions } from '../heck/BufferRen
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
-import { Material, MaterialMap, MaterialTag } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
@@ -12,7 +12,7 @@ import { objectValuesMap } from '../utils/objectEntriesMap';
 export interface GPUParticlesOptions {
   materialCompute: Material;
   geometryRender: Geometry;
-  materialsRender: Partial<MaterialMap<MaterialTag>>;
+  materialsRender: MaterialMap;
   computeWidth: number;
   computeHeight: number;
   computeNumBuffers: number;

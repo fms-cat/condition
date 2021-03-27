@@ -1,6 +1,6 @@
 import { Component, ComponentDrawEvent, ComponentOptions } from './Component';
 import { Geometry } from '../Geometry';
-import { MaterialMap, MaterialTag } from '../Material';
+import { MaterialMap } from '../Material';
 import { glCat } from '../../globals/canvas';
 
 export enum MeshCull {
@@ -18,12 +18,12 @@ const meshCullMap = {
 
 export interface MeshOptions extends ComponentOptions {
   geometry: Geometry;
-  materials: Partial<MaterialMap<MaterialTag>>;
+  materials: MaterialMap;
 }
 
 export class Mesh extends Component {
   public geometry: Geometry;
-  public materials: Partial<MaterialMap<MaterialTag>>;
+  public materials: MaterialMap;
 
   public cull: MeshCull = MeshCull.Back;
 
@@ -64,7 +64,7 @@ export class Mesh extends Component {
     program.uniform( 'cameraPos', '3f', ...event.cameraTransform.position.elements );
     program.uniform( 'cameraNearFar', '2f', event.camera.near, event.camera.far );
 
-    program.uniformMatrixVector( 'normalMatrix', 'Matrix4fv', event.globalTransform.matrix.inverse!.transpose.elements );
+    program.uniformMatrixVector( 'normalMatrix', 'Matrix4fv', event.globalTransform.matrix.inverse!.elements, true );
     program.uniformMatrixVector( 'modelMatrix', 'Matrix4fv', event.globalTransform.matrix.elements );
     program.uniformMatrixVector( 'viewMatrix', 'Matrix4fv', event.viewMatrix.elements );
     program.uniformMatrixVector( 'projectionMatrix', 'Matrix4fv', event.projectionMatrix.elements );

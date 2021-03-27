@@ -10,7 +10,7 @@ export type MaterialTag =
   | 'forward'
   | 'depth';
 
-export type MaterialMap<T extends MaterialTag = MaterialTag> = { [ tag in T ]: Material };
+export type MaterialMap = { [ tag in MaterialTag ]?: Material };
 
 export interface MaterialInitOptions {
   target: RenderTarget;
