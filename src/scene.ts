@@ -19,13 +19,13 @@ import { LightEntity } from './entities/LightEntity';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
-import { Raymarcher } from './entities/Raymarcher';
 import { Rings } from './entities/Rings';
 import { Serial } from './entities/Serial';
 import { SphereParticles } from './entities/SphereParticles';
 import { SufferTexts } from './entities/SufferTexts';
 import { Swap, Vector3 } from '@fms-cat/experimental';
 import { Trails } from './entities/Trails';
+import { Wobbleball } from './entities/Wobbleball';
 import { arraySetDelete } from './utils/arraySetDelete';
 import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
@@ -155,10 +155,10 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerRaymarcher = new EntityReplacer( () => new Raymarcher(), 'Raymarcher' );
+const replacerWobbleball = new EntityReplacer( () => new Wobbleball(), 'Wobbleball' );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Raymarcher', () => {
-    replacerRaymarcher.replace();
+  module.hot.accept( './entities/Wobbleball', () => {
+    replacerWobbleball.replace();
   } );
 }
 

@@ -10,9 +10,9 @@ import { genOctahedron } from '../geometries/genOctahedron';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import raymarchObjectVert from '../shaders/raymarch-object.vert';
-import raymarcherFrag from '../shaders/raymarcher.frag';
+import wobbleballFrag from '../shaders/wobbleball.frag';
 
-export class Raymarcher extends Entity {
+export class Wobbleball extends Entity {
   public constructor() {
     super();
 
@@ -34,7 +34,7 @@ export class Raymarcher extends Entity {
     // -- materials --------------------------------------------------------------------------------
     const deferred = new Material(
       raymarchObjectVert,
-      raymarcherFrag,
+      wobbleballFrag,
       {
         defines: [ 'DEFERRED 1' ],
         initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
@@ -43,7 +43,7 @@ export class Raymarcher extends Entity {
 
     const depth = new Material(
       raymarchObjectVert,
-      raymarcherFrag,
+      wobbleballFrag,
       {
         defines: [ 'SHADOW 1' ],
         initOptions: { geometry, target: dummyRenderTarget }
@@ -54,9 +54,9 @@ export class Raymarcher extends Entity {
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
-        module.hot.accept( '../shaders/raymarcher.frag', () => {
-          deferred.replaceShader( raymarchObjectVert, raymarcherFrag );
-          depth.replaceShader( raymarchObjectVert, raymarcherFrag );
+        module.hot.accept( '../shaders/wobbleball.frag', () => {
+          deferred.replaceShader( raymarchObjectVert, wobbleballFrag );
+          depth.replaceShader( raymarchObjectVert, wobbleballFrag );
         } );
       }
     }
@@ -94,14 +94,14 @@ export class Raymarcher extends Entity {
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         } );
       },
-      name: process.env.DEV && 'Raymarcher/updater',
+      name: process.env.DEV && 'Wobbleball/updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Raymarcher/mesh',
+      name: process.env.DEV && 'Wobbleball/mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
