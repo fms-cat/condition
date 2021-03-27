@@ -1,6 +1,7 @@
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { Component } from './heck/components/Component';
-import { START_POSITION } from './config';
+import { MUSIC_BPM, START_POSITION } from './config';
+import { automaton } from './globals/automaton';
 import { canvas } from './globals/canvas';
 import { dog } from './scene';
 import { getCheckboxActive, getDivCanvasContainer } from './globals/dom';
@@ -52,6 +53,14 @@ if ( process.env.DEV ) {
       dog.root.active = false;
       music.isPlaying = false;
       checkboxActive.checked = false;
+    } else if ( event.key === ' ' ) {
+      music.isPlaying = !music.isPlaying;
+    } else if ( event.key === 'ArrowLeft' ) {
+      music.time -= 480.0 / MUSIC_BPM;
+      automaton.reset();
+    } else if ( event.key === 'ArrowRight' ) {
+      music.time += 480.0 / MUSIC_BPM;
+      automaton.reset();
     }
   } );
 
