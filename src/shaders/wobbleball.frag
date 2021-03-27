@@ -21,6 +21,8 @@ const float TAU = PI * 2.0;
   layout (location = 3) out vec4 fragWTF;
 #endif
 
+in vec4 vPosition;
+
 #ifdef SHADOW
   out vec4 fragColor;
 #endif
@@ -111,7 +113,7 @@ void main() {
   vec3 rayOri = divideByW( inversePVM * vec4( p, 0.0, 1.0 ) );
   vec3 farPos = divideByW( inversePVM * vec4( p, 1.0, 1.0 ) );
   vec3 rayDir = normalize( farPos - rayOri );
-  float rayLen = cameraNearFar.x;
+  float rayLen = length( vPosition.xyz - cameraPos );
   vec3 rayPos = rayOri + rayDir * rayLen;
   float dist;
 
