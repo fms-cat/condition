@@ -132,7 +132,7 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-3 ), 1.0 ) ).xyz;
+  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible

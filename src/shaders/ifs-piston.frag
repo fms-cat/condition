@@ -55,7 +55,7 @@ vec3 ifs( vec3 p, vec3 r, vec3 t ) {
   mat3 bas = orthBasis( r );
 
   for ( int i = 0; i < 6; i ++ ) {
-    p = abs( p ) - abs( s ) * pow( 1.7, -float( i ) );
+    p = abs( p ) - abs( s ) * pow( 1.8, -float( i ) );
 
     s = bas * s;
 
@@ -72,32 +72,34 @@ float box( vec3 p, vec3 s ) {
 }
 
 vec4 map( vec3 p ) {
-  p.y += 10.0;
-
-  float d1, d2;
+  vec4 isect;
 
   {
     vec3 pt = p;
 
-    float clampbox = box( pt - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) - 0.1 );
+    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) );
+
+    pt.y += 10.0;
 
     vec3 r = mix(
       fs( vec3( 4.7, 2.2, 8.3 ) + floor( ifsSeed ) ),
       fs( vec3( 4.7, 2.2, 8.3 ) + floor( ifsSeed + 1.0 ) ),
       fract( ifsSeed )
     );
-    vec3 t = 0.1 * vec3( 3.0, 2.3, 3.5 );
+    vec3 t = 0.1 * vec3( 4.2, 3.5, 2.2 );
     pt = ifs( pt, r, t );
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
-    d1 = max( box( pt, vec3( 0.02 ) ), clampbox );
+    isect = vec4( max( box( pt, vec3( 0.04 ) ), clampbox ), 2, 0, 0 );
   }
 
   {
     vec3 pt = p;
 
-    float clampbox = box( pt - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) );
+    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) - 0.1 );
+
+    pt.y += 10.0;
 
     vec3 r = mix(
       fs( vec3( 5.3, 1.1, 2.9 ) + floor( ifsSeed ) ),
@@ -109,10 +111,20 @@ vec4 map( vec3 p ) {
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
-    d2 = max( box( pt, vec3( 0.07 ) ), clampbox );
+    vec4 isectb = vec4( clampbox, 2, 0, 0 );
+    isect = isectb.x < isect.x ? isectb : isect;
   }
 
-  return d1 < d2 ? vec4( d1, 1, 0, 0 ) : vec4( d2, 2, 0, 0 );
+  {
+    vec3 pt = abs( p );
+
+    float d = box( pt - vec3( 1.0, 0.0, 1.0 ), vec3( 0.02, 9.9, 0.02 ) );
+
+    vec4 isectb = vec4( d, 3, 0, 0 );
+    isect = isectb.x < isect.x ? isectb : isect;
+  }
+
+  return isect;
 }
 
 vec3 normalFunc( vec3 p, float dd ) {
@@ -159,7 +171,7 @@ void main() {
     fragNormal = vec4( modelNormal, 1.0 );
 
     if ( isect.y == 2.0 ) {
-      vec3 noise = cyclicNoise( 6.0 * rayPos );
+      vec3 noise = cyclicNoise( 3.0 * rayPos );
       vec3 noiseDetail = cyclicNoise( vec3( 38.0, 1.0, 1.0 ) * ( orthBasis( vec3( 1 ) ) * rayPos ) );
       float roughness = (
         0.6 +
@@ -167,11 +179,14 @@ void main() {
         0.2 * smoothstep( -0.2, 0.4, noise.y ) * ( 0.8 + 0.2 * sin( 17.0 * noiseDetail.x ) )
       );
 
-      fragColor = vec4( vec3( 0.04 ), 1.0 );
+      fragColor = vec4( vec3( 0.4 ), 1.0 );
       fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), 2 );
     } else if ( isect.y == 1.0 ) {
       fragColor = vec4( vec3( 1.0 ), 1.0 );
       fragWTF = vec4( vec3( 0.3, 0.1, 0.0 ), 2 );
+    } else if ( isect.y == 3.0 ) {
+      fragColor = vec4( vec3( 1.0, 0.001, 0.03 ), 1.0 );
+      fragWTF = vec4( vec3( 0.1, 0.1, 1.0 ), 2 );
     }
 
   #endif

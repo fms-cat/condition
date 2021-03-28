@@ -1,9 +1,10 @@
+import { BoundingBox } from './BoundingBox';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
-import { Vector3 } from '@fms-cat/experimental';
+import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genOctahedron } from '../geometries/genOctahedron';
@@ -105,5 +106,16 @@ export class Wobbleball extends Entity {
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
+
+    // -- bounding box -----------------------------------------------------------------------------
+    const boundingBox = new BoundingBox();
+
+    boundingBox.transform.rotation = Quaternion.fromAxisAngle(
+      new Vector3( [ 0.0, 0.0, 1.0 ] ),
+      0.25 * Math.PI,
+    );
+    boundingBox.transform.scale = new Vector3( [ 1.2, 1.2, 1.2 ] );
+
+    this.children.push( boundingBox );
   }
 }

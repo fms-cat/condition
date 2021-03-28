@@ -22,7 +22,7 @@ export class LightsPink extends Entity {
     this.lights = ( [
       [ [ 6000.0, 10.0, 200.0 ], [ 8.0, 4.0, -8.0 ], true ],
       [ [ 6000.0, 10.0, 200.0 ], [ -8.0, 4.0, -8.0 ], true ],
-      [ [ 30.0, 30.0, 30.0 ], [ 0.0, 4.0, 4.0 ], false ],
+      [ [ 10.0, 14.0, 20.0 ], [ 0.0, -4.0, 4.0 ], false ],
     ] as TypeScriptSucks ).map( ( [ color, pos, isSpot ], i ) => {
       const light = new LightEntity( {
         scenes,
