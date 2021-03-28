@@ -23,26 +23,12 @@ if ( process.env.DEV ) {
   canvas.style.margin = 'auto';
   canvas.style.maxWidth = '100%';
   canvas.style.maxHeight = '100%';
-
-  music.isPlaying = true;
-  music.time = START_POSITION;
 } else {
   canvas.style.position = 'fixed';
   canvas.style.left = '0';
   canvas.style.top = '0';
   document.body.style.width = canvas.style.width = '100%';
   document.body.style.height = canvas.style.height = '100%';
-
-  const button = document.createElement( 'a' );
-  document.body.appendChild( button );
-  button.innerHTML = 'click me!';
-
-  button.onclick = () => {
-    document.body.appendChild( canvas );
-    music.isPlaying = true;
-    music.time = START_POSITION;
-    document.body.requestFullscreen();
-  };
 }
 
 // -- keyboards ------------------------------------------------------------------------------------
@@ -85,3 +71,24 @@ if ( process.env.DEV ) {
   console.info( Component.nameMap );
   console.info( BufferRenderTarget.nameMap );
 }
+
+// -- let's gooooo ---------------------------------------------------------------------------------
+async function load(): Promise<void> {
+  await music.prepare();
+
+  if ( process.env.DEV ) {
+    music.time = START_POSITION;
+    ( automaton as AutomatonWithGUI ).play();
+  } else {
+    const button = document.createElement( 'a' );
+    document.body.appendChild( button );
+    button.innerHTML = 'click me!';
+
+    button.onclick = () => {
+      document.body.appendChild( canvas );
+      music.isPlaying = true;
+      document.body.requestFullscreen();
+    };
+  }
+}
+load();

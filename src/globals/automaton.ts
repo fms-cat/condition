@@ -1,9 +1,9 @@
 import { Automaton } from '@fms-cat/automaton';
 import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
+import { Music } from '../music/Music';
 import { fxDefinitions } from '../automaton-fxs/fxDefinitions';
 import { getDivAutomaton } from './dom';
 import automatonData from '../automaton.json';
-import type { Music } from '../Music';
 
 export const automaton = ( () => {
   if ( process.env.DEV ) {
@@ -13,7 +13,7 @@ export const automaton = ( () => {
       automatonData,
       {
         gui: getDivAutomaton(),
-        isPlaying: true,
+        isPlaying: false,
         fxDefinitions,
       },
     );

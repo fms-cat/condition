@@ -1,6 +1,7 @@
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
 import { GLCatTexture } from '@fms-cat/glcat-ts';
+import { IBLLUT_ITER, IBLLUT_SIZE } from '../config';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
@@ -10,8 +11,6 @@ import { quadGeometry } from '../globals/quadGeometry';
 import { vdc } from '../utils/vdc';
 import iblLutFrag from '../shaders/ibl-lut.frag';
 import quadVert from '../shaders/quad.vert';
-
-const IBL_SIZE = 256;
 
 export class IBLLUT {
   public entity: Entity;
@@ -29,13 +28,13 @@ export class IBLLUT {
     // -- swap -------------------------------------------------------------------------------------
     this.swap = new Swap(
       new BufferRenderTarget( {
-        width: IBL_SIZE,
-        height: IBL_SIZE,
+        width: IBLLUT_SIZE,
+        height: IBLLUT_SIZE,
         name: process.env.DEV && 'IBLLUT/swap0',
       } ),
       new BufferRenderTarget( {
-        width: IBL_SIZE,
-        height: IBL_SIZE,
+        width: IBLLUT_SIZE,
+        height: IBLLUT_SIZE,
         name: process.env.DEV && 'IBLLUT/swap1',
       } ),
     );
@@ -64,7 +63,7 @@ export class IBLLUT {
         samples ++;
         this.swap.swap();
 
-        if ( samples > 1024 ) {
+        if ( samples > IBLLUT_ITER ) {
           this.entity.active = false;
         } else {
           material.addUniform( 'samples', '1f', samples );

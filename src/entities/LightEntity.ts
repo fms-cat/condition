@@ -63,12 +63,6 @@ export class LightEntity extends Entity {
     this.camera.clear = [ 1.0, 1.0, 1.0, 1.0 ];
     this.components.push( this.camera );
 
-    this.shadowMap = new BufferRenderTarget( {
-      width: options.shadowMapWidth ?? 1024,
-      height: options.shadowMapHeight ?? 1024,
-      name: process.env.DEV && `${ options.namePrefix }/shadowMap`,
-    } );
-
     swap.swap();
 
     // -- blur -------------------------------------------------------------------------------------
@@ -82,12 +76,15 @@ export class LightEntity extends Entity {
       material.addUniformTexture( 'sampler0', swap.i.texture );
 
       this.components.push( new Quad( {
-        target: i === 0 ? swap.o : this.shadowMap,
+        target: swap.o,
         material,
         name: process.env.DEV && `${ options.namePrefix }/quadShadowBlur${ i }`,
       } ) );
 
       swap.swap();
     }
+
+    // -- this is the shadow map -------------------------------------------------------------------
+    this.shadowMap = swap.i;
   }
 }

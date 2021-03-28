@@ -14,6 +14,7 @@ import { FlashyTerrain } from './entities/FlashyTerrain';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
+import { IFSPistons } from './entities/IFSPistons';
 import { Lambda } from './heck/components/Lambda';
 import { LightEntity } from './entities/LightEntity';
 import { PixelSorter } from './entities/PixelSorter';
@@ -162,6 +163,13 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
+const replacerIFSPistons = new EntityReplacer( () => new IFSPistons(), 'IFSPistons' );
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/IFSPistons', () => {
+    replacerIFSPistons.replace();
+  } );
+}
+
 // -- things that is not an "object" ---------------------------------------------------------------
 const swapOptions = {
   width: canvasRenderTarget.width,
@@ -187,7 +195,7 @@ const replacerLightFirst = new EntityReplacer( () => {
     shadowMapFar: 20.0,
     namePrefix: process.env.DEV && 'lightFirst',
   } );
-  light.color = [ 1.0, 1.0, 1.0 ];
+  light.color = [ 40.0, 40.0, 40.0 ];
   light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
   return light;
 }, 'LightFirst' );
@@ -201,7 +209,7 @@ const replacerLightPink = new EntityReplacer( () => {
     shadowMapFar: 20.0,
     namePrefix: process.env.DEV && 'lightPink',
   } );
-  light.color = [ 60.0, 1.0, 5.0 ];
+  light.color = [ 120.0, 2.0, 10.0 ];
   light.transform.lookAt( new Vector3( [ -1.0, 4.0, 4.0 ] ) );
   return light;
 }, 'LightPink' );

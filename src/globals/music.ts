@@ -1,7 +1,9 @@
-import { Music } from '../Music';
+import { Music } from '../music/Music';
+import { MusicOffline } from '../music/MusicOffline';
+import { MusicRealtime } from '../music/MusicRealtime';
 import { automatonSetupMusic } from './automaton';
-import { glCat } from './canvas';
 
 export const audio = new AudioContext();
-export const music = new Music( glCat, audio );
+// export const music: Music = new MusicRealtime();
+export const music: Music = new MusicOffline();
 automatonSetupMusic( music );
