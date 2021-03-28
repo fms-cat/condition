@@ -11,7 +11,7 @@ export interface PerspectiveCameraOptions extends ComponentOptions {
   near?: number;
   far?: number;
   fov?: number;
-  scene?: Entity;
+  scenes?: Entity[];
   clear?: Array<number | undefined> | false;
 }
 
@@ -30,7 +30,7 @@ export class PerspectiveCamera extends Camera {
       ...options,
       projectionMatrix,
       renderTarget: options.renderTarget,
-      scene: options.scene,
+      scenes: options.scenes,
       clear: options.clear,
     } );
 

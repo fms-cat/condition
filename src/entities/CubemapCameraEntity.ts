@@ -6,19 +6,19 @@ import { LightEntity } from './LightEntity';
 import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
 
 export interface CubemapCameraEntityOptions {
-  root: Entity;
+  scenes: Entity[];
   lights: LightEntity[];
 }
 
 export class CubemapCameraEntity extends Entity {
-  public root: Entity;
+  public scenes: Entity[];
   public camera: PerspectiveCamera;
   public readonly target: CubemapRenderTarget;
 
   public constructor( options: CubemapCameraEntityOptions ) {
     super();
 
-    this.root = options.root;
+    this.scenes = options.scenes;
 
     this.target = new CubemapRenderTarget( {
       width: CUBEMAP_RESOLUTION[ 0 ],
@@ -26,7 +26,7 @@ export class CubemapCameraEntity extends Entity {
     } );
 
     this.camera = new CubemapCamera( {
-      scene: this.root,
+      scenes: options.scenes,
       renderTarget: this.target,
       near: 1.0,
       far: 20.0,

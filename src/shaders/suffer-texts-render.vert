@@ -39,7 +39,7 @@ void main() {
   vLife = tex0.w;
 
   float char = tex0.z;
-  char += 64.0 * ( min( vLife, 0.3 ) + max( vLife, 0.7 ) - 1.0 );
+  char += 64.0 * ( min( vLife, 0.3 ) + max( vLife, 1.0 ) - 1.3 );
 
   vUv = yflip( 0.5 + 0.499 * position );
   vUv = ( vUv + floor( mod( vec2( char / vec2( 1.0, 16.0 ) ), 16.0 ) ) ) / 16.0;

@@ -16,43 +16,39 @@ import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
 
-export interface CameraEntityOptions {
-  root: Entity;
+export interface DeferredCameraOptions {
+  scenes: Entity[];
   target: RenderTarget;
   lights: LightEntity[];
   textureIBLLUT: GLCatTexture;
   textureEnv: GLCatTexture;
 }
 
-export class CameraEntity extends Entity {
-  public root: Entity;
-  public camera: PerspectiveCamera;
-
-  public constructor( options: CameraEntityOptions ) {
+export class DeferredCamera extends Entity {
+  public constructor( options: DeferredCameraOptions ) {
     super();
-
-    this.root = options.root;
 
     const cameraTarget = new BufferRenderTarget( {
       width: options.target.width,
       height: options.target.height,
       numBuffers: 4,
-      name: 'CameraEntity/cameraTarget',
+      name: 'DeferredCamera/cameraTarget',
     } );
 
-    this.camera = new PerspectiveCamera( {
-      scene: this.root,
+    const camera = new PerspectiveCamera( {
+      scenes: options.scenes,
       renderTarget: cameraTarget,
       near: 0.1,
       far: 20.0,
-      name: 'CameraEntity/camera',
+      name: 'DeferredCamera/camera',
       materialTag: 'deferred',
     } );
+    camera.clear = [];
 
     const aoTarget = new BufferRenderTarget( {
       width: AO_RESOLUTION_RATIO * options.target.width,
       height: AO_RESOLUTION_RATIO * options.target.height,
-      name: 'CameraEntity/aoTarget',
+      name: 'DeferredCamera/aoTarget',
     } );
 
     const aoMaterial = new Material(
@@ -68,12 +64,12 @@ export class CameraEntity extends Entity {
         aoMaterial.addUniformMatrixVector(
           'cameraPV',
           'Matrix4fv',
-          this.camera.projectionMatrix.multiply(
+          camera.projectionMatrix.multiply(
             cameraView
           ).elements
         );
       },
-      name: process.env.DEV && 'CameraEntity/ao/setCameraUniforms',
+      name: process.env.DEV && 'DeferredCamera/ao/setCameraUniforms',
     } );
 
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
@@ -88,7 +84,7 @@ export class CameraEntity extends Entity {
     const aoQuad = new Quad( {
       material: aoMaterial,
       target: aoTarget,
-      name: process.env.DEV && 'CameraEntity/ao/quad',
+      name: process.env.DEV && 'DeferredCamera/ao/quad',
     } );
 
     const shadingMaterial = new Material(
@@ -102,7 +98,7 @@ export class CameraEntity extends Entity {
     const shadingQuad = new Quad( {
       material: shadingMaterial,
       target: options.target,
-      name: process.env.DEV && 'CameraEntity/shading/quad',
+      name: process.env.DEV && 'DeferredCamera/shading/quad',
     } );
     shadingQuad.clear = [];
 
@@ -129,7 +125,7 @@ export class CameraEntity extends Entity {
         shadingMaterial.addUniformMatrixVector(
           'cameraPV',
           'Matrix4fv',
-          this.camera.projectionMatrix.multiply(
+          camera.projectionMatrix.multiply(
             cameraView
           ).elements
         );
@@ -137,8 +133,8 @@ export class CameraEntity extends Entity {
         shadingMaterial.addUniform(
           'cameraNearFar',
           '2f',
-          this.camera.near,
-          this.camera.far
+          camera.near,
+          camera.far
         );
 
         shadingMaterial.addUniform(
@@ -180,7 +176,7 @@ export class CameraEntity extends Entity {
           lights.map( ( light ) => light.shadowMap.texture ),
         );
       },
-      name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
+      name: process.env.DEV && 'DeferredCamera/shading/setCameraUniforms',
     } );
 
     for ( let i = 0; i < 4; i ++ ) {
@@ -196,7 +192,7 @@ export class CameraEntity extends Entity {
     shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     this.components.push(
-      this.camera,
+      camera,
       lambdaAoSetCameraUniforms,
       aoQuad,
       lambda,

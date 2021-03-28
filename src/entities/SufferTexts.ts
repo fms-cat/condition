@@ -64,19 +64,18 @@ export class SufferTexts extends Entity {
     geometryRender.primcount = PARTICLES;
 
     // -- material render --------------------------------------------------------------------------
-    const deferred = new Material(
+    const forward = new Material(
       sufferTextsRenderVert,
       sufferTextsRenderFrag,
       {
-        defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
       },
     );
 
-    const materialsRender = { deferred };
+    const materialsRender = { forward };
 
-    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    deferred.addUniformTexture( 'samplerTinyChar', tinyCharTexture );
+    forward.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    forward.addUniformTexture( 'samplerTinyChar', tinyCharTexture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -86,7 +85,7 @@ export class SufferTexts extends Entity {
             '../shaders/suffer-texts-render.frag',
           ],
           () => {
-            deferred.replaceShader( sufferTextsRenderVert, sufferTextsRenderFrag );
+            forward.replaceShader( sufferTextsRenderVert, sufferTextsRenderFrag );
           }
         );
       }

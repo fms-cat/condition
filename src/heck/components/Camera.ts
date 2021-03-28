@@ -10,7 +10,7 @@ export interface CameraOptions extends ComponentOptions {
   renderTarget?: RenderTarget;
   projectionMatrix: Matrix4;
   materialTag: MaterialTag;
-  scene?: Entity;
+  scenes?: Entity[];
   clear?: Array<number | undefined> | false;
 }
 
@@ -19,7 +19,7 @@ export abstract class Camera extends Component {
 
   public renderTarget?: RenderTarget;
 
-  public scene?: Entity;
+  public scenes?: Entity[];
 
   public clear: Array<number | undefined> | false = [];
 
@@ -35,21 +35,21 @@ export abstract class Camera extends Component {
     this.visible = false;
 
     this.renderTarget = options.renderTarget;
-    this.scene = options.scene;
+    this.scenes = options.scenes;
     this.projectionMatrix = options.projectionMatrix;
     this.materialTag = options.materialTag;
     if ( options.clear !== undefined ) { this.clear = options.clear; }
   }
 
   protected __updateImpl( event: ComponentUpdateEvent ): void {
-    const { renderTarget, scene } = this;
+    const { renderTarget, scenes } = this;
 
     if ( !renderTarget ) {
       throw process.env.DEV && new Error( 'You must assign a renderTarget to the Camera' );
     }
 
-    if ( !scene ) {
-      throw process.env.DEV && new Error( 'You must assign a scene to the Camera' );
+    if ( !scenes ) {
+      throw process.env.DEV && new Error( 'You must assign scenes to the Camera' );
     }
 
     const viewMatrix = event.globalTransform.matrix.inverse!;
@@ -60,16 +60,18 @@ export abstract class Camera extends Component {
       glCat.clear( ...this.clear );
     }
 
-    scene.draw( {
-      frameCount: event.frameCount,
-      time: event.time,
-      renderTarget: renderTarget,
-      cameraTransform: event.globalTransform,
-      globalTransform: new Transform(),
-      viewMatrix,
-      projectionMatrix: this.projectionMatrix,
-      camera: this,
-      materialTag: this.materialTag,
+    scenes.map( ( scene ) => {
+      scene.draw( {
+        frameCount: event.frameCount,
+        time: event.time,
+        renderTarget: renderTarget,
+        cameraTransform: event.globalTransform,
+        globalTransform: new Transform(),
+        viewMatrix,
+        projectionMatrix: this.projectionMatrix,
+        camera: this,
+        materialTag: this.materialTag,
+      } );
     } );
 
     if ( process.env.DEV ) {

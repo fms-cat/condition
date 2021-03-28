@@ -23,7 +23,7 @@ export interface CubemapCameraOptions extends ComponentOptions {
   renderTarget?: CubemapRenderTarget;
   near?: number;
   far?: number;
-  scene?: Entity;
+  scenes?: Entity[];
   clear?: Array<number | undefined> | false;
 }
 
@@ -43,7 +43,7 @@ export class CubemapCamera extends Camera {
       ...options,
       projectionMatrix,
       renderTarget: options.renderTarget,
-      scene: options.scene,
+      scenes: options.scenes,
       clear: options.clear,
       materialTag: options.materialTag,
     } );

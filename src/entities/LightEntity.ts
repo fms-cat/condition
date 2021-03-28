@@ -10,7 +10,7 @@ import quadVert from '../shaders/quad.vert';
 import shadowBlurFrag from '../shaders/shadow-blur.frag';
 
 export interface LightEntityOptions {
-  root: Entity;
+  scenes: Entity[];
   shadowMapFov?: number;
   shadowMapNear?: number;
   shadowMapFar?: number;
@@ -21,14 +21,11 @@ export interface LightEntityOptions {
 
 export class LightEntity extends Entity {
   public color: [ number, number, number ] = [ 1.0, 1.0, 1.0 ];
-  public root: Entity;
   public camera: PerspectiveCamera;
   public shadowMap: BufferRenderTarget;
 
   public constructor( options: LightEntityOptions ) {
     super();
-
-    this.root = options.root;
 
     const swapOptions = {
       width: options.shadowMapWidth ?? 1024,
@@ -56,7 +53,7 @@ export class LightEntity extends Entity {
       near,
       far,
       renderTarget: swap.o,
-      scene: this.root,
+      scenes: options.scenes,
       name: process.env.DEV && `${ options.namePrefix }/shadowMapCamera`,
       materialTag: 'depth',
     } );
