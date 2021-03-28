@@ -139,7 +139,11 @@ export class Condition extends Entity {
       } );
 
       auto( 'Sync/first/clap', ( { value } ) => {
-        material.addUniform( 'phaseOffset', '1f', 0.2 * value );
+        material.addUniform( 'phaseOffset', '1f', value );
+      } );
+
+      auto( 'Condition/hahaRatio', ( { value } ) => {
+        material.addUniform( 'hahaRatio', '1f', value );
       } );
     } );
 

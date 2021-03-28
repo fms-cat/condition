@@ -195,8 +195,8 @@ const replacerLightFirst = new EntityReplacer( () => {
     shadowMapFar: 20.0,
     namePrefix: process.env.DEV && 'lightFirst',
   } );
-  light.color = [ 40.0, 40.0, 40.0 ];
-  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 8.0 ] ) );
+  light.color = [ 100.0, 100.0, 100.0 ];
+  light.transform.lookAt( new Vector3( [ 4.0, 4.0, 4.0 ] ) );
   return light;
 }, 'LightFirst' );
 const lightFirst = replacerLightFirst.current;
@@ -210,7 +210,7 @@ const replacerLightPink = new EntityReplacer( () => {
     namePrefix: process.env.DEV && 'lightPink',
   } );
   light.color = [ 120.0, 2.0, 10.0 ];
-  light.transform.lookAt( new Vector3( [ -1.0, 4.0, 4.0 ] ) );
+  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 2.0 ] ) );
   return light;
 }, 'LightPink' );
 const lightPink = replacerLightPink.current;

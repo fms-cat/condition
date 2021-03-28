@@ -50,6 +50,12 @@ export class Material {
     };
   } = {};
 
+  protected __uniformTextureArrays: {
+    [ name: string ]: {
+      textures: GLCatTexture[];
+    };
+  } = {};
+
   protected __uniformCubemaps: {
     [ name: string ]: {
       texture: GLCatTextureCubemap | null;
@@ -135,6 +141,10 @@ export class Material {
     this.__uniformTextures[ name ] = { texture };
   }
 
+  public addUniformTextureArray( name: string, textures: GLCatTexture[] ): void {
+    this.__uniformTextureArrays[ name ] = { textures };
+  }
+
   public addUniformCubemap( name: string, texture: GLCatTextureCubemap | null ): void {
     this.__uniformCubemaps[ name ] = { texture };
   }
@@ -158,6 +168,10 @@ export class Material {
 
     Object.entries( this.__uniformTextures ).forEach( ( [ name, { texture } ] ) => {
       program.uniformTexture( name, texture );
+    } );
+
+    Object.entries( this.__uniformTextureArrays ).forEach( ( [ name, { textures } ] ) => {
+      program.uniformTextures( name, textures );
     } );
 
     Object.entries( this.__uniformCubemaps ).forEach( ( [ name, { texture } ] ) => {

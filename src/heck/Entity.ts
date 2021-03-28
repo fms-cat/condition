@@ -27,6 +27,7 @@ export interface EntityDrawEvent {
 
 export class Entity {
   public readonly transform = new Transform();
+  public globalTransformCache = new Transform();
 
   public lastUpdateFrame = 0;
 
@@ -67,14 +68,14 @@ export class Entity {
   public draw( event: EntityDrawEvent ): void {
     if ( !this.visible ) { return; }
 
-    const globalTransform = event.globalTransform.multiply( this.transform );
+    this.globalTransformCache = event.globalTransform.multiply( this.transform );
 
     this.components.forEach( ( component ) => {
       component.draw( {
         frameCount: event.frameCount,
         time: event.time,
         renderTarget: event.renderTarget,
-        globalTransform,
+        globalTransform: this.globalTransformCache,
         camera: event.camera,
         cameraTransform: event.cameraTransform,
         viewMatrix: event.viewMatrix,
@@ -89,7 +90,7 @@ export class Entity {
         frameCount: event.frameCount,
         time: event.time,
         renderTarget: event.renderTarget,
-        globalTransform,
+        globalTransform: this.globalTransformCache,
         viewMatrix: event.viewMatrix,
         projectionMatrix: event.projectionMatrix,
         camera: event.camera,

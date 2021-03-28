@@ -11,6 +11,7 @@ const int MTL_UNLIT = 1;
 
 in float vScale;
 in float vPhase;
+in float vFade;
 in vec3 vNormal;
 in vec4 vPosition;
 in vec4 vHuh;
@@ -45,6 +46,7 @@ void main() {
   if ( lenFromCenter < RADIUS_CULL_SPHERE ) { discard; }
 
   float colorPhase = exp( -4.0 * ( lenFromCenter - RADIUS_CULL_SPHERE ) );
+  colorPhase = max( colorPhase, vFade );
   vec3 color = mix(
     vec3( 2.0 ),
     vec3( 0.0 ),

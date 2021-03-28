@@ -91,121 +91,122 @@ export class CameraEntity extends Entity {
       name: process.env.DEV && 'CameraEntity/ao/quad',
     } );
 
-    const shadingMaterials = options.lights.map( ( light, iLight ) => {
-      const shadingMaterial = new Material(
-        quadVert,
-        shadingFrag,
-        {
-          defines: iLight === 0 ? [ 'IS_FIRST_LIGHT' ] : [],
-          initOptions: { geometry: quadGeometry, target: dummyRenderTarget },
-        },
-      );
+    const shadingMaterial = new Material(
+      quadVert,
+      shadingFrag,
+      {
+        initOptions: { geometry: quadGeometry, target: dummyRenderTarget },
+      },
+    );
 
-      const shadingQuad = new Quad( {
-        material: shadingMaterial,
-        target: options.target,
-        name: process.env.DEV && 'CameraEntity/shading/quad',
-      } );
-      shadingQuad.clear = iLight === 0 ? [] : false;
-
-      const lambda = new Lambda( {
-        onUpdate: ( { frameCount } ) => {
-          const lightHasUpdated = frameCount === light.lastUpdateFrame;
-          shadingQuad.active = lightHasUpdated;
-          if ( !lightHasUpdated ) {
-            return;
-          }
-
-          const cameraView = this.transform.matrix.inverse!;
-
-          shadingMaterial.addUniformMatrixVector(
-            'cameraView',
-            'Matrix4fv',
-            cameraView.elements
-          );
-
-          shadingMaterial.addUniformMatrixVector(
-            'cameraPV',
-            'Matrix4fv',
-            this.camera.projectionMatrix.multiply(
-              cameraView
-            ).elements
-          );
-
-          shadingMaterial.addUniform(
-            'lightNearFar',
-            '2f',
-            light.camera.near,
-            light.camera.far
-          );
-
-          shadingMaterial.addUniform(
-            'cameraNearFar',
-            '2f',
-            this.camera.near,
-            this.camera.far
-          );
-
-          shadingMaterial.addUniform(
-            'cameraPos',
-            '3f',
-            ...this.transform.position.elements
-          );
-
-          shadingMaterial.addUniform(
-            'lightPos',
-            '3f',
-            ...light.transform.position.elements
-          );
-
-          shadingMaterial.addUniform(
-            'lightColor',
-            '3f',
-            ...light.color
-          );
-
-          shadingMaterial.addUniformMatrixVector(
-            'lightPV',
-            'Matrix4fv',
-            light.camera.projectionMatrix.multiply(
-              light.transform.matrix.inverse!
-            ).elements
-          );
-        },
-        name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
-      } );
-
-      for ( let i = 0; i < 4; i ++ ) {
-        shadingMaterial.addUniformTexture(
-          'sampler' + i,
-          cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
-        );
-      }
-
-      shadingMaterial.blend = [ gl.ONE, gl.ONE ];
-      shadingMaterial.addUniformTexture( 'samplerAo', aoTarget.texture );
-      shadingMaterial.addUniformTexture( 'samplerShadow', light.shadowMap.texture );
-      shadingMaterial.addUniformTexture( 'samplerIBLLUT', options.textureIBLLUT );
-      shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
-      shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
-
-      this.components.push(
-        this.camera,
-        lambdaAoSetCameraUniforms,
-        aoQuad,
-        lambda,
-        shadingQuad,
-      );
-
-      return shadingMaterial;
+    const shadingQuad = new Quad( {
+      material: shadingMaterial,
+      target: options.target,
+      name: process.env.DEV && 'CameraEntity/shading/quad',
     } );
+    shadingQuad.clear = [];
+
+    const lambda = new Lambda( {
+      onUpdate: ( { frameCount } ) => {
+        const lights = options.lights.filter( ( light ) => (
+          frameCount === light.lastUpdateFrame
+        ) );
+
+        const cameraView = this.transform.matrix.inverse!;
+
+        shadingMaterial.addUniform(
+          'lightCount',
+          '1i',
+          lights.length,
+        );
+
+        shadingMaterial.addUniformMatrixVector(
+          'cameraView',
+          'Matrix4fv',
+          cameraView.elements
+        );
+
+        shadingMaterial.addUniformMatrixVector(
+          'cameraPV',
+          'Matrix4fv',
+          this.camera.projectionMatrix.multiply(
+            cameraView
+          ).elements
+        );
+
+        shadingMaterial.addUniform(
+          'cameraNearFar',
+          '2f',
+          this.camera.near,
+          this.camera.far
+        );
+
+        shadingMaterial.addUniform(
+          'cameraPos',
+          '3f',
+          ...this.transform.position.elements
+        );
+
+        shadingMaterial.addUniformVector(
+          'lightNearFar',
+          '2fv',
+          lights.map( ( light ) => [ light.camera.near, light.camera.far ] ).flat(),
+        );
+
+        shadingMaterial.addUniformVector(
+          'lightPos',
+          '3fv',
+          lights.map( ( light ) => light.globalTransformCache.position.elements ).flat(),
+        );
+
+        shadingMaterial.addUniformVector(
+          'lightColor',
+          '3fv',
+          lights.map( ( light ) => light.color ).flat(),
+        );
+
+        shadingMaterial.addUniformMatrixVector(
+          'lightPV',
+          'Matrix4fv',
+          lights.map( ( light ) => (
+            light.camera.projectionMatrix.multiply(
+              light.globalTransformCache.matrix.inverse!
+            ).elements
+          ) ).flat(),
+        );
+
+        shadingMaterial.addUniformTextureArray(
+          'samplerShadow',
+          lights.map( ( light ) => light.shadowMap.texture ),
+        );
+      },
+      name: process.env.DEV && 'CameraEntity/shading/setCameraUniforms',
+    } );
+
+    for ( let i = 0; i < 4; i ++ ) {
+      shadingMaterial.addUniformTexture(
+        'sampler' + i,
+        cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+      );
+    }
+
+    shadingMaterial.addUniformTexture( 'samplerAo', aoTarget.texture );
+    shadingMaterial.addUniformTexture( 'samplerIBLLUT', options.textureIBLLUT );
+    shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
+    shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
+
+    this.components.push(
+      this.camera,
+      lambdaAoSetCameraUniforms,
+      aoQuad,
+      lambda,
+      shadingQuad,
+    );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/shading.frag', () => {
-          shadingMaterials.forEach( ( material ) => {
-            material.replaceShader( quadVert, shadingFrag );
-          } );
+          shadingMaterial.replaceShader( quadVert, shadingFrag );
         } );
       }
     }

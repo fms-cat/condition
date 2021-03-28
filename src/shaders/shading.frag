@@ -6,7 +6,6 @@ const int MTL_NONE = 0;
 const int MTL_UNLIT = 1;
 const int MTL_PBR = 2;
 const int MTL_GRADIENT = 3;
-const int MTL_IRIDESCENT = 4;
 const int AO_ITER = 8;
 const float ENV_UV_MARGIN = 0.9375;
 const float AO_BIAS = 0.0;
@@ -27,19 +26,20 @@ in vec2 vUv;
 
 out vec4 fragColor;
 
-uniform vec2 lightNearFar;
+uniform int lightCount;
+uniform vec2 lightNearFar[8];
 uniform vec2 cameraNearFar;
 uniform vec3 cameraPos;
-uniform vec3 lightPos;
-uniform vec3 lightColor;
-uniform mat4 lightPV;
+uniform vec3 lightPos[8];
+uniform vec3 lightColor[8];
+uniform mat4 lightPV[8];
 uniform mat4 cameraView;
 uniform mat4 cameraPV;
 uniform sampler2D sampler0; // position.xyz, depth
 uniform sampler2D sampler1; // normal.xyz (yes, this is not good)
 uniform sampler2D sampler2; // color.rgba (what is a though????)
 uniform sampler2D sampler3; // materialParams.xyz, materialId
-uniform sampler2D samplerShadow;
+uniform sampler2D samplerShadow[8];
 uniform sampler2D samplerIBLLUT;
 uniform sampler2D samplerEnv;
 uniform sampler2D samplerAo;
@@ -106,46 +106,42 @@ struct Isect {
   vec3 materialParams;
 };
 
-struct AngularInfo {
-  vec3 V;
-  vec3 L;
-  vec3 H;
-  float lenL;
-  float lenV;
-  float dotNV;
-  float dotNL;
-  float dotNH;
-  float dotVH;
-};
-
-AngularInfo genAngularInfo( Isect isect ) {
-  AngularInfo aI;
-  aI.V = cameraPos - isect.position;
-  aI.lenV = length( aI.V );
-  aI.V = normalize( aI.V );
-
-  aI.L = lightPos - isect.position;
-  aI.lenL = length( aI.L );
-  aI.L = normalize( aI.L );
-
-  aI.H = normalize( aI.V + aI.L );
-  aI.dotNV = clamp( dot( isect.normal, aI.V ), EPSILON, 1.0 );
-  aI.dotNL = clamp( dot( isect.normal, aI.L ), EPSILON, 1.0 );
-  aI.dotNH = clamp( dot( isect.normal, aI.H ), EPSILON, 1.0 );
-  aI.dotVH = clamp( dot( aI.V, aI.H ), EPSILON, 1.0 );
-  return aI;
+// == this is BAD ==================================================================================
+vec4 fetchShadowMap( int iLight, vec2 uv ) {
+  if ( iLight == 0 ) {
+    return texture( samplerShadow[ 0 ], uv );
+  } else if ( iLight == 1 ) {
+    return texture( samplerShadow[ 1 ], uv );
+  } else if ( iLight == 2 ) {
+    return texture( samplerShadow[ 2 ], uv );
+  } else if ( iLight == 3 ) {
+    return texture( samplerShadow[ 3 ], uv );
+  } else if ( iLight == 4 ) {
+    return texture( samplerShadow[ 4 ], uv );
+  } else if ( iLight == 5 ) {
+    return texture( samplerShadow[ 5 ], uv );
+  } else if ( iLight == 6 ) {
+    return texture( samplerShadow[ 6 ], uv );
+  } else if ( iLight == 7 ) {
+    return texture( samplerShadow[ 7 ], uv );
+  }
 }
 
 // == features =====================================================================================
-float castShadow( Isect isect, AngularInfo aI ) {
-  float depth = linearstep( lightNearFar.x, lightNearFar.y, length( isect.position - lightPos ) );
-  float bias = 0.0001 + 0.0001 * ( 1.0 - aI.dotNL );
+float castShadow( int iLight, Isect isect, float NdotL ) {
+  float depth = linearstep(
+    lightNearFar[ iLight ].x,
+    lightNearFar[ iLight ].y,
+    length( isect.position - lightPos[ iLight ] )
+  );
+
+  float bias = 0.0001 + 0.0001 * ( 1.0 - NdotL );
   depth -= bias;
 
-  vec4 proj = lightPV * vec4( isect.position, 1.0 );
+  vec4 proj = lightPV[ iLight ] * vec4( isect.position, 1.0 );
   vec2 uv = proj.xy / proj.w * 0.5 + 0.5;
 
-  vec4 tex = texture( samplerShadow, uv );
+  vec4 tex = fetchShadowMap( iLight, uv );
 
   float edgeClip = smoothstep( 0.4, 0.5, max( abs( uv.x - 0.5 ), abs( uv.y - 0.5 ) ) );
 
@@ -170,32 +166,57 @@ float calcDepth( vec3 pos ) {
 }
 
 // == shading functions ============================================================================
-vec3 shadePBR( Isect isect, AngularInfo aI ) {
+vec3 shadePBR( Isect isect ) {
   // ref: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/src/shaders/metallic-roughness.frag
+
+  // from isect
+  vec3 V = cameraPos - isect.position;
+  float lenV = length( V );
+  V = normalize( V );
+
+  float NdotV = clamp( dot( isect.normal, V ), EPSILON, 1.0 );
 
   float roughness = isect.materialParams.x;
   float metallic = isect.materialParams.y;
   float emissive = isect.materialParams.z;
 
-  float shadow = castShadow( isect, aI );
-  shadow = mix( 1.0, shadow, 0.8 );
-
-  float ao = texture( samplerAo, isect.screenUv ).x;
-  shadow *= ao;
-
-  float decayL = 1.0 / ( aI.lenL * aI.lenL );
-
+  // calc material stuff
   vec3 albedo = mix( isect.color * ONE_SUB_DIELECTRIC_SPECULAR, vec3( 0.0 ), metallic );
   vec3 f0 = mix( DIELECTRIC_SPECULAR, isect.color, metallic );
 
-  vec3 diffuse = brdfLambert( f0, albedo, aI.dotVH );
-  vec3 spec = brdfSpecularGGX( f0, roughness, aI.dotVH, aI.dotNL, aI.dotNV, aI.dotNH );
+  float ao = texture( samplerAo, isect.screenUv ).x;
 
-  vec3 shade = PI * lightColor * decayL * shadow * aI.dotNL * ( diffuse + spec );
+  // begin lighting
+  vec3 color = vec3( 0.0 );
 
-  vec3 color = shade;
+  // for each lights
+  for ( int iLight = 0; iLight < 8; iLight ++ ) {
+    if ( iLight >= lightCount ) { break; }
 
-#ifdef IS_FIRST_LIGHT
+    // calc vectors
+    vec3 L = lightPos[ iLight ] - isect.position;
+    float lenL = length( L );
+    L = normalize( L );
+
+    vec3 H = normalize( V + L );
+    float NdotL = clamp( dot( isect.normal, L ), EPSILON, 1.0 );
+    float NdotH = clamp( dot( isect.normal, H ), EPSILON, 1.0 );
+    float VdotH = clamp( dot( V, H ), EPSILON, 1.0 );
+
+    float decayL = 1.0 / ( lenL * lenL );
+
+    // fetch shadowmap
+    float shadow = castShadow( iLight, isect, NdotL );
+    shadow = mix( 0.5, 1.0, shadow );
+
+    // do shading
+    vec3 diffuse = brdfLambert( f0, albedo, VdotH );
+    vec3 spec = brdfSpecularGGX( f0, roughness, VdotH, NdotL, NdotV, NdotH );
+
+    vec3 shade = PI * lightColor[ iLight ] * decayL * ao * shadow * NdotL * ( diffuse + spec );
+
+    color += shade;
+  }
 
   // cheat the texture seam using noise!
   vec3 nEnvDiffuse = importanceSampleGGX( vec2( prng( seed ), prng( seed ) * 0.05 ), 2.0, isect.normal );
@@ -209,34 +230,25 @@ vec3 shadePBR( Isect isect, AngularInfo aI ) {
   color += ao * texEnvDiffuse * albedo;
 
   // reflective ibl
-  vec3 reflEnvReflective = reflect( aI.V, isect.normal );
+  vec3 reflEnvReflective = reflect( V, isect.normal );
   vec2 uvEnvReflective = vec2(
     0.5 + atan( reflEnvReflective.x, -reflEnvReflective.z ) / TAU,
     0.5 + atan( reflEnvReflective.y, length( reflEnvReflective.zx ) ) / PI
   );
-  vec2 brdfEnvReflective = texture( samplerIBLLUT, vec2( aI.dotNV, roughness ) ).xy;
+  vec2 brdfEnvReflective = texture( samplerIBLLUT, vec2( NdotV, roughness ) ).xy;
   vec3 texEnvReflective = sampleEnvLinear( uvEnvReflective, 3.0 * roughness ).rgb;
   color += ao * texEnvReflective * ( brdfEnvReflective.x * f0 + brdfEnvReflective.y );
 
   // emissive
-  color += emissive * aI.dotNV * isect.color;
-#endif // IS_FIRST_LIGHT
+  color += emissive * NdotV * isect.color;
 
   return color;
 
 }
 
 vec3 shadeGradient( Isect isect ) {
-  vec3 ret;
-
-#ifdef IS_FIRST_LIGHT
   float shade = isect.normal.y;
-  ret = blurpleGradient( 0.5 + 0.5 * shade );
-#else // IS_FIRST_LIGHT
-  ret = vec3( 0.0 );
-#endif // IS_FIRST_LIGHT
-
-  return ret;
+  return blurpleGradient( 0.5 + 0.5 * shade );
 }
 
 // == main procedure ===============================================================================
@@ -260,41 +272,27 @@ void main() {
 
   vec3 color = vec3( 0.0 );
 
-  AngularInfo aI = genAngularInfo( isect );
-
   if ( isect.materialId == MTL_NONE ) {
     // do nothing
 
   } else if ( isect.materialId == MTL_UNLIT ) {
-#ifdef IS_FIRST_LIGHT
     color = isect.color;
-#endif
 
   } else if ( isect.materialId == MTL_PBR ) {
-    color = shadePBR( isect, aI );
+    color = shadePBR( isect );
 
   } else if ( isect.materialId == MTL_GRADIENT ) {
     color = shadeGradient( isect );
 
-  } else if ( isect.materialId == MTL_IRIDESCENT ) {
-    isect.color *= mix(
-      vec3( 1.0 ),
-      catColor( isect.materialParams.x * aI.dotNV ),
-      isect.materialParams.y
-    );
-    isect.materialParams = vec3( 0.1, isect.materialParams.z, 0.0 );
-    color = shadePBR( isect, aI );
-
   }
 
-  color *= exp( -0.4 * max( aI.lenV - 3.0, 0.0 ) );
+  float lenV = length( cameraPos - isect.position );
+  color *= exp( -0.4 * max( lenV - 3.0, 0.0 ) );
 
-#ifdef IS_FIRST_LIGHT
   // color = 0.5 + 0.5 * isect.normal;
   // color = vec3( calcDepth( tex0.xyz ) );
   // color = vec3( 0.5, 0.9, 0.6 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
   // color = vec3( 0.5, 0.9, 0.6 ) * ( texture( samplerAo, isect.screenUv ).xyz );
-#endif
   // xfdA = shadeGradient( isect );
 
   fragColor = vec4( color, 1.0 );
