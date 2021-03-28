@@ -74,12 +74,14 @@ if ( process.env.DEV ) {
 
 // -- let's gooooo ---------------------------------------------------------------------------------
 async function load(): Promise<void> {
-  await music.prepare();
-
   if ( process.env.DEV ) {
     music.time = START_POSITION;
     ( automaton as AutomatonWithGUI ).play();
-  } else {
+  }
+
+  await music.prepare();
+
+  if ( !process.env.DEV ) {
     const button = document.createElement( 'a' );
     document.body.appendChild( button );
     button.innerHTML = 'click me!';
