@@ -269,6 +269,7 @@ camera.components.unshift( new Lambda( {
     const y = auto( 'Camera/pos/y' );
     const z = auto( 'Camera/pos/z' );
     const roll = auto( 'Camera/roll' );
+    const shake = auto( 'Camera/shake' );
 
     const st = Math.sin( t );
     const ct = Math.cos( t );
@@ -282,18 +283,32 @@ camera.components.unshift( new Lambda( {
 
     camera.transform.lookAt(
       new Vector3( [
-        r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ) + x,
-        r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ) + y,
-        r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ) + z,
+        r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ),
+        r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ),
+        r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ),
       ] ),
       new Vector3( [
-        wubTarAmp * Math.sin( wubTarTheta ) + x,
-        wubTarAmp * Math.sin( 2.0 + wubTarTheta ) + y,
-        wubTarAmp * Math.sin( 4.0 + wubTarTheta ) + z,
+        wubTarAmp * Math.sin( wubTarTheta ),
+        wubTarAmp * Math.sin( 2.0 + wubTarTheta ),
+        wubTarAmp * Math.sin( 4.0 + wubTarTheta ),
       ] ),
       undefined,
       0.02 * Math.sin( 2.74 * time ) + roll,
     );
+
+    camera.transform.position = camera.transform.position.add(
+      new Vector3( [ x, y, z ] )
+    );
+
+    if ( shake > 0.0 ) {
+      camera.transform.position = camera.transform.position.add(
+        new Vector3( [
+          Math.sin( 145.0 * time ),
+          Math.sin( 2.0 + 148.0 * time ),
+          Math.sin( 4.0 + 151.0 * time )
+        ] ).scale( shake )
+      );
+    }
   },
   name: process.env.DEV && 'main/updateCamera',
 } ) );
