@@ -7,10 +7,6 @@ precision highp float;
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 
 const int MARCH_ITER = 90;
-const int MTL_UNLIT = 1;
-const int MTL_PBR = 2;
-const int MTL_GRADIENT = 3;
-const int MTL_IRIDESCENT = 4;
 const float PI = 3.14159265;
 const float TAU = PI * 2.0;
 
@@ -21,15 +17,12 @@ const float TAU = PI * 2.0;
   layout (location = 3) out vec4 fragWTF;
 #endif
 
-in vec4 vPosition;
+in vec4 vPositionWithoutModel;
 
 #ifdef SHADOW
   out vec4 fragColor;
 #endif
 
-uniform float deformAmp;
-uniform float deformFreq;
-uniform float deformTime;
 uniform float time;
 uniform float ifsSeed;
 uniform vec2 resolution;
@@ -46,12 +39,6 @@ uniform sampler2D samplerCapture;
 
 vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
-}
-
-// https://www.iquilezles.org/www/articles/smin/smin.htm
-float smin( float a, float b, float k ) {
-  float h = max( k - abs( a - b ), 0.0 ) / k;
-  return min( a, b ) - h * h * h * k * ( 1.0 / 6.0 );
 }
 
 mat2 rot2d( float t ) {
@@ -90,7 +77,9 @@ vec4 map( vec3 p ) {
   float d1, d2;
 
   {
-    float clampbox = box( p - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) - 0.1 );
+    vec3 pt = p;
+
+    float clampbox = box( pt - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) - 0.1 );
 
     vec3 r = mix(
       fs( vec3( 4.7, 2.2, 8.3 ) + floor( ifsSeed ) ),
@@ -98,7 +87,7 @@ vec4 map( vec3 p ) {
       fract( ifsSeed )
     );
     vec3 t = 0.1 * vec3( 3.0, 2.3, 3.5 );
-    vec3 pt = ifs( p, r, t );
+    pt = ifs( pt, r, t );
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
@@ -106,7 +95,9 @@ vec4 map( vec3 p ) {
   }
 
   {
-    float clampbox = box( p - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) );
+    vec3 pt = p;
+
+    float clampbox = box( pt - vec3( 0.0, 10.0, 0.0 ), vec3( 1.0, 10.0, 1.0 ) );
 
     vec3 r = mix(
       fs( vec3( 5.3, 1.1, 2.9 ) + floor( ifsSeed ) ),
@@ -114,7 +105,7 @@ vec4 map( vec3 p ) {
       fract( ifsSeed )
     );
     vec3 t = 0.2 * vec3( 3.0, 2.3, 3.5 );
-    vec3 pt = ifs( p, r, t );
+    pt = ifs( pt, r, t );
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
@@ -139,7 +130,7 @@ void main() {
   vec3 rayOri = divideByW( inversePVM * vec4( p, 0.0, 1.0 ) );
   vec3 farPos = divideByW( inversePVM * vec4( p, 1.0, 1.0 ) );
   vec3 rayDir = normalize( farPos - rayOri );
-  float rayLen = length( vPosition.xyz - cameraPos );
+  float rayLen = length( vPositionWithoutModel.xyz - rayOri );
   vec3 rayPos = rayOri + rayDir * rayLen;
   vec4 isect;
 
@@ -176,11 +167,11 @@ void main() {
         0.2 * smoothstep( -0.2, 0.4, noise.y ) * ( 0.8 + 0.2 * sin( 17.0 * noiseDetail.x ) )
       );
 
-      fragColor = vec4( vec3( 0.4 ), 1.0 );
-      fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), MTL_PBR );
+      fragColor = vec4( vec3( 0.04 ), 1.0 );
+      fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), 2 );
     } else if ( isect.y == 1.0 ) {
       fragColor = vec4( vec3( 1.0 ), 1.0 );
-      fragWTF = vec4( vec3( 0.3, 0.1, 0.0 ), MTL_PBR );
+      fragWTF = vec4( vec3( 0.3, 0.1, 0.0 ), 2 );
     }
 
   #endif

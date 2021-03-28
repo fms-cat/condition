@@ -84,7 +84,7 @@ export class Wobbleball extends Entity {
             'Matrix4fv',
             event.projectionMatrix
               .multiply( event.viewMatrix )
-              .multiply( this.transform.matrix )
+              .multiply( event.globalTransform.matrix )
               .inverse!
               .elements
           );

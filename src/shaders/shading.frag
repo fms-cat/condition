@@ -5,8 +5,6 @@ precision highp float;
 const int MTL_NONE = 0;
 const int MTL_UNLIT = 1;
 const int MTL_PBR = 2;
-const int MTL_GRADIENT = 3;
-const int AO_ITER = 8;
 const float ENV_UV_MARGIN = 0.9375;
 const float AO_BIAS = 0.0;
 const float AO_RADIUS = 0.5;
@@ -27,11 +25,13 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform int lightCount;
+uniform vec2 resolution;
 uniform vec2 lightNearFar[8];
 uniform vec2 cameraNearFar;
 uniform vec3 cameraPos;
 uniform vec3 lightPos[8];
 uniform vec3 lightColor[8];
+uniform vec4 lightParams[8];
 uniform mat4 lightPV[8];
 uniform mat4 cameraView;
 uniform mat4 cameraPV;
@@ -56,27 +56,6 @@ vec3 catColor( float _p ) {
     cos( _p ),
     cos( _p + PI / 3.0 * 4.0 ),
     cos( _p + PI / 3.0 * 2.0 )
-  );
-}
-
-vec3 blurpleGradient( float t ) {
-  vec3 colorA = vec3( 0.01, 0.04, 0.2 );
-  vec3 colorB = vec3( 0.02, 0.3, 0.9 );
-  vec3 colorC = vec3( 0.9, 0.01, 0.6 );
-  vec3 colorD = vec3( 0.5, 0.02, 0.02 );
-
-  return mix(
-    colorA,
-    mix(
-      colorB,
-      mix(
-        colorC,
-        colorD,
-        linearstep( 0.67, 1.0, t )
-      ),
-      linearstep( 0.33, 0.67, t )
-    ),
-    linearstep( 0.0, 0.33, t )
   );
 }
 
@@ -128,7 +107,7 @@ vec4 fetchShadowMap( int iLight, vec2 uv ) {
 }
 
 // == features =====================================================================================
-float castShadow( int iLight, Isect isect, float NdotL ) {
+float castShadow( int iLight, vec2 lightUv, Isect isect, float NdotL ) {
   float depth = linearstep(
     lightNearFar[ iLight ].x,
     lightNearFar[ iLight ].y,
@@ -138,12 +117,9 @@ float castShadow( int iLight, Isect isect, float NdotL ) {
   float bias = 0.0001 + 0.0001 * ( 1.0 - NdotL );
   depth -= bias;
 
-  vec4 proj = lightPV[ iLight ] * vec4( isect.position, 1.0 );
-  vec2 uv = proj.xy / proj.w * 0.5 + 0.5;
+  vec4 tex = fetchShadowMap( iLight, lightUv );
 
-  vec4 tex = fetchShadowMap( iLight, uv );
-
-  float edgeClip = smoothstep( 0.4, 0.5, max( abs( uv.x - 0.5 ), abs( uv.y - 0.5 ) ) );
+  float edgeClip = smoothstep( 0.4, 0.5, max( abs( lightUv.x - 0.5 ), abs( lightUv.y - 0.5 ) ) );
 
   float variance = saturate( tex.y - tex.x * tex.x );
   float md = depth - tex.x;
@@ -205,9 +181,18 @@ vec3 shadePBR( Isect isect ) {
 
     float decayL = 1.0 / ( lenL * lenL );
 
-    // fetch shadowmap
-    float shadow = castShadow( iLight, isect, NdotL );
-    shadow = mix( 0.5, 1.0, shadow );
+    // fetch shadowmap + spot lighting
+    vec4 lightProj = lightPV[ iLight ] * vec4( isect.position, 1.0 );
+    vec2 lightP = lightProj.xy / lightProj.w;
+
+    float shadow = mix(
+      1.0,
+      smoothstep( 1.0, 0.5, length( lightP ) ),
+      lightParams[ iLight ].x
+    );
+
+    shadow *= castShadow( iLight, lightP * 0.5 + 0.5, isect, NdotL );
+    shadow = mix( 0.0, 1.0, shadow );
 
     // do shading
     vec3 diffuse = brdfLambert( f0, albedo, VdotH );
@@ -246,11 +231,6 @@ vec3 shadePBR( Isect isect ) {
 
 }
 
-vec3 shadeGradient( Isect isect ) {
-  float shade = isect.normal.y;
-  return blurpleGradient( 0.5 + 0.5 * shade );
-}
-
 // == main procedure ===============================================================================
 void main() {
   vec4 tex0 = texture( sampler0, vUv );
@@ -270,6 +250,13 @@ void main() {
   isect.materialId = int( tex3.w + 0.5 );
   isect.materialParams = tex3.xyz;
 
+  // from isect
+  vec3 V = cameraPos - isect.position;
+  float lenV = length( V );
+  V = normalize( V );
+
+  float NdotV = clamp( dot( isect.normal, V ), EPSILON, 1.0 );
+
   vec3 color = vec3( 0.0 );
 
   if ( isect.materialId == MTL_NONE ) {
@@ -281,8 +268,6 @@ void main() {
   } else if ( isect.materialId == MTL_PBR ) {
     color = shadePBR( isect );
 
-  } else if ( isect.materialId == MTL_GRADIENT ) {
-    color = shadeGradient( isect );
 
   }
 
@@ -297,4 +282,6 @@ void main() {
 
   fragColor = vec4( color, 1.0 );
   // fragColor.xyz *= smoothstep( 1.0, 0.7, calcDepth( tex0.xyz ) );
+
+  gl_FragDepth = 0.5 + 0.5 * isect.depth;
 }

@@ -14,22 +14,34 @@ export interface LightEntityOptions {
   shadowMapFov?: number;
   shadowMapNear?: number;
   shadowMapFar?: number;
-  shadowMapWidth?: number;
-  shadowMapHeight?: number;
+  shadowMapSize?: number;
   namePrefix?: string;
 }
 
 export class LightEntity extends Entity {
+  public spotness: number = 0.0;
   public color: [ number, number, number ] = [ 1.0, 1.0, 1.0 ];
   public camera: PerspectiveCamera;
   public shadowMap: BufferRenderTarget;
+
+  public get shadowMapFov(): number {
+    return this.camera.fov;
+  }
+
+  public get shadowMapNear(): number {
+    return this.camera.near;
+  }
+
+  public get shadowMapFar(): number {
+    return this.camera.far;
+  }
 
   public constructor( options: LightEntityOptions ) {
     super();
 
     const swapOptions = {
-      width: options.shadowMapWidth ?? 1024,
-      height: options.shadowMapHeight ?? 1024
+      width: options.shadowMapSize ?? 1024,
+      height: options.shadowMapSize ?? 1024,
     };
 
     const swap = new Swap(

@@ -110,6 +110,8 @@ export abstract class Music {
     if ( this.isPlaying ) {
       this.deltaTime = now - this.__prevAudioTime;
       this.time += this.deltaTime;
+    } else {
+      this.deltaTime = 0.0;
     }
 
     this.__updateImpl();

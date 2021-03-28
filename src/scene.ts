@@ -2,7 +2,7 @@ import { Antialias } from './entities/Antialias';
 import { Bloom } from './entities/Bloom';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
-import { Component, ComponentUpdateEvent } from './heck/components/Component';
+import { Component } from './heck/components/Component';
 import { Condition } from './entities/Condition';
 import { Cube } from './entities/Cube';
 import { CubemapCameraEntity } from './entities/CubemapCameraEntity';
@@ -17,7 +17,8 @@ import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
 import { IFSPistons } from './entities/IFSPistons';
 import { Lambda } from './heck/components/Lambda';
-import { LightEntity } from './entities/LightEntity';
+import { LightsFirst } from './entities/LightsFirst';
+import { LightsPink } from './entities/LightsPink';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
@@ -147,17 +148,6 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerFlickyParticles = new EntityReplacer(
-  deferredRoot,
-  () => new FlickyParticles(),
-  'FlickyParticles',
-);
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/FlickyParticles', () => {
-    replacerFlickyParticles.replace();
-  } );
-}
-
 const replacerWobbleball = new EntityReplacer( deferredRoot, () => new Wobbleball(), 'Wobbleball' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Wobbleball', () => {
@@ -187,6 +177,17 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
+const replacerFlickyParticles = new EntityReplacer(
+  forwardRoot,
+  () => new FlickyParticles(),
+  'FlickyParticles',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/FlickyParticles', () => {
+    replacerFlickyParticles.replace();
+  } );
+}
+
 // -- things that is not an "object" ---------------------------------------------------------------
 const swapOptions = {
   width: canvasRenderTarget.width,
@@ -204,40 +205,24 @@ const swap = new Swap(
   } ),
 );
 
-const replacerLightFirst = new EntityReplacer( dog.root, () => {
-  const light = new LightEntity( {
-    scenes: [ dog.root ],
-    shadowMapFov: 90.0,
-    shadowMapNear: 1.0,
-    shadowMapFar: 20.0,
-    namePrefix: process.env.DEV && 'lightFirst',
-  } );
-  light.color = [ 100.0, 100.0, 100.0 ];
-  light.transform.lookAt( new Vector3( [ 4.0, 4.0, 4.0 ] ) );
-  return light;
-}, 'LightFirst' );
-const lightFirst = replacerLightFirst.current;
+const replacerLightsFirst = new EntityReplacer(
+  dog.root,
+  () => new LightsFirst( { scenes: [ dog.root ] } ),
+  'LightsFirst',
+);
 
-const replacerLightPink = new EntityReplacer( dog.root, () => {
-  const light = new LightEntity( {
+const replacerLightsPink = new EntityReplacer(
+  dog.root,
+  () => new LightsPink( {
     scenes: [ dog.root ],
-    shadowMapFov: 90.0,
-    shadowMapNear: 1.0,
-    shadowMapFar: 20.0,
-    namePrefix: process.env.DEV && 'lightPink',
-  } );
-  light.color = [ 120.0, 2.0, 10.0 ];
-  light.transform.lookAt( new Vector3( [ -1.0, 2.0, 2.0 ] ) );
-  return light;
-}, 'LightPink' );
-const lightPink = replacerLightPink.current;
+  } ),
+  'LightsPink',
+);
 
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/LightEntity', () => {
-    replacerLightFirst.replace();
-    replacerLightPink.replace();
-  } );
-}
+const lights = [
+  ...replacerLightsFirst.current.lights,
+  ...replacerLightsPink.current.lights,
+];
 
 // const light2 = new LightEntity( {
 //   root: dog.root,
@@ -252,11 +237,7 @@ if ( process.env.DEV && module.hot ) {
 
 const cubemapCamera = new CubemapCameraEntity( {
   scenes: [ dog.root ],
-  lights: [
-    lightFirst,
-    lightPink,
-    // light2
-  ],
+  lights,
 } );
 dog.root.children.push( cubemapCamera );
 
@@ -266,89 +247,77 @@ const environmentMap = new EnvironmentMap( {
 dog.root.children.push( environmentMap );
 
 // -- camera ---------------------------------------------------------------------------------------
-const cameraOnUpdate = ( { time }: ComponentUpdateEvent ): void => {
-  const r = auto( 'Camera/rot/r' );
-  const t = auto( 'Camera/rot/t' );
-  const p = auto( 'Camera/rot/p' );
-  const x = auto( 'Camera/pos/x' );
-  const y = auto( 'Camera/pos/y' );
-  const z = auto( 'Camera/pos/z' );
-  const roll = auto( 'Camera/roll' );
-  const shake = auto( 'Camera/shake' );
-
-  const st = Math.sin( t );
-  const ct = Math.cos( t );
-  const sp = Math.sin( p );
-  const cp = Math.cos( p );
-
-  const wubPosAmp = 0.01;
-  const wubPosTheta = 3.0 * time;
-  const wubTarAmp = 0.02;
-  const wubTarTheta = 4.21 * time;
-
-  deferredCamera.transform.lookAt(
-    new Vector3( [
-      r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ),
-      r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ),
-      r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ),
-    ] ),
-    new Vector3( [
-      wubTarAmp * Math.sin( wubTarTheta ),
-      wubTarAmp * Math.sin( 2.0 + wubTarTheta ),
-      wubTarAmp * Math.sin( 4.0 + wubTarTheta ),
-    ] ),
-    undefined,
-    0.02 * Math.sin( 2.74 * time ) + roll,
-  );
-
-  deferredCamera.transform.position = deferredCamera.transform.position.add(
-    new Vector3( [ x, y, z ] )
-  );
-
-  if ( shake > 0.0 ) {
-    deferredCamera.transform.position = deferredCamera.transform.position.add(
-      new Vector3( [
-        Math.sin( 145.0 * time ),
-        Math.sin( 2.0 + 148.0 * time ),
-        Math.sin( 4.0 + 151.0 * time )
-      ] ).scale( shake )
-    );
-  }
-};
-
 const deferredCamera = new DeferredCamera( {
-  scenes: [ deferredRoot ],
+  scenes: [ dog.root ],
   target: swap.o,
-  lights: [
-    lightFirst,
-    lightPink,
-    // light2
-  ],
+  lights,
   textureIBLLUT: ibllut.texture,
   textureEnv: environmentMap.texture,
 } );
-
-deferredCamera.components.unshift( new Lambda( {
-  onUpdate: cameraOnUpdate,
-  name: process.env.DEV && 'main/updateDeferredCamera',
-} ) );
 dog.root.children.push( deferredCamera );
+replacerLightsPink.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
 
 const forwardCamera = new ForwardCamera( {
-  scenes: [ forwardRoot ],
+  scenes: [ dog.root ],
   target: swap.o,
-  lights: [
-    lightFirst,
-    lightPink,
-    // light2
-  ],
+  lights,
 } );
-
-forwardCamera.components.unshift( new Lambda( {
-  onUpdate: cameraOnUpdate,
-  name: process.env.DEV && 'main/updateForwardCamera',
-} ) );
 dog.root.children.push( forwardCamera );
+
+dog.root.components.push( new Lambda( {
+  onUpdate: ( { time } ) => {
+    const r = auto( 'Camera/rot/r' );
+    const t = auto( 'Camera/rot/t' );
+    const p = auto( 'Camera/rot/p' );
+    const x = auto( 'Camera/pos/x' );
+    const y = auto( 'Camera/pos/y' );
+    const z = auto( 'Camera/pos/z' );
+    const roll = auto( 'Camera/roll' );
+    const shake = auto( 'Camera/shake' );
+
+    const st = Math.sin( t );
+    const ct = Math.cos( t );
+    const sp = Math.sin( p );
+    const cp = Math.cos( p );
+
+    const wubPosAmp = 0.01;
+    const wubPosTheta = 3.0 * time;
+    const wubTarAmp = 0.02;
+    const wubTarTheta = 4.21 * time;
+
+    [ deferredCamera, forwardCamera ].map( ( camera ) => {
+      camera.transform.lookAt(
+        new Vector3( [
+          r * ct * sp + wubPosAmp * Math.sin( wubPosTheta ),
+          r * st + wubPosAmp * Math.sin( 2.0 + wubPosTheta ),
+          r * ct * cp + wubPosAmp * Math.sin( 4.0 + wubPosTheta ),
+        ] ),
+        new Vector3( [
+          wubTarAmp * Math.sin( wubTarTheta ),
+          wubTarAmp * Math.sin( 2.0 + wubTarTheta ),
+          wubTarAmp * Math.sin( 4.0 + wubTarTheta ),
+        ] ),
+        undefined,
+        0.02 * Math.sin( 2.74 * time ) + roll,
+      );
+
+      camera.transform.position = camera.transform.position.add(
+        new Vector3( [ x, y, z ] )
+      );
+
+      if ( shake > 0.0 ) {
+        camera.transform.position = camera.transform.position.add(
+          new Vector3( [
+            Math.sin( 145.0 * time ),
+            Math.sin( 2.0 + 148.0 * time ),
+            Math.sin( 4.0 + 151.0 * time )
+          ] ).scale( shake )
+        );
+      }
+    } );
+  },
+  name: process.env.DEV && 'main/updateCamera',
+} ) );
 
 // -- post -----------------------------------------------------------------------------------------
 swap.swap();

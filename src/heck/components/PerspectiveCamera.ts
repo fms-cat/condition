@@ -16,15 +16,16 @@ export interface PerspectiveCameraOptions extends ComponentOptions {
 }
 
 export class PerspectiveCamera extends Camera {
+  public readonly fov: number;
   public readonly near: number;
   public readonly far: number;
 
   public constructor( options: PerspectiveCameraOptions ) {
-    const projectionMatrix = Matrix4.perspective(
-      options.fov || 45.0,
-      options.near || 0.01,
-      options.far || 100.0,
-    );
+    const fov = options.fov ?? 45.0;
+    const near = options.near ?? 0.01;
+    const far = options.far ?? 100.0;
+
+    const projectionMatrix = Matrix4.perspective( fov, near, far );
 
     super( {
       ...options,
@@ -34,7 +35,8 @@ export class PerspectiveCamera extends Camera {
       clear: options.clear,
     } );
 
-    this.near = options.near || 0.01;
-    this.far = options.far || 100.0;
+    this.fov = fov;
+    this.near = near;
+    this.far = far;
   }
 }

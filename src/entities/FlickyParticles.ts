@@ -3,7 +3,7 @@ import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
-import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 import { quadGeometry } from '../globals/quadGeometry';
@@ -78,25 +78,16 @@ export class FlickyParticles extends Entity {
       },
     );
 
-    const deferred = new Material(
+    const depth = new Material(
       flickyParticleRenderVert,
       flickyParticleRenderFrag,
       {
-        defines: [ 'DEFERRED 1' ],
-        initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
-      },
-    );
-
-    const shadow = new Material(
-      flickyParticleRenderVert,
-      flickyParticleRenderFrag,
-      {
-        defines: [ 'SHADOW 1' ],
+        defines: [ 'DEPTH 1' ],
         initOptions: { geometry: geometryRender, target: dummyRenderTarget },
       },
     );
 
-    const materialsRender = { forward, deferred, shadow };
+    const materialsRender = { forward, cubemap: forward, depth };
 
     objectValuesMap( materialsRender, ( material ) => {
       material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
@@ -111,8 +102,7 @@ export class FlickyParticles extends Entity {
           ],
           () => {
             forward.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
-            deferred.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
-            shadow.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
+            depth.replaceShader( flickyParticleRenderVert, flickyParticleRenderFrag );
           }
         );
       }

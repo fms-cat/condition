@@ -25,10 +25,12 @@ export interface DeferredCameraOptions {
 }
 
 export class DeferredCamera extends Entity {
+  public cameraTarget: BufferRenderTarget;
+
   public constructor( options: DeferredCameraOptions ) {
     super();
 
-    const cameraTarget = new BufferRenderTarget( {
+    this.cameraTarget = new BufferRenderTarget( {
       width: options.target.width,
       height: options.target.height,
       numBuffers: 4,
@@ -37,7 +39,7 @@ export class DeferredCamera extends Entity {
 
     const camera = new PerspectiveCamera( {
       scenes: options.scenes,
-      renderTarget: cameraTarget,
+      renderTarget: this.cameraTarget,
       near: 0.1,
       far: 20.0,
       name: 'DeferredCamera/camera',
@@ -75,7 +77,7 @@ export class DeferredCamera extends Entity {
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
       aoMaterial.addUniformTexture(
         'sampler' + i,
-        cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
       );
     }
 
@@ -161,6 +163,12 @@ export class DeferredCamera extends Entity {
           lights.map( ( light ) => light.color ).flat(),
         );
 
+        shadingMaterial.addUniformVector(
+          'lightParams',
+          '4fv',
+          lights.map( ( light ) => [ light.spotness, 0.0, 0.0, 0.0 ] ).flat(),
+        );
+
         shadingMaterial.addUniformMatrixVector(
           'lightPV',
           'Matrix4fv',
@@ -182,7 +190,7 @@ export class DeferredCamera extends Entity {
     for ( let i = 0; i < 4; i ++ ) {
       shadingMaterial.addUniformTexture(
         'sampler' + i,
-        cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
       );
     }
 

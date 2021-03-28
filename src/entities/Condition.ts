@@ -102,7 +102,7 @@ export class Condition extends Entity {
     geometry.primcount = 12 * 16;
 
     // -- create materials -------------------------------------------------------------------------
-    const forward = new Material(
+    const cubemap = new Material(
       conditionVert,
       conditionFrag,
       {
@@ -129,7 +129,7 @@ export class Condition extends Entity {
       },
     );
 
-    const materials = { forward, deferred, depth };
+    const materials = { cubemap, deferred, depth };
 
     objectValuesMap( materials, ( material ) => {
       material.addUniformTexture( 'samplerSvg', texture );
@@ -155,7 +155,7 @@ export class Condition extends Entity {
             '../shaders/condition.frag',
           ],
           () => {
-            forward.replaceShader( conditionVert, conditionFrag );
+            cubemap.replaceShader( conditionVert, conditionFrag );
             deferred.replaceShader( conditionVert, conditionFrag );
             depth.replaceShader( conditionVert, conditionFrag );
           },

@@ -1,7 +1,7 @@
 import { Component, ComponentOptions, ComponentUpdateEvent } from './Component';
 import { Material } from '../Material';
 import { RenderTarget } from '../RenderTarget';
-import { glCat } from '../../globals/canvas';
+import { gl, glCat } from '../../globals/canvas';
 import { quadGeometry } from '../../globals/quadGeometry';
 
 export interface QuadOptions extends ComponentOptions {
@@ -36,6 +36,9 @@ export class Quad extends Component {
 
     this.target.bind();
     this.material.setBlendMode();
+
+    gl.enable( gl.DEPTH_TEST );
+    gl.depthMask( true );
 
     if ( this.clear ) {
       glCat.clear( ...this.clear );

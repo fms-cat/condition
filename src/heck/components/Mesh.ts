@@ -26,6 +26,8 @@ export class Mesh extends Component {
   public materials: MaterialMap;
 
   public cull: MeshCull = MeshCull.Back;
+  public depthWrite = true;
+  public depthTest = true;
 
   public constructor( options: MeshOptions ) {
     super( options );
@@ -55,6 +57,14 @@ export class Mesh extends Component {
       gl.enable( gl.CULL_FACE );
       gl.cullFace( meshCullMap[ this.cull ] );
     }
+
+    if ( this.depthTest ) {
+      gl.enable( gl.DEPTH_TEST );
+    } else {
+      gl.disable( gl.DEPTH_TEST );
+    }
+
+    gl.depthMask( this.depthWrite );
 
     material.setUniforms();
 

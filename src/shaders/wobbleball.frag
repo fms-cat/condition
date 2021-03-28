@@ -21,7 +21,7 @@ const float TAU = PI * 2.0;
   layout (location = 3) out vec4 fragWTF;
 #endif
 
-in vec4 vPosition;
+in vec4 vPositionWithoutModel;
 
 #ifdef SHADOW
   out vec4 fragColor;
@@ -115,7 +115,7 @@ void main() {
   vec3 rayOri = divideByW( inversePVM * vec4( p, 0.0, 1.0 ) );
   vec3 farPos = divideByW( inversePVM * vec4( p, 1.0, 1.0 ) );
   vec3 rayDir = normalize( farPos - rayOri );
-  float rayLen = length( vPosition.xyz - cameraPos );
+  float rayLen = length( vPositionWithoutModel.xyz - rayOri );
   vec3 rayPos = rayOri + rayDir * rayLen;
   float dist;
 
@@ -132,7 +132,7 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
+  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-3 ), 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible
@@ -143,7 +143,7 @@ void main() {
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
     fragColor = vec4( 0.4, 0.7, 0.9, 1.0 );
-    fragWTF = vec4( vec3( 0.9, 0.2, 0.0 ), MTL_PBR );
+    fragWTF = vec4( vec3( 0.9, 0.7, 0.0 ), MTL_PBR );
   #endif
 
   #ifdef SHADOW

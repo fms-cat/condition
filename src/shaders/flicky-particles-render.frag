@@ -43,7 +43,7 @@ uniform sampler2D samplerRandomStatic;
   layout (location = 3) out vec4 fragWTF;
 #endif
 
-#ifdef SHADOW
+#ifdef DEPTH
   out vec4 fragColor;
 
   uniform vec2 cameraNearFar;
@@ -187,7 +187,7 @@ void main() {
     fragWTF = vec4( vec3( 0.0 ), MTL_UNLIT );
   #endif
 
-  #ifdef SHADOW
+  #ifdef DEPTH
     float depth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,

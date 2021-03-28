@@ -8,6 +8,7 @@ import { injectCodeToShader } from '../utils/injectCodeToShader';
 export type MaterialTag =
   | 'deferred'
   | 'forward'
+  | 'cubemap'
   | 'depth';
 
 export type MaterialMap = { [ tag in MaterialTag ]?: Material };

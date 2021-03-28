@@ -3,7 +3,6 @@ import { CubemapCamera } from '../heck/components/CubemapCamera';
 import { CubemapRenderTarget } from '../heck/CubemapRenderTarget';
 import { Entity } from '../heck/Entity';
 import { LightEntity } from './LightEntity';
-import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
 
 export interface CubemapCameraEntityOptions {
   scenes: Entity[];
@@ -12,7 +11,7 @@ export interface CubemapCameraEntityOptions {
 
 export class CubemapCameraEntity extends Entity {
   public scenes: Entity[];
-  public camera: PerspectiveCamera;
+  public camera: CubemapCamera;
   public readonly target: CubemapRenderTarget;
 
   public constructor( options: CubemapCameraEntityOptions ) {
@@ -31,7 +30,7 @@ export class CubemapCameraEntity extends Entity {
       near: 1.0,
       far: 20.0,
       name: 'CubemapCameraEntity/camera',
-      materialTag: 'forward',
+      materialTag: 'cubemap',
     } );
     this.components.push( this.camera );
   }
