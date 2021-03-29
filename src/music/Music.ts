@@ -3,12 +3,25 @@ import { GLCatBuffer, GLCatProgram, GLCatTransformFeedback } from '@fms-cat/glca
 import { MUSIC_BPM } from '../config';
 import { SamplesManager } from './SamplesManager';
 import { audio } from '../globals/music';
+import { binarySearch } from '@fms-cat/automaton';
 import { gl, glCat } from '../globals/canvas';
 import { injectCodeToShader } from '../utils/injectCodeToShader';
 import { randomTextureStatic } from '../globals/randomTexture';
 import musicVert from './music.vert';
 
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
+
+const sectionResets = [
+  16.0,
+  80.0,
+  144.0,
+  208.0,
+  272.0,
+  336.0,
+  400.0,
+  464.0,
+  1E9,
+].map( ( v ) => v * 60.0 / MUSIC_BPM );
 
 export abstract class Music {
   public isPlaying: boolean;
@@ -128,7 +141,10 @@ export abstract class Music {
 
     const beatLength = 60.0 / MUSIC_BPM;
     const barLength = 240.0 / MUSIC_BPM;
-    const sixteenBarLength = 3840.0 / MUSIC_BPM;
+
+    const sectionReset = binarySearch( sectionResets, time );
+    const sectionBegin = sectionResets[ sectionReset ];
+    const sectionLength = sectionResets[ sectionReset + 1 ] - sectionBegin;
 
     program.attribute( 'off', this.__bufferOff, 1 );
     program.uniform( 'bpm', '1f', MUSIC_BPM );
@@ -139,7 +155,7 @@ export abstract class Music {
       '4f',
       beatLength,
       barLength,
-      sixteenBarLength,
+      sectionLength,
       1E16
     );
     program.uniform(
@@ -147,7 +163,7 @@ export abstract class Music {
       '4f',
       time % beatLength,
       time % barLength,
-      time % sixteenBarLength,
+      ( time - sectionBegin ) % sectionLength,
       time,
     );
 
