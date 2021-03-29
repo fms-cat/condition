@@ -7,6 +7,7 @@ import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { Swap } from '@fms-cat/experimental';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { gl } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { vdc } from '../utils/vdc';
 import iblLutFrag from '../shaders/ibl-lut.frag';
@@ -31,11 +32,13 @@ export class IBLLUT {
         width: IBLLUT_SIZE,
         height: IBLLUT_SIZE,
         name: process.env.DEV && 'IBLLUT/swap0',
+        filter: gl.NEAREST,
       } ),
       new BufferRenderTarget( {
         width: IBLLUT_SIZE,
         height: IBLLUT_SIZE,
         name: process.env.DEV && 'IBLLUT/swap1',
+        filter: gl.NEAREST,
       } ),
     );
 
