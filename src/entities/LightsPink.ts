@@ -26,7 +26,7 @@ export class LightsPink extends Entity {
     ] as TypeScriptSucks ).map( ( [ color, pos, isSpot ], i ) => {
       const light = new LightEntity( {
         scenes,
-        shadowMapFov: isSpot ? 10.0 : 50.0,
+        shadowMapFov: isSpot ? 15.0 : 50.0,
         shadowMapNear: 0.5,
         shadowMapFar: 20.0,
         shadowMapSize: isSpot ? 64 : 256,
