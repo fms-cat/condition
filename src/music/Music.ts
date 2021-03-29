@@ -12,6 +12,7 @@ import musicVert from './music.vert';
 const discardFrag = '#version 300 es\nvoid main(){discard;}';
 
 const sectionResets = [
+  0.0,
   16.0,
   80.0,
   144.0,
@@ -143,8 +144,8 @@ export abstract class Music {
     const barLength = 240.0 / MUSIC_BPM;
 
     const sectionReset = binarySearch( sectionResets, time );
-    const sectionBegin = sectionResets[ sectionReset ];
-    const sectionLength = sectionResets[ sectionReset + 1 ] - sectionBegin;
+    const sectionBegin = sectionResets[ sectionReset - 1 ];
+    const sectionLength = sectionResets[ sectionReset ] - sectionBegin;
 
     program.attribute( 'off', this.__bufferOff, 1 );
     program.uniform( 'bpm', '1f', MUSIC_BPM );

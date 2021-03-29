@@ -101,7 +101,7 @@ void main() {
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
     isect = map( rayPos );
     accum += isect * INV_MARCH_ITER;
-    rayLen += stepLen * 0.8 + 0.2 * prng( seed );
+    rayLen += stepLen * 0.5 + 0.5 * prng( seed );
     rayPos = rayOri + rayDir * rayLen;
 
     if ( rayLen > cameraNearFar.y ) { break; }

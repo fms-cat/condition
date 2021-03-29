@@ -7,8 +7,8 @@ export const audio = new AudioContext();
 let music: Music;
 
 if ( process.env.DEV ) {
-  // music = new MusicRealtime();
-  music = new MusicOffline();
+  music = new MusicRealtime();
+  // music = new MusicOffline();
 } else {
   music = new MusicOffline();
 }

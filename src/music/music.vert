@@ -17,6 +17,7 @@ const float SECTION_PSY = 464.0 * BEAT;
 
 #define saturate(i) clamp(i, 0.,1.)
 #define aSaturate(i) clamp((i),-1.,1.)
+#define fs(i) (fract(sin((i)*114.514)*1919.810))
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 #define n2r(n) (pow(2.,((n)-1.)/12.))
 #define n2f(n) (n2r(float(n))*440.)
@@ -43,10 +44,6 @@ out float outR;
 
 float auto( float y ) {
   return texture( samplerAutomaton, vec2( off / bufferLength, y ) ).x;
-}
-
-float fs( float s ) {
-  return fract( sin( s * 114.514 ) * 1919.810 );
 }
 
 vec2 fbm( vec2 p ) {
@@ -356,21 +353,21 @@ vec2 mainAudio( vec4 time ) {
   }
 
   // -- kick ---------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA ) ) {
+  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA - 2.5 * BEAT ) ) {
     float t = mod( mod( mod( time.y, 4.0 * BEAT ), 3.25 * BEAT ), 1.75 * BEAT );
     sidechain = smoothstep( 0.0, 0.7 * BEAT, t );
     dest += 0.25 * kick( t, 1.0 );
   }
 
   // -- hihat --------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA ) ) {
+  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA - 4.0 * BEAT ) ) {
     float t = mod( time.x, 0.25 * BEAT );
     float decay = mix( 40.0, 100.0, fs( floor( time.z / ( 0.25 * BEAT ) ) ) );
     dest += 0.13 * mix( 0.3, 1.0, sidechain ) * hihat2( t, decay );
   }
 
   // -- snare --------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA ) ) {
+  if ( inRange( time.w, SECTION_NEURO, SECTION_WHOA - 4.0 * BEAT ) ) {
     float t = mod( time.y - 2.0 * BEAT, 4.0 * BEAT );
     dest += 0.1 * snare( t );
   }
@@ -409,10 +406,19 @@ vec2 mainAudio( vec4 time ) {
     dest += 0.25 * kick( t, 1.0 );
   }
 
-  // -- snare --------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON ) ) {
-    float t = mod( time.z - 4.0 * BEAT, 8.0 * BEAT );
-    dest += 0.1 * snare( t );
+  // -- gabber -------------------------------------------------------------------------------------
+  if (
+    inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON ) &&
+    inRange( mod( time.z, 8.0 * BEAT ), 4.0 * BEAT, 8.0 * BEAT )
+  ) {
+    const int pattern[16] = int[](
+      0, 1, 0, 1,
+      2, 3, 4, 0,
+      1, 2, 0, 1,
+      2, 3, 4, 5
+    );
+    float tHeadKick = 0.25 * BEAT * float( pattern[ int( time.y / 0.25 / BEAT ) ] );
+    float tKick = tHeadKick + mod( time.y, 0.25 * BEAT );
   }
 
   // -- amen ---------------------------------------------------------------------------------------
