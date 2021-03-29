@@ -7,6 +7,7 @@ import { RenderTarget } from '../heck/RenderTarget';
 import { Swap } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
+import { gl } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import pixelSorterFrag from '../shaders/pixel-sorter.frag';
 import pixelSorterIndexFrag from '../shaders/pixel-sorter-index.frag';
@@ -38,11 +39,13 @@ export class PixelSorter extends Entity {
         width: options.target.width,
         height: options.target.height,
         name: process.env.DEV && 'PixelSorter/swap0',
+        filter: gl.NEAREST,
       } ),
       new BufferRenderTarget( {
         width: options.target.width,
         height: options.target.height,
         name: process.env.DEV && 'PixelSorter/swap1',
+        filter: gl.NEAREST,
       } ),
     );
 
@@ -50,6 +53,7 @@ export class PixelSorter extends Entity {
       width: options.target.width,
       height: options.target.height,
       name: process.env.DEV && 'PixelSorter/index',
+      filter: gl.NEAREST,
     } );
 
     // -- bypass -----------------------------------------------------------------------------------

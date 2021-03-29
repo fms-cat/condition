@@ -42,10 +42,12 @@ export class GPUParticles extends Entity {
       new BufferRenderTarget( {
         ...brtOptions,
         name: process.env.DEV && `${ namePrefix }/swap0`,
+        filter: gl.NEAREST,
       } ),
       new BufferRenderTarget( {
         ...brtOptions,
         name: process.env.DEV && `${ namePrefix }/swap1`,
+        filter: gl.NEAREST,
       } ),
     );
 

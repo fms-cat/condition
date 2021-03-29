@@ -8,6 +8,7 @@ export interface BufferRenderTargetOptions {
   numBuffers?: number;
   isFloat?: boolean;
   name?: string;
+  filter?: GLenum;
 }
 
 export class BufferRenderTarget extends RenderTarget {
@@ -60,6 +61,10 @@ export class BufferRenderTarget extends RenderTarget {
     this.width = options.width;
     this.height = options.height;
     this.numBuffers = options.numBuffers ?? 1;
+
+    if ( options.filter != null ) {
+      this.texture.textureFilter( options.filter );
+    }
 
     if ( process.env.DEV ) {
       this.name = options?.name;

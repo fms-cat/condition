@@ -35,6 +35,7 @@ export class DeferredCamera extends Entity {
       height: options.target.height,
       numBuffers: 4,
       name: 'DeferredCamera/cameraTarget',
+      filter: gl.NEAREST,
     } );
 
     const camera = new PerspectiveCamera( {
