@@ -96,6 +96,7 @@ export class PixelSorter extends Entity {
     // -- sort -------------------------------------------------------------------------------------
     let dir = 1.0 / 32.0;
     let comp = 1.0 / 32.0;
+    const sortMaterials: Material[] = [];
 
     while ( dir < 1.0 ) {
       const isFirst = dir === 1.0 / 32.0;
@@ -116,6 +117,7 @@ export class PixelSorter extends Entity {
         'sampler1',
         bufferIndex.texture,
       );
+      sortMaterials.push( material );
 
       entityMain.components.push( new Quad( {
         target: isLast ? options.target : this.swapBuffer.i,
@@ -136,10 +138,14 @@ export class PixelSorter extends Entity {
     // -- update uniform ---------------------------------------------------------------------------
     auto( 'PixelSorter/amp', ( { value } ) => {
       indexMaterials.map( ( material ) => {
-        material.addUniform( 'threshold', '1f', value );
+        material.addUniform( 'threshold', '1f', Math.abs( value ) );
       } );
 
-      entityMain.active = 0.001 < value;
+      sortMaterials.map( ( material ) => {
+        material.addUniform( 'reverse', '1i', ( value < 0.0 ) ? 1 : 0 );
+      } );
+
+      entityMain.active = 0.001 < Math.abs( value );
       entityBypass.active = !entityMain.active;
     } );
   }

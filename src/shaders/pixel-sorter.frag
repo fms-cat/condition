@@ -10,6 +10,7 @@ in vec2 vUv;
 
 out vec4 fragColor;
 
+uniform bool reverse;
 uniform float dir;
 uniform float comp;
 uniform vec2 resolution;
@@ -20,6 +21,7 @@ float positiveOrHuge( float i ) {
   return 0.0 < i ? i : 1E9;
 }
 
+// not accurate! it's just for aesthetics
 void main() {
   vec2 uv = vUv;
 
@@ -30,11 +32,11 @@ void main() {
     return;
   }
 
-  float index = texIndex.x - 1.0;
+  float index = ( reverse ? texIndex.y : texIndex.x ) - 1.0;
   float width = texIndex.x + texIndex.y - 1.0;
 
-  bool isCompRight = mod( index, 2.0 * comp * width ) < comp * width;
-  float offset = floor( ( isCompRight ? comp : -comp ) * width + 0.5 );
+  bool isCompHigher = mod( index, 2.0 * comp * width ) < comp * width;
+  float offset = floor( ( ( isCompHigher ^^ reverse ) ? comp : -comp ) * width + 0.5 );
 
   vec2 uvc = uv;
   uvc.x += offset / resolution.x;
@@ -49,7 +51,7 @@ void main() {
   float vc = dot( cColor.xyz, RGB );
 
   bool shouldSwap = mod( index / ( 2.0 * dir * width ), 2.0 ) < 1.0;
-  shouldSwap = shouldSwap ^^ isCompRight;
+  shouldSwap = shouldSwap ^^ isCompHigher;
   shouldSwap = shouldSwap ^^ ( vc < vp );
   if ( shouldSwap ) {
     fragColor = cColor;

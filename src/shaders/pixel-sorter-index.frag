@@ -15,6 +15,7 @@ uniform sampler2D sampler0;
 uniform sampler2D sampler1;
 
 vec2 getValue( vec2 uv ) {
+  // distance to the nearest wall, width of its current section, vec2( left, right )
   return ( ( uv.x < 0.0 ) || ( 1.0 < uv.x ) )
     ? vec2( 0.0 )
     : ( mul == 1.0 )
@@ -30,7 +31,11 @@ void main() {
 
   for ( int i = 1; i < 8; i ++ ) {
     vec2 uvc = uv - vec2( i, 0 ) / resolution * mul;
-    vec2 texc = getValue( uvc );
-    fragColor.xy = min( fragColor.xy, texc + mul * float( i ) );
+    float texc = getValue( uvc ).x;
+    fragColor.x = min( fragColor.x, texc + mul * float( i ) );
+
+    uvc = uv + vec2( i, 0 ) / resolution * mul;
+    texc = getValue( uvc ).y;
+    fragColor.y = min( fragColor.y, texc + mul * float( i ) );
   }
 }
