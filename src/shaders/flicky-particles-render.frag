@@ -45,10 +45,10 @@ uniform sampler2D samplerRandomStatic;
 
 #ifdef DEPTH
   out vec4 fragColor;
-
-  uniform vec2 cameraNearFar;
-  uniform vec3 cameraPos;
 #endif
+
+uniform vec2 cameraNearFar;
+uniform vec3 cameraPos;
 
 // == utils ========================================================================================
 mat2 rotate2D( float t ) {
@@ -177,7 +177,12 @@ void main() {
   }
 
   #ifdef FORWARD
-    fragColor = vec4( 0.2 );
+    vec3 color = vec3( 1.0 );
+
+    float lenV = length( cameraPos - vPosition.xyz );
+    color *= exp( -0.4 * max( lenV - 3.0, 0.0 ) );
+
+    fragColor = vec4( color, 1.0 );
   #endif
 
   #ifdef DEFERRED

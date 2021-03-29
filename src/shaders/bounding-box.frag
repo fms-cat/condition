@@ -14,12 +14,11 @@ in vec4 vPosition;
 
 #ifdef SHADOW
   out vec4 fragColor;
-
-  uniform vec2 cameraNearFar;
-  uniform vec3 cameraPos;
 #endif
 
 uniform float time;
+uniform vec2 cameraNearFar;
+uniform vec3 cameraPos;
 
 void main() {
   float phase = vPositionWithoutModel.x + vPositionWithoutModel.y + vPositionWithoutModel.z;
@@ -30,7 +29,12 @@ void main() {
   }
 
   #ifdef FORWARD
-    fragColor = vec4( 1.0 );
+    vec3 color = vec3( 1.0 );
+
+    float lenV = length( cameraPos - vPosition.xyz );
+    color *= exp( -0.4 * max( lenV - 3.0, 0.0 ) );
+
+    fragColor = vec4( color, 1.0 );
   #endif
 
   #ifdef SHADOW
