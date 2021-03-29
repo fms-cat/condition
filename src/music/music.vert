@@ -111,8 +111,8 @@ float kick( float t, float attackRatio ) {
 vec2 deepkick( float t ) {
   if ( t < 0.0 ) { return vec2( 0.0 ); }
 
-  vec2 tt = t + 0.04 * wavetable( inRangeInteg( t, 3.0, 1E9, 1.0 ), vec2( 0.2 ), vec2( 0.0 ) );
-  vec2 phase = 50.0 * tt - 4.0 * exp( -200.0 * tt ) - 9.4 * exp( -50.0 * tt );
+  vec2 tt = t + mix( 0.0, 0.007, smoothstep( 0.0, 0.1, t ) ) * wavetable( 0.1 * t, vec2( 2.0 ), vec2( -0.1 ) );
+  vec2 phase = 50.0 * tt - 3.0 * exp( -100.0 * tt ) - 5.4 * exp( -30.0 * tt );
   return exp( -1.0 * tt ) * sin( TAU * phase );
 }
 
@@ -268,7 +268,7 @@ vec2 mainAudio( vec4 time ) {
   float sidechain = 1.0;
 
   // -- kick ---------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_BEGIN + 64.0 * BEAT, SECTION_NEURO - 16.0 * BEAT ) ) {
+  if ( inRange( time.w, SECTION_BEGIN + 64.0 * BEAT, SECTION_NEURO - 14.5 * BEAT ) ) {
     float t = mod( mod( time.z - 1.5 * BEAT, 4.0 * BEAT ), 2.5 * BEAT );
     sidechain = smoothstep( 0.0, 0.7 * BEAT, t );
     dest += 0.25 * kick( t, 0.2 );
@@ -300,8 +300,8 @@ vec2 mainAudio( vec4 time ) {
     dest += 0.1 * longclap( t, time.w );
   }
 
-  if ( inRange( time.w, SECTION_NEURO - 17.0 * BEAT, SECTION_NEURO ) ) {
-    dest += 0.1 * longclap( mod( time.z - ( SECTION_NEURO - 17.0 * BEAT ), 64.0 * BEAT ), time.w );
+  if ( inRange( time.w, SECTION_BEGIN + 64.0 * BEAT, SECTION_NEURO ) ) {
+    dest += 0.1 * longclap( time.z - 47.0 * BEAT, time.w );
   }
 
   // -- pad ----------------------------------------------------------------------------------------
@@ -686,11 +686,11 @@ vec2 mainAudio( vec4 time ) {
 
   // -- deepkick -----------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_BEGIN, SECTION_BEGIN + 16.0 * BEAT ) ) {
-    dest += 0.4 * deepkick( mod( time.z, 16.0 * BEAT ) );
+    dest += 0.3 * deepkick( mod( time.z, 16.0 * BEAT ) );
   }
 
   if ( inRange( time.w, SECTION_AAAA - 8.0 * BEAT, SECTION_AAAA ) ) {
-    dest += 0.4 * deepkick( mod( time.z, 8.0 * BEAT ) );
+    dest += 0.3 * deepkick( mod( time.z, 8.0 * BEAT ) );
   }
 
   // -- buildup ------------------------------------------------------------------------------------
