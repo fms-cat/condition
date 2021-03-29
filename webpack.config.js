@@ -23,10 +23,12 @@ const terserOptions = {
   mangle: {
     properties: {
       regex: /.+/,
+      keep_quoted: true,
       reserved: [
         // material tags
         'forward',
         'deferred',
+        'cubemap',
         'depth',
       ]
     },
