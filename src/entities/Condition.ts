@@ -120,16 +120,7 @@ export class Condition extends Entity {
       },
     );
 
-    const depth = new Material(
-      conditionVert,
-      conditionFrag,
-      {
-        defines: [ 'SHADOW 1' ],
-        initOptions: { geometry, target: dummyRenderTarget },
-      },
-    );
-
-    const materials = { cubemap, deferred, depth };
+    const materials = { cubemap, deferred };
 
     objectValuesMap( materials, ( material ) => {
       material.addUniformTexture( 'samplerSvg', texture );
@@ -157,7 +148,6 @@ export class Condition extends Entity {
           () => {
             cubemap.replaceShader( conditionVert, conditionFrag );
             deferred.replaceShader( conditionVert, conditionFrag );
-            depth.replaceShader( conditionVert, conditionFrag );
           },
         );
       }
