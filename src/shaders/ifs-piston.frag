@@ -185,8 +185,8 @@ void main() {
       fragColor = vec4( vec3( 1.0 ), 1.0 );
       fragWTF = vec4( vec3( 0.3, 0.1, 0.0 ), 2 );
     } else if ( isect.y == 3.0 ) {
-      fragColor = vec4( vec3( 1.0, 0.001, 0.03 ), 1.0 );
-      fragWTF = vec4( vec3( 0.1, 0.1, 1.0 ), 2 );
+      fragColor = vec4( 0.2 * vec3( 1.0, 0.002, 0.03 ), 1.0 );
+      fragWTF = vec4( vec3( 0.1, 0.1, 20.0 ), 2 );
     }
 
   #endif
