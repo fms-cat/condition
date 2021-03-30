@@ -33,7 +33,7 @@ void main() {
   }
 
   float index = ( reverse ? texIndex.y : texIndex.x ) - 1.0;
-  float width = texIndex.x + texIndex.y - 1.0;
+  float width = texIndex.x + texIndex.y - 2.0;
 
   bool isCompHigher = mod( index, 2.0 * comp * width ) < comp * width;
   float offset = floor( ( ( isCompHigher ^^ reverse ) ? comp : -comp ) * width + 0.5 );

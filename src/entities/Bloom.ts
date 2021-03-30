@@ -40,7 +40,7 @@ export class Bloom extends Entity {
     this.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'Glitch/blitDry',
+      name: 'Bloom/blitDry',
     } ) );
 
     // -- down -------------------------------------------------------------------------------------

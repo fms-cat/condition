@@ -3,9 +3,8 @@ import { Bloom } from './entities/Bloom';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
 import { Component } from './heck/components/Component';
-import { Condition } from './entities/Condition';
-import { Cube } from './entities/Cube';
 import { CubemapCameraEntity } from './entities/CubemapCameraEntity';
+import { DVi } from './entities/DVi';
 import { DeferredCamera } from './entities/DeferredCamera';
 import { Dog } from './heck/Dog';
 import { Entity } from './heck/Entity';
@@ -15,20 +14,17 @@ import { FlickyParticles } from './entities/FlickyParticles';
 import { ForwardCamera } from './entities/ForwardCamera';
 import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
-import { IFSPistons } from './entities/IFSPistons';
 import { Lambda } from './heck/components/Lambda';
-import { LightsFirst } from './entities/LightsFirst';
-import { LightsPink } from './entities/LightsPink';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
-import { Rings } from './entities/Rings';
+import { SceneBegin } from './entities/SceneBegin';
+import { SceneCrystals } from './entities/SceneCrystals';
+import { SceneNeuro } from './entities/SceneNeuro';
 import { Serial } from './entities/Serial';
 import { SphereParticles } from './entities/SphereParticles';
-import { SufferTexts } from './entities/SufferTexts';
 import { Swap, Vector3 } from '@fms-cat/experimental';
 import { Trails } from './entities/Trails';
-import { Wobbleball } from './entities/Wobbleball';
 import { arraySetDelete } from './utils/arraySetDelete';
 import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
@@ -109,13 +105,6 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerCondition = new EntityReplacer( deferredRoot, () => new Condition(), 'Condition' );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Condition', () => {
-    replacerCondition.replace();
-  } );
-}
-
 const replacerFlashyTerrain = new EntityReplacer(
   deferredRoot,
   () => new FlashyTerrain(),
@@ -134,48 +123,35 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerRings = new EntityReplacer( deferredRoot, () => new Rings(), 'Rings' );
+const replacerSceneBegin = new EntityReplacer( deferredRoot, () => new SceneBegin(), 'SceneBegin' );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Rings', () => {
-    replacerRings.replace();
+  module.hot.accept( './entities/SceneBegin', () => {
+    replacerSceneBegin.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
+    replacerSceneBegin.replace();
+    lights.push( ...replacerSceneBegin.current.lights );
   } );
 }
 
-const replacerCube = new EntityReplacer( deferredRoot, () => new Cube(), 'Cube' );
+const replacerSceneNeuro = new EntityReplacer( deferredRoot, () => new SceneNeuro(), 'SceneNeuro' );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Cube', () => {
-    replacerCube.replace();
+  module.hot.accept( './entities/SceneNeuro', () => {
+    replacerSceneNeuro.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
+    replacerSceneNeuro.replace();
+    lights.push( ...replacerSceneNeuro.current.lights );
+    replacerSceneNeuro.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
   } );
 }
 
-const replacerWobbleball = new EntityReplacer( deferredRoot, () => new Wobbleball(), 'Wobbleball' );
+const replacerSceneCrystals = new EntityReplacer( deferredRoot, () => new SceneCrystals(), 'SceneCrystals' );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Wobbleball', () => {
-    replacerWobbleball.replace();
-  } );
-}
-
-const replacerIFSPistons = new EntityReplacer( deferredRoot, () => new IFSPistons(), 'IFSPistons' );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/IFSPistons', () => {
-    replacerIFSPistons.replace();
+  module.hot.accept( './entities/SceneCrystals', () => {
+    replacerSceneCrystals.replace();
   } );
 }
 
 // -- forward stuff --------------------------------------------------------------------------------
 const forwardRoot = new Entity();
 dog.root.children.push( forwardRoot );
-
-const replacerSufferTexts = new EntityReplacer(
-  forwardRoot,
-  () => new SufferTexts(),
-  'SufferTexts',
-);
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/SufferTexts', () => {
-    replacerSufferTexts.replace();
-  } );
-}
 
 const replacerFlickyParticles = new EntityReplacer(
   forwardRoot,
@@ -205,23 +181,9 @@ const swap = new Swap(
   } ),
 );
 
-const replacerLightsFirst = new EntityReplacer(
-  dog.root,
-  () => new LightsFirst( { scenes: [ dog.root ] } ),
-  'LightsFirst',
-);
-
-const replacerLightsPink = new EntityReplacer(
-  dog.root,
-  () => new LightsPink( {
-    scenes: [ dog.root ],
-  } ),
-  'LightsPink',
-);
-
 const lights = [
-  ...replacerLightsFirst.current.lights,
-  ...replacerLightsPink.current.lights,
+  ...replacerSceneBegin.current.lights,
+  ...replacerSceneNeuro.current.lights,
 ];
 
 // const light2 = new LightEntity( {
@@ -255,7 +217,7 @@ const deferredCamera = new DeferredCamera( {
   textureEnv: environmentMap.texture,
 } );
 dog.root.children.push( deferredCamera );
-replacerLightsPink.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
+replacerSceneNeuro.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
 
 const forwardCamera = new ForwardCamera( {
   scenes: [ dog.root ],
@@ -314,6 +276,10 @@ dog.root.components.push( new Lambda( {
           ] ).scale( shake )
         );
       }
+
+      auto( 'Camera/fov', ( { value } ) => {
+        camera.camera.fov = 90.0 * value;
+      } );
     } );
   },
   name: process.env.DEV && 'main/updateCamera',
@@ -354,6 +320,13 @@ const serial = new Serial( {
   target: swap.o,
 } );
 dog.root.children.push( serial );
+
+swap.swap();
+const dvi = new DVi( {
+  input: swap.i,
+  target: swap.o,
+} );
+dog.root.children.push( dvi );
 
 swap.swap();
 const post = new Post( {

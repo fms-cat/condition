@@ -41,6 +41,12 @@ vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
 }
 
+// https://www.iquilezles.org/www/articles/smin/smin.htm
+float smin( float a, float b, float k ) {
+  float h = max( k - abs( a - b ), 0.0 ) / k;
+  return min( a, b ) - h * h * h * k * ( 1.0 / 6.0 );
+}
+
 mat2 rot2d( float t ) {
   float c = cos( t );
   float s = sin( t );
@@ -54,7 +60,7 @@ vec3 ifs( vec3 p, vec3 r, vec3 t ) {
   vec3 s = t;
   mat3 bas = orthBasis( r );
 
-  for ( int i = 0; i < 6; i ++ ) {
+  for ( int i = 0; i < 5; i ++ ) {
     p = abs( p ) - abs( s ) * pow( 1.8, -float( i ) );
 
     s = bas * s;
@@ -82,8 +88,8 @@ vec4 map( vec3 p ) {
     pt.y += 10.0;
 
     vec3 r = mix(
-      fs( vec3( 4.7, 2.2, 8.3 ) + floor( ifsSeed ) ),
-      fs( vec3( 4.7, 2.2, 8.3 ) + floor( ifsSeed + 1.0 ) ),
+      fs( vec3( 4.7, 3.2, 4.3 ) + floor( ifsSeed ) ),
+      fs( vec3( 4.7, 3.2, 4.3 ) + floor( ifsSeed + 1.0 ) ),
       fract( ifsSeed )
     );
     vec3 t = 0.1 * vec3( 4.2, 3.5, 2.2 );
@@ -91,19 +97,21 @@ vec4 map( vec3 p ) {
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
-    isect = vec4( max( box( pt, vec3( 0.04 ) ), clampbox ), 2, 0, 0 );
+    float d = max( box( pt, vec3( 0.05 ) ), clampbox );
+
+    isect = vec4( d, 2, 0, 0 );
   }
 
   {
     vec3 pt = p;
 
-    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) - 0.1 );
+    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) - 0.02 );
 
     pt.y += 10.0;
 
     vec3 r = mix(
-      fs( vec3( 5.3, 1.1, 2.9 ) + floor( ifsSeed ) ),
-      fs( vec3( 5.3, 1.1, 2.9 ) + floor( ifsSeed + 1.0 ) ),
+      fs( vec3( 5.3, 1.9, 3.9 ) + floor( ifsSeed ) ),
+      fs( vec3( 5.3, 1.9, 3.9 ) + floor( ifsSeed + 1.0 ) ),
       fract( ifsSeed )
     );
     vec3 t = 0.2 * vec3( 3.0, 2.3, 3.5 );
@@ -111,7 +119,11 @@ vec4 map( vec3 p ) {
 
     pt = mod( pt - 0.1, 0.2 ) - 0.1;
 
-    vec4 isectb = vec4( clampbox, 2, 0, 0 );
+    float d = max( box( pt, vec3( 0.07 ) ), clampbox );
+
+    float gorge = step( 0.0, 0.005 - abs( pt.x ) );
+
+    vec4 isectb = vec4( d, 1.0 + 2.0 * gorge, 0, 0 );
     isect = isectb.x < isect.x ? isectb : isect;
   }
 
@@ -120,7 +132,7 @@ vec4 map( vec3 p ) {
 
     float d = box( pt - vec3( 1.0, 0.0, 1.0 ), vec3( 0.02, 9.9, 0.02 ) );
 
-    vec4 isectb = vec4( d, 3, 0, 0 );
+    vec4 isectb = vec4( d, 4, 0, 0 );
     isect = isectb.x < isect.x ? isectb : isect;
   }
 
@@ -170,21 +182,34 @@ void main() {
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
 
-    if ( isect.y == 2.0 ) {
+    if ( isect.y < 2.5 ) {
       vec3 noise = cyclicNoise( 3.0 * rayPos );
       vec3 noiseDetail = cyclicNoise( vec3( 38.0, 1.0, 1.0 ) * ( orthBasis( vec3( 1 ) ) * rayPos ) );
-      float roughness = (
-        0.6 +
-        0.1 * noise.x +
-        0.2 * smoothstep( -0.2, 0.4, noise.y ) * ( 0.8 + 0.2 * sin( 17.0 * noiseDetail.x ) )
-      );
 
-      fragColor = vec4( vec3( 0.4 ), 1.0 );
-      fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), 2 );
-    } else if ( isect.y == 1.0 ) {
-      fragColor = vec4( vec3( 1.0 ), 1.0 );
-      fragWTF = vec4( vec3( 0.3, 0.1, 0.0 ), 2 );
+      if ( isect.y == 1.0 ) {
+        float roughness = (
+          0.6 +
+          0.1 * noise.x +
+          0.2 * smoothstep( -0.2, 0.4, noise.y ) * ( 0.8 + 0.2 * sin( 17.0 * noiseDetail.x ) )
+        );
+
+        fragColor = vec4( vec3( 0.04 ), 1.0 );
+        fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), 2 );
+      } else {
+        float roughness = (
+          0.2 +
+          0.2 * ( 0.5 + 0.5 * sin( 17.0 * noiseDetail.x ) )
+        );
+
+        fragColor = vec4( vec3( 0.3 ), 1.0 );
+        fragWTF = vec4( vec3( roughness, 0.1, 0.0 ), 2 );
+      }
     } else if ( isect.y == 3.0 ) {
+      float amp = 20.0 * exp( -5.0 * fract( abs( rayPos.x ) - rayPos.y + abs( rayPos.z ) + time ) );
+
+      fragColor = vec4( 0.2 * vec3( 1.0, 0.002, 0.03 ), 1.0 );
+      fragWTF = vec4( vec3( 0.1, 0.1, amp ), 2 );
+    } else if ( isect.y == 4.0 ) {
       fragColor = vec4( 0.2 * vec3( 1.0, 0.002, 0.03 ), 1.0 );
       fragWTF = vec4( vec3( 0.1, 0.1, 20.0 ), 2 );
     }

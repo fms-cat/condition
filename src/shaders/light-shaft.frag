@@ -16,6 +16,7 @@ in vec4 vPosition;
 out vec4 fragColor;
 
 uniform float time;
+uniform float intensity;
 uniform vec2 lightNearFar;
 uniform vec2 resolution;
 uniform vec2 cameraNearFar;
@@ -107,5 +108,5 @@ void main() {
     if ( rayLen > cameraNearFar.y ) { break; }
   }
 
-  fragColor = vec4( 0.01 * lightColor * accum, 1.0 );
+  fragColor = vec4( intensity * lightColor * accum, 1.0 );
 }

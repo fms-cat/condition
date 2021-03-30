@@ -5,6 +5,7 @@ precision highp float;
 const int MTL_NONE = 0;
 const int MTL_UNLIT = 1;
 const int MTL_PBR = 2;
+const int MTL_REFRACT = 3;
 const float ENV_UV_MARGIN = 0.9375;
 const float AO_BIAS = 0.0;
 const float AO_RADIUS = 0.5;
@@ -192,7 +193,6 @@ vec3 shadePBR( Isect isect ) {
     );
 
     shadow *= castShadow( iLight, lightP * 0.5 + 0.5, isect, NdotL );
-    shadow = mix( 0.0, 1.0, shadow );
 
     // do shading
     vec3 diffuse = brdfLambert( f0, albedo, VdotH );
@@ -268,6 +268,18 @@ void main() {
   } else if ( isect.materialId == MTL_PBR ) {
     color = shadePBR( isect );
 
+  } else if ( isect.materialId == MTL_REFRACT ) {
+    color = shadePBR( isect );
+
+    // really really cheap full spectrum
+    vec3 refrEnvRefractive = refract( V, isect.normal, 1.0 / 2.56 );
+    vec2 uvEnvRefractive = vec2(
+      0.5 + atan( refrEnvRefractive.x, -refrEnvRefractive.z ) / TAU,
+      0.5 + atan( refrEnvRefractive.y, length( refrEnvRefractive.zx ) ) / PI
+    );
+    vec3 texEnvRefractive = sampleEnvLinear( uvEnvRefractive, 0.1 ).rgb;
+
+    color += isect.color * texEnvRefractive;
 
   }
 

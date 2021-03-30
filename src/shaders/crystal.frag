@@ -7,12 +7,12 @@ precision highp float;
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 
 const int MARCH_ITER = 90;
-const int MTL_UNLIT = 1;
-const int MTL_PBR = 2;
-const int MTL_GRADIENT = 3;
-const int MTL_IRIDESCENT = 4;
 const float PI = 3.14159265;
 const float TAU = PI * 2.0;
+const float foldcos = cos( PI / 5.0 );
+const float foldrem = sqrt( 0.75 - foldcos * foldcos );
+const vec3 foldvec = vec3( -0.5, -foldcos, foldrem );
+const vec3 foldface = vec3( 0.0, foldrem, foldcos );
 
 #ifdef DEFERRED
   layout (location = 0) out vec4 fragPosition;
@@ -31,7 +31,9 @@ uniform float deformAmp;
 uniform float deformFreq;
 uniform float deformTime;
 uniform float time;
+uniform float noiseOffset;
 uniform vec2 resolution;
+uniform vec2 size;
 uniform vec2 cameraNearFar;
 uniform vec3 cameraPos;
 uniform mat4 normalMatrix;
@@ -59,45 +61,22 @@ mat2 rot2d( float t ) {
   return mat2( c, -s, s, c );
 }
 
-#pragma glslify: noise = require( ./-simplex4d );
+#pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
 
-float box( vec3 p, vec3 s ) {
-  vec3 d = abs( p ) - s;
-  return min( 0.0, max( d.x, max( d.y, d.z ) ) ) + length( max( vec3( 0.0 ), d ) );
+vec3 fold( vec3 p ) {
+  for ( int i = 0; i < 5; i ++ ) {
+    p.xy = abs( p.xy );
+    p -= 2.0 * min( dot( foldvec, p ), 0.0 ) * foldvec;
+  }
+  return p;
 }
 
 float distFunc( vec3 p ) {
-  // if ( length( p ) > 2.0 ) { return length( p ) - 1.8; }
-
-  float distSlasher;
-  {
-    vec3 pt = p;
-
-    pt.xy = rot2d( 0.5 ) * pt.xy;
-    pt.yz = rot2d( 0.5 ) * pt.yz;
-
-    pt.y = mod( pt.y - 0.02, 0.04 ) - 0.02;
-    distSlasher = box( pt, vec3( 1E1, 0.015, 1E1 ) );
-  }
-
-  float distMetaball;
-  {
-    distMetaball = length( p ) - 0.4;
-    for ( int i = 0; i < 3; i ++ ) {
-      float fi = float( i );
-      vec3 offset = fs( fi * vec3( 2.8, 4.55, 3.12 ) );
-      vec3 freq = 1.0 + 3.0 * fs( fi * vec3( 4.14, 2.15, 0.18 ) );
-      vec3 trans = 0.5 * sin( 6.0 * offset + time * freq );
-      distMetaball = smin( distMetaball, length( p - trans ) - 0.4, 1.0 );
-      distMetaball = smin( distMetaball, length( p + trans ) - 0.4, 1.0 );
-    }
-  }
-
-  distMetaball += 0.5 * deformAmp / deformFreq * noise(
-    vec4( deformFreq * p.xyz, 4.0 * deformFreq * deformTime )
-  );
-
-  return max( distSlasher, distMetaball );
+  p.zx = rot2d( 0.5 * time ) * p.zx;
+  p -= size.xyx * vec3( 0.01, 0.2, 0.01 ) * cyclicNoise( vec3( 1.0, 0.04, 1.0 ) / size.xyx * p + noiseOffset );
+  p.y -= min( 0.8 * size.y - size.x, abs( p.y ) ) * sign( p.y );
+  p = fold( p );
+  return dot( p, foldface ) - size.x;
 }
 
 vec3 normalFunc( vec3 p, float dd ) {
@@ -142,8 +121,8 @@ void main() {
   #ifdef DEFERRED
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
-    fragColor = vec4( vec3( 0.3 ), 1.0 );
-    fragWTF = vec4( vec3( 1.0, 0.1, 0.0 ), MTL_PBR );
+    fragColor = vec4( vec3( 0.5, 0.52, 1.0 ), 1.0 );
+    fragWTF = vec4( vec3( 0.02, 1.0, 0.0 ), 3 );
   #endif
 
   #ifdef SHADOW

@@ -14,13 +14,14 @@ import lightShaftVert from '../shaders/light-shaft.vert';
 
 interface LightShaftOptions {
   light: LightEntity;
+  intensity?: number;
   namePrefix?: string;
 }
 
 export class LightShaft extends Entity {
   private __forward: Material;
 
-  public constructor( { light, namePrefix }: LightShaftOptions ) {
+  public constructor( { light, intensity, namePrefix }: LightShaftOptions ) {
     super();
 
     // -- geometry ---------------------------------------------------------------------------------
@@ -44,6 +45,8 @@ export class LightShaft extends Entity {
         blend: [ gl.ONE, gl.ONE ],
       },
     );
+
+    forward.addUniform( 'intensity', '1f', intensity ?? 0.01 );
 
     forward.addUniformTexture( 'samplerRandom', randomTexture.texture );
     forward.addUniformTexture( 'samplerShadow', light.shadowMap.texture );

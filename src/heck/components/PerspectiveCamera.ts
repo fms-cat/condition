@@ -16,9 +16,32 @@ export interface PerspectiveCameraOptions extends ComponentOptions {
 }
 
 export class PerspectiveCamera extends Camera {
-  public readonly fov: number;
-  public readonly near: number;
-  public readonly far: number;
+  public get fov(): number {
+    return this.__fov;
+  }
+  public set fov( value: number ) {
+    this.__fov = value;
+    this.__updatePerspectiveCamera();
+  }
+  private __fov: number;
+
+  public get near(): number {
+    return this.__near;
+  }
+  public set near( value: number ) {
+    this.__near = value;
+    this.__updatePerspectiveCamera();
+  }
+  private __near: number;
+
+  public get far(): number {
+    return this.__far;
+  }
+  public set far( value: number ) {
+    this.__far = value;
+    this.__updatePerspectiveCamera();
+  }
+  private __far: number;
 
   public constructor( options: PerspectiveCameraOptions ) {
     const fov = options.fov ?? 45.0;
@@ -35,8 +58,12 @@ export class PerspectiveCamera extends Camera {
       clear: options.clear,
     } );
 
-    this.fov = fov;
-    this.near = near;
-    this.far = far;
+    this.__fov = fov;
+    this.__near = near;
+    this.__far = far;
+  }
+
+  protected __updatePerspectiveCamera(): void {
+    this.projectionMatrix = Matrix4.perspective( this.fov, this.near, this.far );
   }
 }

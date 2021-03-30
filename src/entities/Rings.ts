@@ -1,9 +1,7 @@
 import { Entity } from '../heck/Entity';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
-import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
-import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { genTorus } from '../geometries/genTorus';
 import { glCat } from '../globals/canvas';
@@ -16,15 +14,6 @@ const PRIMCOUNT = 32;
 export class Rings extends Entity {
   public constructor() {
     super();
-
-    const rot0 = Quaternion.fromAxisAngle(
-      new Vector3( [ 1.0, 0.0, 0.0 ] ),
-      0.4,
-    ).multiply( Quaternion.fromAxisAngle(
-      new Vector3( [ 0.0, 0.0, 1.0 ] ),
-      0.4,
-    ) );
-    this.transform.rotation = rot0;
 
     // -- geometry ---------------------------------------------------------------------------------
     const torus = genTorus( { segmentsRadial: 256 } );
@@ -47,7 +36,7 @@ export class Rings extends Entity {
     geometry.primcount = PRIMCOUNT;
 
     // -- materials --------------------------------------------------------------------------------
-    const forward = new Material(
+    const cubemap = new Material(
       ringsVert,
       ringsFrag,
       {
@@ -72,7 +61,7 @@ export class Rings extends Entity {
     );
 
     const materials = {
-      forward,
+      cubemap,
       deferred,
       depth,
     };
@@ -85,7 +74,7 @@ export class Rings extends Entity {
             '../shaders/rings.frag',
           ],
           () => {
-            forward.replaceShader( ringsVert, ringsFrag );
+            cubemap.replaceShader( ringsVert, ringsFrag );
             deferred.replaceShader( ringsVert, ringsFrag );
             depth.replaceShader( ringsVert, depthFrag );
           },
@@ -100,18 +89,5 @@ export class Rings extends Entity {
       name: process.env.DEV && 'Rings/mesh',
     } );
     this.components.push( mesh );
-
-    this.components.push( new Lambda( {
-      onUpdate: ( { time } ) => {
-        this.transform.rotation = rot0.multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 1.0, 0.0, 0.0 ] ), 1.0 )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
-        );
-      },
-      name: process.env.DEV && 'Rings/speen',
-    } ) );
   }
 }

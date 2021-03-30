@@ -110,7 +110,7 @@ vec2 deepkick( float t ) {
 
   vec2 tt = t + mix( 0.0, 0.007, smoothstep( 0.0, 0.1, t ) ) * wavetable( 0.1 * t, vec2( 2.0 ), vec2( -0.1 ) );
   vec2 phase = 50.0 * tt - 3.0 * exp( -100.0 * tt ) - 5.4 * exp( -30.0 * tt );
-  return exp( -1.0 * tt ) * sin( TAU * phase );
+  return exp( -0.4 * tt ) * sin( TAU * phase );
 }
 
 vec2 longclap( float t, float tg ) {
@@ -612,7 +612,7 @@ vec2 mainAudio( vec4 time ) {
     t += 1.0 * inRangeInteg( time.z, 28.0 * BEAT, 31.75 * BEAT, 50.0 );
     float freq = n2f( chordsB[ progB ] ) * 0.125;
     float fadetime = max( 0.0, time.w - SECTION_AAAA + 8.0 * BEAT );
-    dest += 0.12 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
+    dest += 0.11 * exp( -1.0 * fadetime ) * mix( 0.1, 1.0, sidechain ) * superbass( t, freq, exp( -2.0 * fadetime ) );
   }
 
   // -- choir --------------------------------------------------------------------------------------
@@ -687,12 +687,12 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.1 * mix( 0.2, 1.0, sidechain ) * phase;
     }
 
-    dest += 0.12 * aSaturate( sum );
+    dest += 0.14 * aSaturate( sum );
   }
 
   // -- deepkick -----------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_BEGIN, SECTION_BEGIN + 16.0 * BEAT ) ) {
-    dest += 0.3 * deepkick( mod( time.z, 16.0 * BEAT ) );
+  if ( inRange( time.w, SECTION_BEGIN, SECTION_BEGIN + 64.0 * BEAT ) ) {
+    dest += 0.3 * deepkick( time.z );
   }
 
   if ( inRange( time.w, SECTION_AAAA - 8.0 * BEAT, SECTION_AAAA ) ) {

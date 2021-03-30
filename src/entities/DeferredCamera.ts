@@ -15,6 +15,7 @@ import { randomTexture } from '../globals/randomTexture';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
+import { auto } from '../globals/automaton';
 
 export interface DeferredCameraOptions {
   scenes: Entity[];
@@ -26,10 +27,12 @@ export interface DeferredCameraOptions {
 
 export class DeferredCamera extends Entity {
   public cameraTarget: BufferRenderTarget;
+  public camera: PerspectiveCamera;
 
   public constructor( options: DeferredCameraOptions ) {
     super();
 
+    // -- camera -----------------------------------------------------------------------------------
     this.cameraTarget = new BufferRenderTarget( {
       width: options.target.width,
       height: options.target.height,
@@ -38,7 +41,7 @@ export class DeferredCamera extends Entity {
       filter: gl.NEAREST,
     } );
 
-    const camera = new PerspectiveCamera( {
+    this.camera = new PerspectiveCamera( {
       scenes: options.scenes,
       renderTarget: this.cameraTarget,
       near: 0.1,
@@ -46,8 +49,9 @@ export class DeferredCamera extends Entity {
       name: 'DeferredCamera/camera',
       materialTag: 'deferred',
     } );
-    camera.clear = [];
+    this.camera.clear = [];
 
+    // -- ao ---------------------------------------------------------------------------------------
     const aoTarget = new BufferRenderTarget( {
       width: AO_RESOLUTION_RATIO * options.target.width,
       height: AO_RESOLUTION_RATIO * options.target.height,
@@ -67,7 +71,7 @@ export class DeferredCamera extends Entity {
         aoMaterial.addUniformMatrixVector(
           'cameraPV',
           'Matrix4fv',
-          camera.projectionMatrix.multiply(
+          this.camera.projectionMatrix.multiply(
             cameraView
           ).elements
         );
@@ -90,6 +94,7 @@ export class DeferredCamera extends Entity {
       name: process.env.DEV && 'DeferredCamera/ao/quad',
     } );
 
+    // -- deferred ---------------------------------------------------------------------------------
     const shadingMaterial = new Material(
       quadVert,
       shadingFrag,
@@ -128,7 +133,7 @@ export class DeferredCamera extends Entity {
         shadingMaterial.addUniformMatrixVector(
           'cameraPV',
           'Matrix4fv',
-          camera.projectionMatrix.multiply(
+          this.camera.projectionMatrix.multiply(
             cameraView
           ).elements
         );
@@ -136,8 +141,8 @@ export class DeferredCamera extends Entity {
         shadingMaterial.addUniform(
           'cameraNearFar',
           '2f',
-          camera.near,
-          camera.far
+          this.camera.near,
+          this.camera.far
         );
 
         shadingMaterial.addUniform(
@@ -201,7 +206,7 @@ export class DeferredCamera extends Entity {
     shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
 
     this.components.push(
-      camera,
+      this.camera,
       lambdaAoSetCameraUniforms,
       aoQuad,
       lambda,

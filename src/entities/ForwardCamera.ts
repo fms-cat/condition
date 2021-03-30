@@ -10,10 +10,12 @@ export interface ForwardCameraOptions {
 }
 
 export class ForwardCamera extends Entity {
+  public camera: PerspectiveCamera;
+
   public constructor( options: ForwardCameraOptions ) {
     super();
 
-    const camera = new PerspectiveCamera( {
+    this.camera = new PerspectiveCamera( {
       scenes: options.scenes,
       renderTarget: options.target,
       near: 0.1,
@@ -21,8 +23,8 @@ export class ForwardCamera extends Entity {
       name: 'ForwardCamera/camera',
       materialTag: 'forward',
     } );
-    camera.clear = false;
+    this.camera.clear = false;
 
-    this.components.push( camera );
+    this.components.push( this.camera );
   }
 }

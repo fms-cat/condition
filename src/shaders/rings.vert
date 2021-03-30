@@ -37,7 +37,7 @@ void main() {
   vNormal = normalize( ( normalMatrix * vec4( normal, 1.0 ) ).xyz );
 
   vPosition = vec4( mix( 2.0, 2.7, random() ) * position, 1.0 );
-  vPosition.xyz += mix( 0.002, 0.005, random() ) * normal;
+  vPosition.xyz += mix( 0.005, 0.01, random() ) * normal;
   vPosition.y += sin( random() * time + random() * vPosition.x + TAU * random() ) * 0.2 * random();
   vPosition.y += sin( random() * time + random() * vPosition.z + TAU * random() ) * 0.2 * random();
   vPosition.xy = rotate2D( 0.2 * ( random() - 0.5 ) ) * vPosition.xy;

@@ -1,31 +1,32 @@
+import { BoundingBox } from './BoundingBox';
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { Entity } from '../heck/Entity';
+import { IFSPistons } from './IFSPistons';
 import { LightEntity } from './LightEntity';
 import { LightShaft } from './LightShaft';
-import { Vector3 } from '@fms-cat/experimental';
+import { Quaternion, Vector3 } from '@fms-cat/experimental';
+import { SufferTexts } from './SufferTexts';
+import { Wobbleball } from './Wobbleball';
 
-interface LightsPinkOptions {
-  scenes: Entity[];
-}
-
-export class LightsPink extends Entity {
+export class SceneNeuro extends Entity {
   public readonly lights: LightEntity[];
   private readonly __shafts: LightShaft[];
 
-  public constructor( { scenes }: LightsPinkOptions ) {
+  public constructor() {
     super();
 
+    // -- lights -----------------------------------------------------------------------------------
     type TypeScriptSucks = [ [ number, number, number ], [ number, number, number ], boolean ][];
 
     this.__shafts = [];
 
     this.lights = ( [
-      [ [ 6000.0, 40.0, 200.0 ], [ 8.0, 4.0, -8.0 ], true ],
-      [ [ 6000.0, 40.0, 200.0 ], [ -8.0, 4.0, -8.0 ], true ],
-      [ [ 10.0, 14.0, 20.0 ], [ 0.0, -4.0, 4.0 ], false ],
+      [ [ 2000.0, 20.0, 100.0 ], [ 8.0, 4.0, -8.0 ], true ],
+      [ [ 2000.0, 20.0, 100.0 ], [ -8.0, 4.0, -8.0 ], true ],
+      [ [ 50.0, 50.0, 50.0 ], [ 0.0, -4.0, 4.0 ], false ],
     ] as TypeScriptSucks ).map( ( [ color, pos, isSpot ], i ) => {
       const light = new LightEntity( {
-        scenes,
+        scenes: [ this ],
         shadowMapFov: isSpot ? 15.0 : 50.0,
         shadowMapNear: 0.5,
         shadowMapFar: 20.0,
@@ -34,10 +35,8 @@ export class LightsPink extends Entity {
       } );
 
       light.color = color;
-      light.spotness = isSpot ? 0.9 : 0.0;
+      light.spotness = isSpot ? 0.99 : 0.0;
       light.transform.lookAt( new Vector3( pos ) );
-
-      this.children.push( light );
 
       if ( isSpot ) {
         const shaft = new LightShaft( {
@@ -51,6 +50,23 @@ export class LightsPink extends Entity {
 
       return light;
     } );
+
+    // -- bounding box -----------------------------------------------------------------------------
+    const boundingBox = new BoundingBox();
+    boundingBox.transform.rotation = Quaternion.fromAxisAngle(
+      new Vector3( [ 0.0, 0.0, 1.0 ] ),
+      0.25 * Math.PI,
+    );
+    boundingBox.transform.scale = new Vector3( [ 1.2, 1.2, 1.2 ] );
+
+    // -- scene ------------------------------------------------------------------------------------
+    this.children.push(
+      new Wobbleball(),
+      new IFSPistons(),
+      boundingBox,
+      new SufferTexts(),
+      ...this.lights,
+    );
   }
 
   public setDefferedCameraTarget( deferredCameraTarget: BufferRenderTarget ): void {

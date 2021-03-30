@@ -20,6 +20,8 @@ export interface GPUParticlesOptions {
 }
 
 export class GPUParticles extends Entity {
+  public meshRender: Mesh;
+
   public constructor( {
     materialCompute,
     geometryRender,
@@ -59,7 +61,7 @@ export class GPUParticles extends Entity {
     } );
 
     // -- render -----------------------------------------------------------------------------------
-    const meshRender = new Mesh( {
+    this.meshRender = new Mesh( {
       geometry: geometryRender,
       materials: materialsRender,
       name: process.env.DEV && `${ namePrefix }/meshRender`,
@@ -101,7 +103,9 @@ export class GPUParticles extends Entity {
     } ) );
 
     // -- rest of components -----------------------------------------------------------------------
-    this.components.push( quadCompute );
-    this.components.push( meshRender );
+    this.components.push(
+      quadCompute,
+      this.meshRender,
+    );
   }
 }

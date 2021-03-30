@@ -2,6 +2,7 @@ import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
+import { MeshCull } from '../heck/components/Mesh';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
@@ -118,6 +119,7 @@ export class FlickyParticles extends Entity {
       computeNumBuffers: 1,
       namePrefix: process.env.DEV && 'FlickyParticles',
     } );
+    gpuParticles.meshRender.cull = MeshCull.None;
     this.children.push( gpuParticles );
   }
 }

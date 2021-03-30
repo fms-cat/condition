@@ -24,14 +24,6 @@ uniform sampler2D samplerRandom;
 
 #pragma glslify: prng = require( ./-prng );
 
-vec3 colorMap( vec3 i ) {
-  return vec3(
-    smoothstep( 0.0, 1.0, i.r ),
-    i.g,
-    0.1 + 0.8 * i.b
-  );
-}
-
 vec3 barrel( float amp, vec2 uv ) {
   float corn = length( vec2( 0.5 ) );
   float a = min( 3.0 * sqrt( amp ), corn * PI );
