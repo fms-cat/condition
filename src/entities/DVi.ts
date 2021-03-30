@@ -56,10 +56,16 @@ export class DVi extends Entity {
       quadDVi,
     );
 
-    // -- bypass auto ------------------------------------------------------------------------------
-    auto( 'DVi/active', ( { uninit } ) => {
-      quadDVi.active = !uninit;
+    // -- auto -------------------------------------------------------------------------------------
+    auto( 'DVi/amp', ( { value } ) => {
+      material.addUniform( 'amp', '1f', value );
+
+      quadDVi.active = value > 0.0;
       blitBypass.active = !quadDVi.active;
+    } );
+
+    auto( 'DVi/offset', ( { value } ) => {
+      material.addUniform( 'offset', '1f', value );
     } );
   }
 }

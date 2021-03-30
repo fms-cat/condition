@@ -14,6 +14,8 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform float time;
+uniform float amp;
+uniform float offset;
 uniform vec2 resolution;
 uniform sampler2D sampler0;
 
@@ -57,7 +59,7 @@ float dCirc( vec2 p ) {
 
 float dOverlay( vec2 p ) {
   float d = 1E9;
-  float t = time;
+  float t = time + offset;
 
   // center bar
   d = min( d, sdbox( p, vec2( 0.12, 0.002 ) ) );
@@ -79,20 +81,20 @@ float dOverlay( vec2 p ) {
   }
 
   d = min( d, dRadial( p, 0.1 * t, PI / 8.0, PI / 19.0, 0.76, 0.002, 0.0 ) );
-  d = min( d, dRadial( p, -0.1 * t, PI / 8.0, PI / 9.0, 0.78, 0.01, 0.0 ) );
-  d = min( d, dRadial( p, 0.04 * t, PI / 48.0, 0.002, 0.815, 0.008, 0.0 ) );
-  d = min( d, dRadial( p, 0.04 * t, PI / 192.0, 0.002, 0.815, 0.002, 0.0 ) );
+  d = min( d, dRadial( p, -0.1 * t, PI / 8.0, PI / 9.0, 0.79, 0.01, 0.0 ) );
+  d = min( d, dRadial( p, 0.04 * t, PI / 48.0, 0.002, 0.82, 0.008, 0.0 ) );
+  d = min( d, dRadial( p, 0.04 * t, PI / 192.0, 0.002, 0.82, 0.002, 0.0 ) );
 
   {
     float d2 = 1E9;
-    d2 = smin( d2, dRadial( p, 0.1 * t, PI / 1.5, PI / 8.0, 0.86, 0.0, 0.02 ), 0.05 );
-    d2 = smin( d2, dRadial( p, 0.1 * t + PI / 4.0, PI / 1.5, PI, 0.88, 0.0, 0.02 ), 0.05 );
+    d2 = smin( d2, dRadial( p, 0.1 * t, PI / 1.5, PI / 8.0, 0.87, 0.0, 0.02 ), 0.05 );
+    d2 = smin( d2, dRadial( p, 0.1 * t + PI / 4.0, PI / 1.5, PI, 0.89, 0.0, 0.02 ), 0.05 );
     d = min( d2, d );
   }
 
-  d = min( d, dRadial( p, 0.2 * t, PI / 2.0, PI / 4.2, 0.915, 0.002, 0.0 ) );
-  d = min( d, dRadial( p, -.1 * t, PI / 4.0, PI / 8.5, 0.94, 0.01, 0.0 ) );
-  d = min( d, dRadial( p, 0.04 * t, PI / 96.0, 0.002, 0.99, 0.03, 0.0 ) );
+  d = min( d, dRadial( p, 0.2 * t, PI / 2.0, PI / 4.2, 0.925, 0.002, 0.0 ) );
+  d = min( d, dRadial( p, -.1 * t, PI / 4.0, PI / 8.5, 0.95, 0.007, 0.0 ) );
+  d = min( d, dRadial( p, 0.04 * t, PI / 96.0, 0.002, 1.0, 0.03, 0.0 ) );
 
   return d;
 }
@@ -101,11 +103,12 @@ void main() {
   vec2 uv = vUv;
   vec2 p = ( uv * resolution * 2.0 - resolution ) / resolution.y;
 
-  vec3 col = texture( sampler0, uv ).rgb;
+  vec3 dry = texture( sampler0, uv ).rgb;
+  vec3 wet = dry;
 
   float d = dOverlay( p * 0.65 );
   float shape = linearstep( 2.0 / resolution.y, 0.0, d );
-  col = mix( col, saturate( 0.5 - 0.3 * col.gbr ), shape );
+  wet = mix( wet, saturate( 0.5 - 0.3 * wet.gbr ), shape );
 
-  fragColor = vec4( col, 1.0 );
+  fragColor = vec4( mix( dry, wet, amp ), 1.0 );
 }
