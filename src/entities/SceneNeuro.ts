@@ -23,7 +23,7 @@ export class SceneNeuro extends Entity {
     this.lights = ( [
       [ [ 2000.0, 20.0, 100.0 ], [ 8.0, 4.0, -8.0 ], true ],
       [ [ 2000.0, 20.0, 100.0 ], [ -8.0, 4.0, -8.0 ], true ],
-      [ [ 50.0, 50.0, 50.0 ], [ 0.0, -4.0, 4.0 ], false ],
+      [ [ 50.0, 50.0, 50.0 ], [ 0.0, -2.0, 4.0 ], false ],
     ] as TypeScriptSucks ).map( ( [ color, pos, isSpot ], i ) => {
       const light = new LightEntity( {
         scenes: [ this ],
@@ -42,6 +42,7 @@ export class SceneNeuro extends Entity {
         const shaft = new LightShaft( {
           light,
           namePrefix: process.env.DEV && `lightPink${ i }/Shaft`,
+          intensity: 0.06,
         } );
 
         this.__shafts.push( shaft );

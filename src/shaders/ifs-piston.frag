@@ -105,7 +105,7 @@ vec4 map( vec3 p ) {
   {
     vec3 pt = p;
 
-    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) - 0.02 );
+    float clampbox = box( pt, vec3( 1.0, 10.0, 1.0 ) - 0.03 );
 
     pt.y += 10.0;
 
@@ -130,7 +130,7 @@ vec4 map( vec3 p ) {
   {
     vec3 pt = abs( p );
 
-    float d = box( pt - vec3( 1.0, 0.0, 1.0 ), vec3( 0.02, 9.9, 0.02 ) );
+    float d = box( pt - vec3( 1.0, 0.0, 1.0 ), vec3( 0.02, 10.0, 0.02 ) );
 
     vec4 isectb = vec4( d, 4, 0, 0 );
     isect = isectb.x < isect.x ? isectb : isect;
@@ -201,7 +201,7 @@ void main() {
           0.2 * ( 0.5 + 0.5 * sin( 17.0 * noiseDetail.x ) )
         );
 
-        fragColor = vec4( vec3( 0.3 ), 1.0 );
+        fragColor = vec4( vec3( 0.1 ), 1.0 );
         fragWTF = vec4( vec3( roughness, 0.1, 0.0 ), 2 );
       }
     } else if ( isect.y == 3.0 ) {
