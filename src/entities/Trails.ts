@@ -2,7 +2,7 @@ import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
-import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers, dummyRenderTargetTwoDrawBuffers } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
@@ -23,7 +23,7 @@ export class Trails extends Entity {
     const materialCompute = new Material(
       quadVert,
       trailsComputeFrag,
-      { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
+      { initOptions: { geometry: quadGeometry, target: dummyRenderTargetTwoDrawBuffers } },
     );
 
     materialCompute.addUniform( 'trails', '1f', TRAILS );
