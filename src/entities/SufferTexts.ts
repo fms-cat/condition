@@ -9,7 +9,6 @@ import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/
 import { gl, glCat } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTextureStatic } from '../globals/randomTexture';
-import { sufferList } from '../sufferList';
 import { tinyCharTexture } from '../globals/tinyCharTexture';
 import quadVert from '../shaders/quad.vert';
 import sufferTextsComputeFrag from '../shaders/suffer-texts-compute.frag';
@@ -17,6 +16,25 @@ import sufferTextsRenderFrag from '../shaders/suffer-texts-render.frag';
 import sufferTextsRenderVert from '../shaders/suffer-texts-render.vert';
 
 const PARTICLES = 256;
+
+const sufferList = [
+  '#DEFINE DISGRACE 1',
+  'WELCOME TO THE MANGLER HELL',
+  'CTRL + ALT + DESPAIR',
+  'LIBOPUS IS CHEATING',
+  'PUBLIC GET FUCKED()',
+  '\'RETRUN\': UNDECLARED IDENTIFIER',
+  'NOTICE ME, GARBAGE COLLECTOR',
+  'WEBGL HATES YOU',
+  '#DEFINE COMPROMISE 1',
+  'WHERE IS MY SLEEPING SCHEDULE?',
+  'GL.DISABLE(GL.TIMEZONE)',
+  'SVG.GETPOINTATLENGTH IS CHEATING',
+  'COPY\'N\'PASTE ENGINEER',
+  '60FPS OR DIE',
+  '<PLACEHOLDER>',
+  'END MY SUFFER',
+];
 
 export class SufferTexts extends Entity {
   public queue: number[][];
