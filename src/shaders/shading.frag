@@ -288,9 +288,12 @@ void main() {
 
   // color = 0.5 + 0.5 * isect.normal;
   // color = vec3( calcDepth( tex0.xyz ) );
-  // color = vec3( 0.5, 0.9, 0.6 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
-  // color = vec3( 0.5, 0.9, 0.6 ) * ( texture( samplerAo, isect.screenUv ).xyz );
-  // xfdA = shadeGradient( isect );
+  // color = vec3( 0.5, 0.2, 0.9 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
+  // color = mix(
+  //   color,
+  //   vec3( 0.96 ) * smoothstep( 0.9, 0.1, texture( samplerAo, isect.screenUv ).xyz ),
+  //   1.0
+  // );
 
   fragColor = vec4( color, 1.0 );
   // fragColor.xyz *= smoothstep( 1.0, 0.7, calcDepth( tex0.xyz ) );

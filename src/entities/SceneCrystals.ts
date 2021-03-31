@@ -1,6 +1,7 @@
 import { ChaosTorus } from '../automaton-fxs/ChaosTorus';
 import { Crystal } from './Crystal';
 import { Entity } from '../heck/Entity';
+import { Greetings } from './Greetings';
 import { Lambda } from '../heck/components/Lambda';
 import { Quaternion, Vector3, Xorshift } from '@fms-cat/experimental';
 import { Rings } from './Rings';
@@ -12,10 +13,8 @@ export class SceneCrystals extends Entity {
 
     // -- crystals ---------------------------------------------------------------------------------
     const crystal = new Crystal( { width: 0.4, height: 1.5, noiseOffset: 7.0 } );
-    this.children.push( crystal );
 
     const speen = new Entity();
-    this.children.push( speen );
 
     const up = new Vector3( [ 0.0, 1.0, 0.0 ] );
     this.components.push( new Lambda( {
@@ -40,12 +39,12 @@ export class SceneCrystals extends Entity {
       new Vector3( [ 0.0, 0.0, 1.0 ] ),
       0.1,
     ) );
-    this.children.push( rings );
 
     // -- chaos torus ------------------------------------------------------------------------------
     const rng = new Xorshift( 618954 );
     const chaosToruses = [ ...Array( 6 ).keys() ].map( () => {
       const pivot = new Entity();
+      pivot.visible = false;
       pivot.transform.rotation = Quaternion.fromAxisAngle(
         new Vector3( [ 1.0, 0.0, 0.0 ] ),
         rng.gen() * 6.0,
@@ -53,7 +52,6 @@ export class SceneCrystals extends Entity {
         new Vector3( [ 0.0, 1.0, 0.0 ] ),
         rng.gen() * 6.0,
       ) );
-      this.children.push( pivot );
 
       const chaosTorus = new ChaosTorus();
       chaosTorus.transform.position = new Vector3( [ 2.5, 0.0, 0.0 ] );
@@ -65,5 +63,17 @@ export class SceneCrystals extends Entity {
     auto( 'SceneCrystals/ChaosTorus/active', ( { uninit } ) => {
       chaosToruses.map( ( entity ) => ( entity.visible = !uninit ) );
     } );
+
+    // -- greetings --------------------------------------------------------------------------------
+    const greetings = new Greetings();
+
+    // -- children ---------------------------------------------------------------------------------
+    this.children.push(
+      crystal,
+      speen,
+      rings,
+      ...chaosToruses,
+      greetings,
+    );
   }
 }

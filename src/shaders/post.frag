@@ -18,6 +18,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform float time;
+uniform float mixInvert;
 uniform vec2 resolution;
 uniform vec4 colorLift;
 uniform vec4 colorGamma;
@@ -86,6 +87,7 @@ void main() {
 
   vec3 col = tex.xyz;
   vec4 seed = texture( samplerRandom, uv );
+  col = mix( col, 1.0 - 5.0 * col, mixInvert );
   prng( seed );
   prng( seed );
   col = aces( max( 2.0 * col, 0.0 ) ) / aces( vec3( 11.2 ) );

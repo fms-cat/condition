@@ -15,7 +15,6 @@ import { randomTexture } from '../globals/randomTexture';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
-import { auto } from '../globals/automaton';
 
 export interface DeferredCameraOptions {
   scenes: Entity[];

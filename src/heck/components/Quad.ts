@@ -5,8 +5,8 @@ import { gl, glCat } from '../../globals/canvas';
 import { quadGeometry } from '../../globals/quadGeometry';
 
 export interface QuadOptions extends ComponentOptions {
-  material: Material;
-  target: RenderTarget;
+  material?: Material;
+  target?: RenderTarget;
   range?: [ number, number, number, number ];
   clear?: Array<number | undefined> | false;
 }
@@ -15,8 +15,8 @@ export interface QuadOptions extends ComponentOptions {
  * Renders a fullscreen quad.
  */
 export class Quad extends Component {
-  public material: Material;
-  public target: RenderTarget;
+  public material?: Material;
+  public target?: RenderTarget;
   public range: [ number, number, number, number ] = [ -1.0, -1.0, 1.0, 1.0 ];
   public clear: Array<number | undefined> | false = false;
 
@@ -31,11 +31,17 @@ export class Quad extends Component {
     if ( options.clear !== undefined ) { this.clear = options.clear; }
   }
 
-  protected __updateImpl( event: ComponentUpdateEvent ): void {
-    glCat.useProgram( this.material.program );
+  public drawImmediate( event?: Partial<ComponentUpdateEvent> ): void {
+    const { target, material } = this;
 
-    this.target.bind();
-    this.material.setBlendMode();
+    if ( target == null || material == null ) {
+      throw process.env.DEV && new Error( 'Quad: You must assign target and material before draw' );
+    }
+
+    glCat.useProgram( material.program );
+
+    target.bind();
+    material.setBlendMode();
 
     gl.enable( gl.DEPTH_TEST );
     gl.depthMask( true );
@@ -44,16 +50,20 @@ export class Quad extends Component {
       glCat.clear( ...this.clear );
     }
 
-    this.material.setUniforms();
+    material.setUniforms();
 
-    const program = this.material.program;
+    const program = material.program;
 
-    program.uniform( 'time', '1f', event.time );
-    program.uniform( 'deltaTime', '1f', event.deltaTime );
-    program.uniform( 'frameCount', '1f', event.frameCount );
-    program.uniform( 'resolution', '2f', this.target.width, this.target.height );
+    program.uniform( 'time', '1f', event?.time ?? 0.0 );
+    program.uniform( 'deltaTime', '1f', event?.deltaTime ?? 0.0 );
+    program.uniform( 'frameCount', '1f', event?.frameCount ?? 0 );
+    program.uniform( 'resolution', '2f', target.width, target.height );
     program.uniform( 'range', '4f', ...this.range );
 
     quadGeometry.draw();
+  }
+
+  protected __updateImpl( event: ComponentUpdateEvent ): void {
+    this.drawImmediate( event );
   }
 }

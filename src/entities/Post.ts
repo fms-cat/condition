@@ -65,5 +65,9 @@ export class Post extends Entity {
       material.addUniform( 'colorGamma', '4f', ...preset.gamma );
       material.addUniform( 'colorGain', '4f', ...preset.gain );
     } );
+
+    auto( 'Post/mixInvert', ( { value } ) => {
+      material.addUniform( 'mixInvert', '1f', value );
+    } );
   }
 }

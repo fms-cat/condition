@@ -5,7 +5,7 @@ import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
-import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTextureStatic } from '../globals/randomTexture';
@@ -86,7 +86,7 @@ export class SufferTexts extends Entity {
       sufferTextsRenderVert,
       sufferTextsRenderFrag,
       {
-        initOptions: { geometry: geometryRender, target: dummyRenderTargetFourDrawBuffers },
+        initOptions: { geometry: geometryRender, target: dummyRenderTarget },
       },
     );
 

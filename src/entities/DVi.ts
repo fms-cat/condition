@@ -4,12 +4,12 @@ import { Entity } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { Quad } from '../heck/components/Quad';
 import { RenderTarget } from '../heck/RenderTarget';
+import { auto } from '../globals/automaton';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTexture } from '../globals/randomTexture';
 import dviFrag from '../shaders/dvi.frag';
 import quadVert from '../shaders/quad.vert';
-import { auto } from '../globals/automaton';
 
 export interface DViOptions {
   input: BufferRenderTarget;
