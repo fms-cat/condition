@@ -19,6 +19,9 @@ out vec4 fragColor;
 
 uniform float time;
 uniform vec2 resolution;
+uniform vec4 colorLift;
+uniform vec4 colorGamma;
+uniform vec4 colorGain;
 uniform sampler2D sampler0;
 uniform sampler2D samplerRandom;
 
@@ -35,27 +38,14 @@ vec3 barrel( float amp, vec2 uv ) {
   return texture( sampler0, vec2( p.x, p.y ) ).xyz;
 }
 
-vec3 aces( vec3 rgb ) {
-  const float a = 2.51;
-  const float b = 0.03;
-  const float c = 2.43;
-  const float d = 0.59;
-  const float e = 0.14;
-  return saturate( ( rgb * ( a * rgb + b ) ) / ( rgb * ( c * rgb + d ) + e ) );
+vec3 aces( vec3 x ) {
+  return saturate( ( x * ( 0.45 * x + 0.02 ) ) / ( x * ( 0.45 * x + 0.07 ) + 0.2 ) );
 }
 
 vec3 liftGammaGain( vec3 rgb ) {
-  const vec4 lift = vec4( -0.07, 0.02, 0.03, 0.01 );
-  const vec4 gamma = vec4( 0.0, -0.02, 0.07, 0.02 );
-  const vec4 gain = vec4( 1.20, 0.95, 0.92, 1.0 );
+  vec4 liftt = 1.0 - pow( 1.0 - colorLift, log2( colorGain + 1.0 ) );
 
-  // const vec4 lift = vec4( 0.02, -0.01, 0.09, 0.0 );
-  // const vec4 gamma = vec4( -0.05, 0.02, -0.08, 0.0 );
-  // const vec4 gain = vec4( 1.06, 0.96, 1.10, 1.0 );
-
-  vec4 liftt = 1.0 - pow( 1.0 - lift, log2( gain + 1.0 ) );
-
-  vec4 gammat = gamma.rgba - vec4( 0.0, 0.0, 0.0, dot( LUMA, gamma.rgb ) );
+  vec4 gammat = colorGamma.rgba - vec4( 0.0, 0.0, 0.0, dot( LUMA, colorGamma.rgb ) );
   vec4 gammatTemp = 1.0 + 4.0 * abs( gammat );
   gammat = mix( gammatTemp, 1.0 / gammatTemp, step( 0.0, gammat ) );
 
@@ -63,11 +53,11 @@ vec3 liftGammaGain( vec3 rgb ) {
   float luma = dot( LUMA, col );
 
   col = pow( col, gammat.rgb );
-  col *= pow( gain.rgb, gammat.rgb );
+  col *= pow( colorGain.rgb, gammat.rgb );
   col = max( mix( 2.0 * liftt.rgb, vec3( 1.0 ), col ), 0.0 );
 
   luma = pow( luma, gammat.a );
-  luma *= pow( gain.a, gammat.a );
+  luma *= pow( colorGain.a, gammat.a );
   luma = max( mix( 2.0 * liftt.a, 1.0, luma ), 0.0 );
 
   col += luma - dot( LUMA, col );
@@ -98,8 +88,8 @@ void main() {
   vec4 seed = texture( samplerRandom, uv );
   prng( seed );
   prng( seed );
+  col = aces( max( 2.0 * col, 0.0 ) ) / aces( vec3( 11.2 ) );
   col += ( pow( prng( seed ), 2.2 ) - 0.25 ) * 0.002;
-  col = aces( saturate( col ) );
   col = pow( saturate( col ), vec3( 0.4545 ) );
   col = liftGammaGain( col );
 
