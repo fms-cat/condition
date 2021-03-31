@@ -89,6 +89,7 @@ export class SufferTexts extends Entity {
         initOptions: { geometry: geometryRender, target: dummyRenderTarget },
       },
     );
+    forward.blend = [ gl.ONE, gl.ONE ];
 
     const materialsRender = { forward };
 
@@ -150,6 +151,8 @@ export class SufferTexts extends Entity {
       computeNumBuffers: 1,
       namePrefix: process.env.DEV && 'SufferTexts',
     } );
+    gpuParticles.meshRender.depthTest = false;
+    gpuParticles.meshRender.depthWrite = false;
     this.children.push( gpuParticles );
   }
 }

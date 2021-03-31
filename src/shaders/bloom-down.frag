@@ -18,7 +18,8 @@ uniform sampler2D sampler0;
 vec4 fetchWithWeight( vec2 uv ) {
   vec4 tex = texture( sampler0, uv );
   float luma = dot( LUMA, tex.xyz );
-  return vec4( tex.xyz, 1.0 + luma );
+  return vec4( tex.xyz, 1.0 + 0.5 * luma );
+  // return vec4( tex.xyz, 1.0 + luma );
 }
 
 void main() {
@@ -51,7 +52,7 @@ void main() {
   if ( level == 0.0 ) {
     float brightness = dot( LUMA, col );
     vec3 normalized = brightness < 1E-4 ? vec3( brightness ) : col / brightness;
-    col = max( 0.0, brightness - 0.5 ) * normalized;
+    col = max( 0.0, brightness - 0.6 ) * normalized;
   }
 
   fragColor = vec4( col, 1.0 );

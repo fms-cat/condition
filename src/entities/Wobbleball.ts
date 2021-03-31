@@ -62,8 +62,6 @@ export class Wobbleball extends Entity {
     }
 
     objectValuesMap( materials, ( material ) => {
-      material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
-
       material.addUniformTexture( 'samplerRandom', randomTexture.texture );
       material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
     } );

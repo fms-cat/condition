@@ -171,7 +171,7 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-3 ), 1.0 ) ).xyz;
+  vec3 modelNormal = normalize( normalMatrix * vec4( normalFunc( rayPos, 1E-3 ), 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible
@@ -193,7 +193,7 @@ void main() {
           0.2 * smoothstep( -0.2, 0.4, noise.y ) * ( 0.8 + 0.2 * sin( 17.0 * noiseDetail.x ) )
         );
 
-        fragColor = vec4( vec3( 0.04 ), 1.0 );
+        fragColor = vec4( vec3( 0.1 ), 1.0 );
         fragWTF = vec4( vec3( roughness, 0.9, 0.0 ), 2 );
       } else {
         float roughness = (
@@ -201,7 +201,7 @@ void main() {
           0.2 * ( 0.5 + 0.5 * sin( 17.0 * noiseDetail.x ) )
         );
 
-        fragColor = vec4( vec3( 0.1 ), 1.0 );
+        fragColor = vec4( vec3( 0.3 ), 1.0 );
         fragWTF = vec4( vec3( roughness, 0.1, 0.0 ), 2 );
       }
     } else if ( isect.y == 3.0 ) {

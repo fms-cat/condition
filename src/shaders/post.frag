@@ -18,6 +18,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 uniform float time;
+uniform float mosaicAmp;
 uniform float mixInvert;
 uniform vec2 resolution;
 uniform vec4 colorLift;
@@ -68,6 +69,11 @@ vec3 liftGammaGain( vec3 rgb ) {
 
 void main() {
   vec2 uv = vUv;
+
+  if ( mosaicAmp > 1.0 ) {
+    uv = lofi( uv - 0.5, mosaicAmp / resolution ) + mosaicAmp * 0.5 / resolution + 0.5;
+  }
+
   vec2 p = ( uv * resolution * 2.0 - resolution ) / resolution.y;
   float vig = 1.0 - length( p ) * 0.2;
 
@@ -87,12 +93,12 @@ void main() {
 
   vec3 col = tex.xyz;
   vec4 seed = texture( samplerRandom, uv );
-  col = mix( col, 1.0 - 5.0 * col, mixInvert );
   prng( seed );
   prng( seed );
   col = aces( max( 2.0 * col, 0.0 ) ) / aces( vec3( 11.2 ) );
   col += ( pow( prng( seed ), 2.2 ) - 0.25 ) * 0.002;
   col = pow( saturate( col ), vec3( 0.4545 ) );
+  col = mix( col, 1.0 - 1.0 * col, mixInvert );
   col = liftGammaGain( col );
 
   fragColor = vec4( col, 1.0 );

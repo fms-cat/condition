@@ -26,6 +26,11 @@ const colorPresets = [
     gamma: [ -0.04, 0.02, -0.05, 0.0 ],
     gain: [ 1.04, 0.98, 1.04, 1.0 ],
   },
+  {
+    lift: [ -0.06, 0.03, 0.1, 0.02 ],
+    gamma: [ 0.02, 0.04, 0.04, 0.04 ],
+    gain: [ 1.0, 1.0, 1.0, 1.0 ],
+  },
 ];
 
 export class Post extends Entity {
@@ -68,6 +73,10 @@ export class Post extends Entity {
 
     auto( 'Post/mixInvert', ( { value } ) => {
       material.addUniform( 'mixInvert', '1f', value );
+    } );
+
+    auto( 'Post/mosaicAmp', ( { value } ) => {
+      material.addUniform( 'mosaicAmp', '1f', value );
     } );
   }
 }

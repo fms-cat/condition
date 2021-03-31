@@ -28,7 +28,7 @@ void main() {
 
   vec3 color = vec3( 1.0 );
   color = mix(
-    step( 2.0, mod( 40.0 * vLife + vec3( 0.0, 1.0, 2.0 ), 3.0 ) ),
+    2.0 * step( 2.0, mod( 40.0 * vLife + vec3( 0.0, 1.0, 2.0 ), 3.0 ) ),
     color,
     smoothstep( 0.0, 0.3, vLife ) * smoothstep( 1.3, 1.0, vLife )
   );

@@ -1,18 +1,24 @@
+import { BufferRenderTarget } from '../heck/BufferRenderTarget';
 import { ChaosTorus } from '../automaton-fxs/ChaosTorus';
 import { Crystal } from './Crystal';
 import { Entity } from '../heck/Entity';
 import { Greetings } from './Greetings';
 import { Lambda } from '../heck/components/Lambda';
+import { LightEntity } from './LightEntity';
+import { Phantom } from './Phantom';
 import { Quaternion, Vector3, Xorshift } from '@fms-cat/experimental';
 import { Rings } from './Rings';
 import { auto } from '../globals/automaton';
 
 export class SceneCrystals extends Entity {
+  public readonly lights: LightEntity[];
+  private __phantom: Phantom;
+
   public constructor() {
     super();
 
     // -- crystals ---------------------------------------------------------------------------------
-    const crystal = new Crystal( { width: 0.4, height: 1.5, noiseOffset: 7.0 } );
+    const crystal = new Crystal( { width: 0.3, height: 1.5, noiseOffset: 7.0 } );
 
     const speen = new Entity();
 
@@ -24,9 +30,10 @@ export class SceneCrystals extends Entity {
     } ) );
 
     for ( let i = 0; i < 3; i ++ ) {
-      const smolCrystal = new Crystal( { width: 0.2, height: 0.8, noiseOffset: i } );
+      const smolCrystal = new Crystal( { width: 0.3, height: 1.5, noiseOffset: i } );
       const t = Math.PI * i / 1.5;
       smolCrystal.transform.position = new Vector3( [ Math.cos( t ), 0.0, Math.sin( t ) ] );
+      smolCrystal.transform.scale = new Vector3( [ 0.5, 0.5, 0.5 ] );
       speen.children.push( smolCrystal );
     }
 
@@ -64,8 +71,24 @@ export class SceneCrystals extends Entity {
       chaosToruses.map( ( entity ) => ( entity.visible = !uninit ) );
     } );
 
+    // -- phantom ----------------------------------------------------------------------------------
+    const phantom = this.__phantom = new Phantom();
+
     // -- greetings --------------------------------------------------------------------------------
     const greetings = new Greetings();
+
+    // -- lights -----------------------------------------------------------------------------------
+    const light1 = new LightEntity( {
+      scenes: [ this ],
+      shadowMapFov: 30.0,
+      shadowMapNear: 1.0,
+      shadowMapFar: 20.0,
+      namePrefix: process.env.DEV && 'lightBegin1',
+    } );
+    light1.color = [ 400.0, 400.0, 400.0 ];
+    light1.transform.lookAt( new Vector3( [ 0.0, 4.0, 1.0 ] ) );
+
+    this.lights = [ light1 ];
 
     // -- children ---------------------------------------------------------------------------------
     this.children.push(
@@ -73,7 +96,13 @@ export class SceneCrystals extends Entity {
       speen,
       rings,
       ...chaosToruses,
+      phantom,
       greetings,
+      ...this.lights,
     );
+  }
+
+  public setDefferedCameraTarget( deferredCameraTarget: BufferRenderTarget ): void {
+    this.__phantom.setDefferedCameraTarget( deferredCameraTarget );
   }
 }

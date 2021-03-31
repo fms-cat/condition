@@ -26,7 +26,6 @@ uniform vec3 lightPos;
 uniform mat4 lightPV;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 inversePVM;
 uniform sampler2D samplerDeferred0;
 uniform sampler2D samplerRandom;
 uniform sampler2D samplerShadow;
@@ -35,17 +34,7 @@ float cameraDepth;
 
 #pragma glslify: prng = require( ./-prng );
 
-vec3 divideByW( vec4 v ) {
-  return v.xyz / v.w;
-}
-
 float map( vec3 p ) {
-  vec4 pt = projectionMatrix * viewMatrix * vec4( p, 1.0 );
-  float depth = pt.z / pt.w;
-  if ( depth > cameraDepth ) {
-    return 0.0;
-  }
-
   float l = length( p - lightPos );
   float tooNear = smoothstep( 0.0, 0.1, l );
 
@@ -102,10 +91,15 @@ void main() {
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
     isect = map( rayPos );
     accum += isect * INV_MARCH_ITER;
-    rayLen += stepLen * 0.5 + 0.5 * prng( seed );
+    rayLen += stepLen * ( 0.5 + 0.5 * prng( seed ) );
     rayPos = rayOri + rayDir * rayLen;
 
-    if ( rayLen > cameraNearFar.y ) { break; }
+    // kill me
+    vec4 pt = projectionMatrix * viewMatrix * vec4( rayPos, 1.0 );
+    float depth = pt.z / pt.w;
+    if ( depth > cameraDepth ) {
+      break;
+    }
   }
 
   fragColor = vec4( intensity * lightColor * accum, 1.0 );

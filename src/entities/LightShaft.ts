@@ -75,16 +75,6 @@ export class LightShaft extends Entity {
           event.camera.near,
           event.camera.far
         );
-
-        forward.addUniformMatrixVector(
-          'inversePVM',
-          'Matrix4fv',
-          event.projectionMatrix
-            .multiply( event.viewMatrix )
-            .multiply( event.globalTransform.matrix )
-            .inverse!
-            .elements
-        );
       },
       name: process.env.DEV && `${ namePrefix }/updater`,
     } ) );

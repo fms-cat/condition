@@ -145,7 +145,10 @@ if ( process.env.DEV && module.hot ) {
 const replacerSceneCrystals = new EntityReplacer( deferredRoot, () => new SceneCrystals(), 'SceneCrystals' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/SceneCrystals', () => {
+    replacerSceneCrystals.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
     replacerSceneCrystals.replace();
+    lights.push( ...replacerSceneCrystals.current.lights );
+    replacerSceneCrystals.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
   } );
 }
 
@@ -184,6 +187,7 @@ const swap = new Swap(
 const lights = [
   ...replacerSceneBegin.current.lights,
   ...replacerSceneNeuro.current.lights,
+  ...replacerSceneCrystals.current.lights,
 ];
 
 // const light2 = new LightEntity( {
@@ -218,6 +222,7 @@ const deferredCamera = new DeferredCamera( {
 } );
 dog.root.children.push( deferredCamera );
 replacerSceneNeuro.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
+replacerSceneCrystals.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
 
 const forwardCamera = new ForwardCamera( {
   scenes: [ dog.root ],

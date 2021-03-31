@@ -27,7 +27,6 @@ out float vLife;
 out float vMode;
 out vec2 vUv;
 out vec2 vSize;
-out vec3 vNormal;
 out vec4 vPosition;
 out vec4 vDice;
 
@@ -36,7 +35,6 @@ uniform vec2 resolutionCompute;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-uniform mat4 normalMatrix;
 uniform sampler2D samplerCompute0;
 uniform sampler2D samplerRandomStatic;
 
@@ -61,8 +59,6 @@ void main() {
   vMode = float( mode );
 
   vUv = 0.5 + 0.5 * position;
-
-  vNormal = normalize( ( normalMatrix * vec4( 0.0, 0.0, 1.0, 1.0 ) ).xyz );
 
   vLife = tex0.w;
 

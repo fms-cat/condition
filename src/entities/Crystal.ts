@@ -1,3 +1,6 @@
+import { BeamCharge } from './BeamCharge';
+import { BeamRing } from './BeamRing';
+import { BeamShot } from './BeamShot';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
@@ -68,7 +71,6 @@ export class Crystal extends Entity {
     }
 
     objectValuesMap( materials, ( material ) => {
-      material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
       material.addUniform( 'size', '2f', width, height );
       material.addUniform( 'noiseOffset', '1f', noiseOffset );
 
@@ -113,5 +115,29 @@ export class Crystal extends Entity {
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
+
+    // -- beam -------------------------------------------------------------------------------------
+    const beamCharge = new BeamCharge();
+    beamCharge.transform.position = new Vector3( [ 0.0, 1.8, 0.0 ] );
+
+    const beamShot = new BeamShot( { length: 100.0 } );
+    beamShot.transform.position = new Vector3( [ 0.0, 1.8, 0.0 ] );
+
+    const beamRing = new BeamRing();
+    beamRing.transform.position = new Vector3( [ 0.0, 1.8, 0.0 ] );
+
+    auto( 'Crystal/beam/charge', ( { value } ) => {
+      beamCharge.setRadius( value );
+    } );
+
+    auto( 'Crystal/beam/ring', ( { value } ) => {
+      beamRing.setRadius( value );
+    } );
+
+    auto( 'Crystal/beam/shot', ( { value } ) => {
+      beamShot.setWidth( value );
+    } );
+
+    this.children.push( beamCharge, beamShot, beamRing );
   }
 }

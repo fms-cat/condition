@@ -272,6 +272,8 @@ export class Greetings extends Entity {
       materials,
       name: process.env.DEV && 'Greetings/mesh',
     } );
+    mesh.depthTest = false;
+    mesh.depthWrite = false;
 
     // -- buffer updater ---------------------------------------------------------------------------
     let headInstance = 0;

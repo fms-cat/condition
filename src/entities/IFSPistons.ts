@@ -57,10 +57,6 @@ export class IFSPistons extends Entity {
       }
     }
 
-    objectValuesMap( materials, ( material ) => {
-      material.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
-    } );
-
     // -- children pistons -------------------------------------------------------------------------
     const up = new Vector3( [ 0, 1, 0 ] );
 

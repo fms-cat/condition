@@ -73,7 +73,7 @@ vec3 fold( vec3 p ) {
 
 float distFunc( vec3 p ) {
   p.zx = rot2d( 0.5 * time ) * p.zx;
-  p -= size.xyx * vec3( 0.01, 0.2, 0.01 ) * cyclicNoise( vec3( 1.0, 0.04, 1.0 ) / size.xyx * p + noiseOffset );
+  p -= size.xyx * vec3( 0.02, 0.2, 0.02 ) * cyclicNoise( vec3( 1.0, 0.04, 1.0 ) / size.xyx * p + noiseOffset );
   p.y -= min( 0.8 * size.y - size.x, abs( p.y ) ) * sign( p.y );
   p = fold( p );
   return dot( p, foldface ) - size.x;
@@ -111,7 +111,7 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = ( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
+  vec3 modelNormal = normalize( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible
@@ -122,7 +122,7 @@ void main() {
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
     fragColor = vec4( vec3( 0.5, 0.52, 1.0 ), 1.0 );
-    fragWTF = vec4( vec3( 0.02, 1.0, 0.0 ), 3 );
+    fragWTF = vec4( vec3( 0.04, 1.0, 0.0 ), 3 );
   #endif
 
   #ifdef SHADOW

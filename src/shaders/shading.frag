@@ -277,7 +277,7 @@ void main() {
       0.5 + atan( refrEnvRefractive.x, -refrEnvRefractive.z ) / TAU,
       0.5 + atan( refrEnvRefractive.y, length( refrEnvRefractive.zx ) ) / PI
     );
-    vec3 texEnvRefractive = sampleEnvLinear( uvEnvRefractive, 0.1 ).rgb;
+    vec3 texEnvRefractive = sampleEnvLinear( uvEnvRefractive, 0.5 ).rgb;
 
     color += isect.color * texEnvRefractive;
 
