@@ -19,7 +19,7 @@ const float TAU = PI * 2.0;
 
 in vec4 vPositionWithoutModel;
 
-#ifdef SHADOW
+#ifdef DEPTH
   out vec4 fragColor;
 #endif
 
@@ -216,11 +216,11 @@ void main() {
 
   #endif
 
-  #ifdef SHADOW
+  #ifdef DEPTH
     float shadowDepth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,
-      length( cameraPos - rayPos )
+      length( cameraPos - modelPos.xyz )
     );
     fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
   #endif

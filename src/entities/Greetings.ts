@@ -66,7 +66,7 @@ const styles = [
   },
   {
     font: '96px Arial',
-    spacing: 2.0,
+    spacing: 1.3,
   },
   {
     font: 'Bold 96px Arial',
@@ -89,7 +89,8 @@ const styles = [
   },
   {
     font: 'Bold 96px Arial',
-    spacing: 1.5,
+    scaleY: 1.2,
+    spacing: 1.4,
   },
   {
     font: 'Bold 96px Arial',
@@ -157,30 +158,40 @@ const charPosList = [
   '0x4015',
   'Alcatraz',
   'Altair',
+  'ASD',
   'Astronomena',
   'CNCD',
   'Cocoon',
   'Conspiracy',
+  'Ctrl+Alt+Test',
+  'doxas',
   'Fairlight',
   'Flopine',
   'FRONTL1NE',
   'holon',
   'gam0022',
+  'gaz',
   'jetlag',
   'Jugem-T',
   'kaneta',
   'Limp Ninja',
   'LJ',
   'Logicoma',
+  'marcan',
   'Mercury',
+  'mrdoob',
   'nikq::cube',
   'Ninjadev',
   'NuSan',
+  'orange',
   'Poo-Brain',
+  'Primitive',
   'Prismbeings',
   'Radium Software',
+  'quite',
   'rgba',
   'Satori',
+  'setchi',
   'sp4ghet',
   'Still',
   'Suricrasia Online',
@@ -281,7 +292,7 @@ export class Greetings extends Entity {
 
     const lambda = new Lambda( {
       onUpdate: ( { time, deltaTime } ) => {
-        if ( Math.floor( 6.0 * time ) === Math.floor( 6.0 * ( time - deltaTime ) ) ) {
+        if ( Math.floor( 8.0 * time ) === Math.floor( 8.0 * ( time - deltaTime ) ) ) {
           return;
         }
 

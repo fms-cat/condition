@@ -9,6 +9,7 @@ layout (location = 2) in float instanceId;
 out vec4 vPosition;
 out vec3 vNormal;
 
+uniform float begin;
 uniform float time;
 uniform vec2 resolution;
 uniform mat4 projectionMatrix;
@@ -36,7 +37,10 @@ void main() {
 
   vNormal = normalize( ( normalMatrix * vec4( normal, 1.0 ) ).xyz );
 
-  vPosition = vec4( mix( 2.0, 2.7, random() ) * position, 1.0 );
+  float radius = mix( 2.0, 2.7, random() );
+  radius *= 1.0 - exp( -10.0 * max( 0.0, begin - 0.2 * random() ) );
+
+  vPosition = vec4( radius * position, 1.0 );
   vPosition.xyz += mix( 0.005, 0.01, random() ) * normal;
   vPosition.y += sin( random() * time + random() * vPosition.x + TAU * random() ) * 0.2 * random();
   vPosition.y += sin( random() * time + random() * vPosition.z + TAU * random() ) * 0.2 * random();

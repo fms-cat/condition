@@ -8,7 +8,7 @@ precision highp float;
 
 const float PI = 3.14159265;
 const float TAU = PI * 2.0;
-const float foldcos = cos( PI / 5.0 );
+const float foldcos = cos( PI / 3.0 );
 const float foldrem = sqrt( 0.75 - foldcos * foldcos );
 const vec3 foldvec = vec3( -0.5, -foldcos, foldrem );
 const vec3 foldface = vec3( 0.0, foldrem, foldcos );
@@ -26,13 +26,9 @@ in vec4 vPositionWithoutModel;
   out vec4 fragColor;
 #endif
 
-uniform float deformAmp;
-uniform float deformFreq;
-uniform float deformTime;
+uniform float distort;
 uniform float time;
-uniform float noiseOffset;
 uniform vec2 resolution;
-uniform vec2 size;
 uniform vec2 cameraNearFar;
 uniform vec3 cameraPos;
 uniform mat4 normalMatrix;
@@ -40,24 +36,16 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 inversePVM;
+uniform sampler2D samplerRandom;
+uniform sampler2D samplerRandomStatic;
+uniform sampler2D samplerCapture;
 
 vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
 }
 
-// https://www.iquilezles.org/www/articles/smin/smin.htm
-float smin( float a, float b, float k ) {
-  float h = max( k - abs( a - b ), 0.0 ) / k;
-  return min( a, b ) - h * h * h * k * ( 1.0 / 6.0 );
-}
-
-mat2 rot2d( float t ) {
-  float c = cos( t );
-  float s = sin( t );
-  return mat2( c, -s, s, c );
-}
-
-#pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
+#pragma glslify: noise = require( ./-simplex4d );
+#pragma glslify: orthBasis = require( ./modules/orthBasis );
 
 vec3 fold( vec3 p ) {
   for ( int i = 0; i < 5; i ++ ) {
@@ -68,11 +56,15 @@ vec3 fold( vec3 p ) {
 }
 
 float distFunc( vec3 p ) {
-  p.zx = rot2d( 0.5 * time ) * p.zx;
-  p -= size.xyx * vec3( 0.02, 0.2, 0.02 ) * cyclicNoise( vec3( 1.0, 0.1, 1.0 ) / size.xyx * p + noiseOffset );
-  p.y -= min( 0.8 * size.y - size.x, abs( p.y ) ) * sign( p.y );
-  p = fold( p );
-  return dot( p, foldface ) - size.x;
+  vec3 pt = p;
+  pt = fold( pt );
+  float d = dot( pt, foldface ) - 0.36;
+
+  d += ( 0.001 + 0.02 * distort ) * noise(
+    vec4( 8.0 * p.xyz, 8.0 * time )
+  );
+
+  return d;
 }
 
 vec3 normalFunc( vec3 p, float dd ) {
@@ -97,11 +89,11 @@ void main() {
   int MARCH_ITER;
 
   #ifdef DEFERRED
-    MARCH_ITER = 60;
+    MARCH_ITER = 50;
   #endif
 
   #ifdef DEPTH
-    MARCH_ITER = 10;
+    MARCH_ITER = 30;
   #endif
 
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
@@ -117,7 +109,7 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = normalize( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
+  vec3 modelNormal = normalize( normalMatrix * vec4( normalFunc( rayPos, 1E-3 ), 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible
@@ -127,15 +119,15 @@ void main() {
   #ifdef DEFERRED
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
-    fragColor = vec4( vec3( 0.5 ), 1.0 );
-    fragWTF = vec4( vec3( 0.04, 1.0, 0.0 ), 3 );
+    fragColor = vec4( vec3( 0.2 ), 1.0 );
+    fragWTF = vec4( vec3( 0.05 , 0.93, 0.0 ), 2 );
   #endif
 
   #ifdef DEPTH
     float shadowDepth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,
-      length( cameraPos - rayPos )
+      length( cameraPos - modelPos.xyz )
     );
     fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
   #endif

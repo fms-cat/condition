@@ -1,44 +1,44 @@
 import { Entity } from '../heck/Entity';
-import { Geometry } from '../heck/Geometry';
+import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
-import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
-import { genPlane } from '../geometries/genPlane';
+import { genCube } from '../geometries/genCube';
+import { glCat } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import depthFrag from '../shaders/depth.frag';
-import flashyTerrainFrag from '../shaders/flashy-terrain.frag';
-import flashyTerrainVert from '../shaders/flashy-terrain.vert';
+import rectTorusFrag from '../shaders/rect-torus.frag';
+import rectTorusVert from '../shaders/rect-torus.vert';
 
-export class FlashyTerrain extends Entity {
+export class RectTorus extends Entity {
   public mesh: Mesh;
 
   public constructor() {
     super();
 
-    this.transform.position = new Vector3( [ 0.0, -4.0, 0.0 ] );
-    this.transform.rotation = Quaternion.fromAxisAngle(
-      new Vector3( [ 1.0, 0.0, 0.0 ] ),
-      -0.5 * Math.PI,
-    );
-    this.transform.scale = this.transform.scale.scale( 8.0 );
-
     // -- geometry ---------------------------------------------------------------------------------
-    const plane = genPlane();
+    const cube = genCube();
 
-    const geometry = new Geometry();
+    const geometry = new InstancedGeometry();
 
-    geometry.vao.bindVertexbuffer( plane.position, 0, 3 );
-    geometry.vao.bindIndexbuffer( plane.index );
+    geometry.vao.bindVertexbuffer( cube.position, 0, 3 );
+    geometry.vao.bindVertexbuffer( cube.normal, 1, 3 );
+    geometry.vao.bindIndexbuffer( cube.index );
 
-    geometry.count = plane.count;
-    geometry.mode = plane.mode;
-    geometry.indexType = plane.indexType;
+    const arrayInstanceId = [ ...Array( 4 ).keys() ];
+    const bufferInstanceId = glCat.createBuffer();
+    bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
+    geometry.vao.bindVertexbuffer( bufferInstanceId, 2, 1, 1 );
+
+    geometry.count = cube.count;
+    geometry.mode = cube.mode;
+    geometry.indexType = cube.indexType;
+    geometry.primcount = 4;
 
     // -- materials --------------------------------------------------------------------------------
     const deferred = new Material(
-      flashyTerrainVert,
-      flashyTerrainFrag,
+      rectTorusVert,
+      rectTorusFrag,
       {
         defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: quadGeometry, target: dummyRenderTargetFourDrawBuffers },
@@ -46,7 +46,7 @@ export class FlashyTerrain extends Entity {
     );
 
     const depth = new Material(
-      flashyTerrainVert,
+      rectTorusVert,
       depthFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
@@ -57,12 +57,12 @@ export class FlashyTerrain extends Entity {
       if ( module.hot ) {
         module.hot.accept(
           [
-            '../shaders/flashy-terrain.vert',
-            '../shaders/flashy-terrain.frag',
+            '../shaders/rect-torus.vert',
+            '../shaders/rect-torus.frag',
           ],
           () => {
-            deferred.replaceShader( flashyTerrainVert, flashyTerrainFrag );
-            depth.replaceShader( flashyTerrainVert, depthFrag );
+            deferred.replaceShader( rectTorusVert, rectTorusFrag );
+            depth.replaceShader( rectTorusVert, depthFrag );
           },
         );
       }
@@ -70,9 +70,9 @@ export class FlashyTerrain extends Entity {
 
     // -- mesh -------------------------------------------------------------------------------------
     this.mesh = new Mesh( {
-      geometry,
+      geometry: geometry,
       materials,
-      name: process.env.DEV && 'FlashyTerrain/mesh',
+      name: process.env.DEV && 'Cube/mesh',
     } );
     this.components.push( this.mesh );
   }

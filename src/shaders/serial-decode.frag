@@ -41,7 +41,7 @@ void main() {
 
   // back to rgb
   vec3 col = YCBCR_TO_RGB * vec3(
-    saturate( 1.2 * ( linearstep( CHROMA_AMP, 1.0 - CHROMA_AMP, y ) - 0.5 ) + 0.5 ),
+    saturate( 0.07 + 1.2 * ( linearstep( CHROMA_AMP, 1.0 - CHROMA_AMP, y ) - 0.5 ) + 0.5 ),
     PI * cbcr / CHROMA_AMP
   );
 

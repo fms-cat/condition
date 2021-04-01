@@ -61,11 +61,12 @@ void main() {
 
   float a = TAU * uv.x;
   float b = PI * ( uv.y - 0.5 );
-  vec3 N = vec3( -sin( a ) * cos( b ), sin( b ), -cos( a ) * cos( b ) );
+  vec3 N = vec3( -sin( a ) * cos( b ), -sin( b ), -cos( a ) * cos( b ) );
   vec3 R = N;
   vec3 V = R;
 
-  seed = uniformSeed + 500.0 * vec4( N.xy, uv00 );
+  seed = uniformSeed + 10.0 + 500.0 * vec4( uv00, N.xy );
+  prng( seed );
 
   vec4 col = vec4( 0.0 );
   for ( int i = 0; i < SAMPLES; i ++ ) {

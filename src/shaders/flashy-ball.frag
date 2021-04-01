@@ -18,23 +18,16 @@ in vec4 vPositionWithoutModel;
 
 uniform float time;
 
+#pragma glslify: orthBasis = require( ./modules/orthBasis );
 #pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
 
 void main() {
-  float grid = max(
-    step( 0.996, cos( 16.0 * TAU * vPositionWithoutModel.x ) ),
-    step( 0.996, cos( 16.0 * TAU * vPositionWithoutModel.y ) )
-  );
-  vec2 cell = floor( 16.0 * vPositionWithoutModel.xy );
-  grid = max(
-    grid,
-    smoothstep( 0.2, 0.3, cyclicNoise( vec3( cell.xy, 4.0 * time ) ).x )
-  );
+  float roughness = 0.3 + 0.1 * cyclicNoise( 4.0 * vPositionWithoutModel.xyz ).x;
 
   #ifdef DEFERRED
     fragPosition = vPosition;
-    fragNormal = vec4( 0.0, 0.0, 1.0, 1.0 );
-    fragColor = vec4( grid * vec3( 2.0 ), 1.0 );
-    fragWTF = vec4( 0.0, 0.0, 0.0, 1 );
+    fragNormal = vec4( vNormal, 1.0 );
+    fragColor = vec4( vec3( 0.2 ), 1.0 );
+    fragWTF = vec4( roughness, 0.9, 0.0, 2 );
   #endif
 }

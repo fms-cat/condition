@@ -79,6 +79,10 @@ async function load(): Promise<void> {
     ( automaton as AutomatonWithGUI ).play();
   }
 
+  if ( !process.env.DEV ) {
+    document.write( 'Wait a moment... ' );
+  }
+
   await music.prepare();
 
   if ( !process.env.DEV ) {

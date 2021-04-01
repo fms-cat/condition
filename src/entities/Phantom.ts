@@ -3,13 +3,13 @@ import { Entity } from '../heck/Entity';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
+import { auto } from '../globals/automaton';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTexture } from '../globals/randomTexture';
 import phantomFrag from '../shaders/phantom.frag';
 import quadVert from '../shaders/quad.vert';
-import { auto } from '../globals/automaton';
 
 export class Phantom extends Entity {
   private __forward: Material;
@@ -65,9 +65,11 @@ export class Phantom extends Entity {
     this.components.push( mesh );
 
     // -- auto -------------------------------------------------------------------------------------
-    auto( 'Phantom/active', ( { uninit } ) => {
-      mesh.active = !uninit;
-      mesh.visible = !uninit;
+    auto( 'Phantom/amp', ( { value } ) => {
+      forward.addUniform( 'amp', '1f', value );
+
+      mesh.active = value > 0.0;
+      mesh.visible = mesh.active;
     } );
   }
 

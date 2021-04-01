@@ -406,24 +406,15 @@ vec2 mainAudio( vec4 time ) {
     dest += 0.25 * kick( t, 1.0 );
   }
 
-  // -- gabber -------------------------------------------------------------------------------------
-  if (
-    inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON ) &&
-    inRange( mod( time.z, 8.0 * BEAT ), 4.0 * BEAT, 8.0 * BEAT )
-  ) {
-    const int pattern[16] = int[](
-      0, 1, 0, 1,
-      2, 3, 4, 0,
-      1, 2, 0, 1,
-      2, 3, 4, 5
-    );
-    float tHeadKick = 0.25 * BEAT * float( pattern[ int( time.y / 0.25 / BEAT ) ] );
-    float tKick = tHeadKick + mod( time.y, 0.25 * BEAT );
+  // -- snare --------------------------------------------------------------------------------------
+  if ( inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON - 4.0 * BEAT ) ) {
+    float t = mod( time.z - 4.0 * BEAT, 8.0 * BEAT );
+    dest += 0.1 * snare( t );
   }
 
   // -- amen ---------------------------------------------------------------------------------------
   if (
-    inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON ) &&
+    inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON - 4.0 * BEAT ) &&
     inRange( mod( time.z, 8.0 * BEAT ), 4.0 * BEAT, 8.0 * BEAT )
   ) {
     float chunk = floor( 6.0 * fs( lofi( time.z, 0.5 * BEAT ) ) );
@@ -473,7 +464,7 @@ vec2 mainAudio( vec4 time ) {
   }
 
   // -- choir --------------------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON ) ) {
+  if ( inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON - 0.5 * BEAT ) ) {
     vec2 sum = vec2( 0.0 );
 
     float t = mod( time.z, 8.0 * BEAT );
@@ -492,7 +483,13 @@ vec2 mainAudio( vec4 time ) {
       sum += 0.4 * mix( 0.0, 1.0, sidechain ) * choir( t * rate * 0.5 );
     }
 
-    dest += 0.09 * inRangeSmooth( t, 0.0, 4.0 * BEAT, 1E3 ) * aSaturate( 2.0 * sum );
+    float release = ( ( time.z > 60.0 * BEAT ) ? 2.0 : 1E3 );
+    dest += 0.09 * inRangeSmooth( t, 0.0, 4.0 * BEAT, release ) * aSaturate( 2.0 * sum );
+  }
+
+  // -- reversecrash -------------------------------------------------------------------------------
+  if ( inRange( time.w, SECTION_WHOA, SECTION_PORTER_FUCKING_ROBINSON - 0.5 * BEAT ) ) {
+    dest += 0.1 * crash( max( 0.0, 63.5 * BEAT - time.z ) );
   }
 
   // -- kick ---------------------------------------------------------------------------------------
@@ -693,6 +690,10 @@ vec2 mainAudio( vec4 time ) {
   // -- deepkick -----------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_BEGIN, SECTION_BEGIN + 64.0 * BEAT ) ) {
     dest += 0.3 * deepkick( time.z );
+  }
+
+  if ( inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON - 4.0 * BEAT, SECTION_PORTER_FUCKING_ROBINSON - 0.5 * BEAT ) ) {
+    dest += 0.3 * deepkick( time.y );
   }
 
   if ( inRange( time.w, SECTION_AAAA - 8.0 * BEAT, SECTION_AAAA ) ) {

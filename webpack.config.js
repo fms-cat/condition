@@ -33,6 +33,10 @@ const terserOptions = {
       ]
     },
   },
+  format: {
+    ascii_only: true,
+    ecma: 2020,
+  },
   module: true,
   toplevel: true,
 };

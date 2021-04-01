@@ -12,8 +12,8 @@ const float TAU = PI * 2.0;
 
 out vec4 fragColor;
 
-uniform float frameCount;
 uniform float time;
+uniform float amp;
 uniform vec2 resolution;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
@@ -93,7 +93,7 @@ void main() {
 
   float flicker = step( 0.5, fract( 30.0 * time ) );
   vec3 col = 0.3 + 0.3 * sin( 3.5 + 1.0 * accum + vec3( 0.0, 2.0, 4.0 ) );
-  col *= ( 0.5 + 0.1 * flicker ) * accum;
+  col *= amp * ( 0.5 + 0.1 * flicker ) * accum;
 
   fragColor = vec4( col, 1.0 );
 }

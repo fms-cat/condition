@@ -34,11 +34,11 @@ mat2 rotate2D( float _t ) {
 void main() {
   if ( vColor.a < 0.0 ) { discard; }
 
-  float emissive = 5.0;
+  float emissive = 0.0;
   // emissive *= 0.5 + 0.5 * sin( TAU * vRandom.z + 20.0 * time );
 
   fragPosition = vPosition;
   fragNormal = vec4( vNormal, 1.0 );
   fragColor = vColor;
-  fragWTF = vec4( vec3( 0.9, 0.9, emissive ), MTL_PBR );
+  fragWTF = vec4( vec3( 0.4, 0.1, emissive ), MTL_PBR );
 }

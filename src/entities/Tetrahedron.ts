@@ -3,38 +3,35 @@ import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
-import { Vector3 } from '@fms-cat/experimental';
+import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
-import { genOctahedron } from '../geometries/genOctahedron';
+import { genCube } from '../geometries/genCube';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import raymarchObjectVert from '../shaders/raymarch-object.vert';
-import wobbleballFrag from '../shaders/wobbleball.frag';
+import tetrahedronFrag from '../shaders/tetrahedron.frag';
 
-export class Wobbleball extends Entity {
+export class Tetrahedron extends Entity {
   public constructor() {
     super();
 
-    this.transform.position = new Vector3( [ 0.0, 0.0, 0.0 ] );
-    this.transform.scale = new Vector3( [ 1.0, 1.0, 1.0 ] );
-
     // -- geometry ---------------------------------------------------------------------------------
-    const octahedron = genOctahedron( { radius: 2.0, div: 1 } );
+    const cube = genCube( { dimension: [ 1.1, 1.1, 1.1 ] } );
 
     const geometry = new Geometry();
 
-    geometry.vao.bindVertexbuffer( octahedron.position, 0, 3 );
-    geometry.vao.bindIndexbuffer( octahedron.index );
+    geometry.vao.bindVertexbuffer( cube.position, 0, 3 );
+    geometry.vao.bindIndexbuffer( cube.index );
 
-    geometry.count = octahedron.count;
-    geometry.mode = octahedron.mode;
-    geometry.indexType = octahedron.indexType;
+    geometry.count = cube.count;
+    geometry.mode = cube.mode;
+    geometry.indexType = cube.indexType;
 
     // -- materials --------------------------------------------------------------------------------
     const deferred = new Material(
       raymarchObjectVert,
-      wobbleballFrag,
+      tetrahedronFrag,
       {
         defines: [ 'DEFERRED 1' ],
         initOptions: { geometry, target: dummyRenderTargetFourDrawBuffers },
@@ -43,7 +40,7 @@ export class Wobbleball extends Entity {
 
     const depth = new Material(
       raymarchObjectVert,
-      wobbleballFrag,
+      tetrahedronFrag,
       {
         defines: [ 'DEPTH 1' ],
         initOptions: { geometry, target: dummyRenderTarget }
@@ -54,9 +51,9 @@ export class Wobbleball extends Entity {
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
-        module.hot.accept( '../shaders/wobbleball.frag', () => {
-          deferred.replaceShader( raymarchObjectVert, wobbleballFrag );
-          depth.replaceShader( raymarchObjectVert, wobbleballFrag );
+        module.hot.accept( '../shaders/tetrahedron.frag', () => {
+          deferred.replaceShader( raymarchObjectVert, tetrahedronFrag );
+          depth.replaceShader( raymarchObjectVert, tetrahedronFrag );
         } );
       }
     }
@@ -92,16 +89,32 @@ export class Wobbleball extends Entity {
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         } );
       },
-      name: process.env.DEV && 'Wobbleball/updater',
+      name: process.env.DEV && 'Tetrahedron/updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Wobbleball/mesh',
+      name: process.env.DEV && 'Tetrahedron/mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
+
+    // -- speen ------------------------------------------------------------------------------------
+    const axis = new Vector3( [ 1.0, -1.0, 1.0 ] ).normalized;
+    this.components.push( new Lambda( {
+      onUpdate: ( { time } ) => {
+        this.transform.rotation = Quaternion.fromAxisAngle( axis, time );
+        objectValuesMap( materials, ( material ) => {
+          material.addUniform(
+            'distort',
+            '1f',
+            auto( 'Tetrahedron/distortAmp' )
+          );
+        } );
+      },
+      name: process.env.DEV && 'Tetrahedron/update',
+    } ) );
   }
 }

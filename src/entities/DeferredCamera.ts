@@ -12,6 +12,7 @@ import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
 import { randomTexture } from '../globals/randomTexture';
+import { setLightUniforms } from '../utils/setLightUniforms';
 import aoFrag from '../shaders/ao.frag';
 import quadVert from '../shaders/quad.vert';
 import shadingFrag from '../shaders/shading.frag';
@@ -111,17 +112,7 @@ export class DeferredCamera extends Entity {
 
     const lambda = new Lambda( {
       onUpdate: ( { frameCount } ) => {
-        const lights = options.lights.filter( ( light ) => (
-          frameCount === light.lastUpdateFrame
-        ) );
-
         const cameraView = this.transform.matrix.inverse!;
-
-        shadingMaterial.addUniform(
-          'lightCount',
-          '1i',
-          lights.length,
-        );
 
         shadingMaterial.addUniformMatrixVector(
           'cameraView',
@@ -150,44 +141,7 @@ export class DeferredCamera extends Entity {
           ...this.transform.position.elements
         );
 
-        shadingMaterial.addUniformVector(
-          'lightNearFar',
-          '2fv',
-          lights.map( ( light ) => [ light.camera.near, light.camera.far ] ).flat(),
-        );
-
-        shadingMaterial.addUniformVector(
-          'lightPos',
-          '3fv',
-          lights.map( ( light ) => light.globalTransformCache.position.elements ).flat(),
-        );
-
-        shadingMaterial.addUniformVector(
-          'lightColor',
-          '3fv',
-          lights.map( ( light ) => light.color ).flat(),
-        );
-
-        shadingMaterial.addUniformVector(
-          'lightParams',
-          '4fv',
-          lights.map( ( light ) => [ light.spotness, 0.0, 0.0, 0.0 ] ).flat(),
-        );
-
-        shadingMaterial.addUniformMatrixVector(
-          'lightPV',
-          'Matrix4fv',
-          lights.map( ( light ) => (
-            light.camera.projectionMatrix.multiply(
-              light.globalTransformCache.matrix.inverse!
-            ).elements
-          ) ).flat(),
-        );
-
-        shadingMaterial.addUniformTextureArray(
-          'samplerShadow',
-          lights.map( ( light ) => light.shadowMap.texture ),
-        );
+        setLightUniforms( shadingMaterial, options.lights, frameCount );
       },
       name: process.env.DEV && 'DeferredCamera/shading/setCameraUniforms',
     } );

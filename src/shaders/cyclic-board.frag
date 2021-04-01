@@ -8,10 +8,10 @@ precision highp float;
 
 const float PI = 3.14159265;
 const float TAU = PI * 2.0;
-const float foldcos = cos( PI / 5.0 );
-const float foldrem = sqrt( 0.75 - foldcos * foldcos );
-const vec3 foldvec = vec3( -0.5, -foldcos, foldrem );
-const vec3 foldface = vec3( 0.0, foldrem, foldcos );
+
+#ifdef FORWARD
+  out vec4 fragColor;
+#endif
 
 #ifdef DEFERRED
   layout (location = 0) out vec4 fragPosition;
@@ -26,53 +26,63 @@ in vec4 vPositionWithoutModel;
   out vec4 fragColor;
 #endif
 
+uniform int lightCount;
 uniform float deformAmp;
 uniform float deformFreq;
 uniform float deformTime;
 uniform float time;
 uniform float noiseOffset;
+uniform vec2 lightNearFar[ 8 ];
 uniform vec2 resolution;
 uniform vec2 size;
 uniform vec2 cameraNearFar;
+uniform vec3 lightPos[ 8 ];
+uniform vec3 lightColor[ 8 ];
 uniform vec3 cameraPos;
+uniform vec4 lightParams[ 8 ];
+uniform mat4 lightPV[ 8 ];
 uniform mat4 normalMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 inversePVM;
+uniform sampler2D samplerRandom;
+uniform sampler2D samplerRandomStatic;
+uniform sampler2D samplerCapture;
+uniform sampler2D samplerShadow[ 8 ];
 
 vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
 }
 
-// https://www.iquilezles.org/www/articles/smin/smin.htm
-float smin( float a, float b, float k ) {
-  float h = max( k - abs( a - b ), 0.0 ) / k;
-  return min( a, b ) - h * h * h * k * ( 1.0 / 6.0 );
-}
-
-mat2 rot2d( float t ) {
-  float c = cos( t );
-  float s = sin( t );
-  return mat2( c, -s, s, c );
-}
-
 #pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
+#pragma glslify: doAnalyticLighting = require( ./modules/doAnalyticLighting.glsl );
+#pragma glslify: doShadowMapping = require( ./modules/doShadowMapping.glsl );
 
-vec3 fold( vec3 p ) {
-  for ( int i = 0; i < 5; i ++ ) {
-    p.xy = abs( p.xy );
-    p -= 2.0 * min( dot( foldvec, p ), 0.0 ) * foldvec;
+vec4 fetchShadowMap( int iLight, vec2 uv ) {
+  if ( iLight == 0 ) {
+    return texture( samplerShadow[ 0 ], uv );
+  } else if ( iLight == 1 ) {
+    return texture( samplerShadow[ 1 ], uv );
+  } else if ( iLight == 2 ) {
+    return texture( samplerShadow[ 2 ], uv );
+  } else if ( iLight == 3 ) {
+    return texture( samplerShadow[ 3 ], uv );
+  } else if ( iLight == 4 ) {
+    return texture( samplerShadow[ 4 ], uv );
+  } else if ( iLight == 5 ) {
+    return texture( samplerShadow[ 5 ], uv );
+  } else if ( iLight == 6 ) {
+    return texture( samplerShadow[ 6 ], uv );
+  } else if ( iLight == 7 ) {
+    return texture( samplerShadow[ 7 ], uv );
   }
-  return p;
 }
 
 float distFunc( vec3 p ) {
-  p.zx = rot2d( 0.5 * time ) * p.zx;
-  p -= size.xyx * vec3( 0.02, 0.2, 0.02 ) * cyclicNoise( vec3( 1.0, 0.1, 1.0 ) / size.xyx * p + noiseOffset );
-  p.y -= min( 0.8 * size.y - size.x, abs( p.y ) ) * sign( p.y );
-  p = fold( p );
-  return dot( p, foldface ) - size.x;
+  float d = p.y;
+  d += 0.2 * cyclicNoise( p ).x;
+  return d;
 }
 
 vec3 normalFunc( vec3 p, float dd ) {
@@ -95,6 +105,10 @@ void main() {
   float dist;
 
   int MARCH_ITER;
+
+  #ifdef FORWARD
+    MARCH_ITER = 30;
+  #endif
 
   #ifdef DEFERRED
     MARCH_ITER = 60;
@@ -124,18 +138,57 @@ void main() {
   float depth = projPos.z / projPos.w;
   gl_FragDepth = 0.5 + 0.5 * depth;
 
+  #ifdef FORWARD
+    vec3 color = vec3( 0.0 );
+
+    // for each lights
+    for ( int iLight = 0; iLight < 8; iLight ++ ) {
+      if ( iLight >= lightCount ) { break; }
+
+      vec3 V = cameraPos - modelPos.xyz;
+      vec3 L = lightPos[ iLight ] - modelPos.xyz;
+
+      // shading
+      vec3 shade = doAnalyticLighting(
+        V,
+        L,
+        modelNormal,
+        vec3( 0.6, 0.5, 0.4 ),
+        0.5,
+        0.2
+      ) * lightColor[ iLight ];
+
+      // fetch shadowmap + spot lighting
+      vec4 lightProj = lightPV[ iLight ] * modelPos;
+      vec2 lightP = lightProj.xy / lightProj.w;
+
+      shade *= doShadowMapping(
+        L,
+        modelNormal,
+        fetchShadowMap( iLight, 0.5 + 0.5 * lightP ),
+        lightP,
+        lightNearFar[ iLight ],
+        lightParams[ iLight ].x
+      );
+
+      color += shade;
+    }
+
+    fragColor = vec4( color, 1.0 );
+  #endif
+
   #ifdef DEFERRED
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
-    fragColor = vec4( vec3( 0.5 ), 1.0 );
-    fragWTF = vec4( vec3( 0.04, 1.0, 0.0 ), 3 );
+    fragColor = vec4( vec3( 0.6, 0.5, 0.4 ), 1.0 );
+    fragWTF = vec4( vec3( 0.5, 0.2, 0.0 ), 3 );
   #endif
 
   #ifdef DEPTH
     float shadowDepth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,
-      length( cameraPos - rayPos )
+      length( cameraPos - modelPos.xyz )
     );
     fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
   #endif

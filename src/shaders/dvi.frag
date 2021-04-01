@@ -61,17 +61,6 @@ float dOverlay( vec2 p ) {
   float d = 1E9;
   float t = time + offset;
 
-  // center bar
-  d = min( d, sdbox( p, vec2( 0.12, 0.002 ) ) );
-
-  // circles
-  {
-    vec2 pt = abs( p );
-    d = min( d, dCirc( pt - vec2( 0.0, 0.05 ) ) );
-    d = min( d, dCirc( pt - vec2( 0.07, 0.05 ) ) );
-    d = min( d, dCirc( pt - vec2( 0.035, 0.05 + 0.035 * sqrt( 3.0 ) ) ) );
-  }
-
   // rings
   {
     float d2 = 1E9;

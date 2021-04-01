@@ -8,11 +8,15 @@ import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { SufferTexts } from './SufferTexts';
 import { Wobbleball } from './Wobbleball';
 
+interface SceneNeuroOptions {
+  scenes: Entity[];
+}
+
 export class SceneNeuro extends Entity {
   public readonly lights: LightEntity[];
   private readonly __shafts: LightShaft[];
 
-  public constructor() {
+  public constructor( { scenes }: SceneNeuroOptions ) {
     super();
 
     // -- lights -----------------------------------------------------------------------------------
@@ -26,7 +30,7 @@ export class SceneNeuro extends Entity {
       [ [ 20.0, 20.0, 20.0 ], [ 0.0, -2.0, 4.0 ], false ],
     ] as TypeScriptSucks ).map( ( [ color, pos, isSpot ], i ) => {
       const light = new LightEntity( {
-        scenes: [ this ],
+        scenes,
         shadowMapFov: isSpot ? 15.0 : 50.0,
         shadowMapNear: 0.5,
         shadowMapFar: 20.0,
@@ -35,7 +39,7 @@ export class SceneNeuro extends Entity {
       } );
 
       light.color = color;
-      light.spotness = isSpot ? 0.99 : 0.0;
+      light.spotness = isSpot ? 0.9 : 0.0;
       light.transform.lookAt( new Vector3( pos ) );
 
       if ( isSpot ) {

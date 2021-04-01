@@ -41,7 +41,7 @@ export class IFSPistons extends Entity {
       raymarchObjectVert,
       ifsPistonFrag,
       {
-        defines: [ 'SHADOW 1' ],
+        defines: [ 'DEPTH 1' ],
         initOptions: { geometry, target: dummyRenderTarget }
       },
     );

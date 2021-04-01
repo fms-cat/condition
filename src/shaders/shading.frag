@@ -48,9 +48,9 @@ uniform sampler2D samplerRandom;
 
 // == commons ======================================================================================
 #pragma glslify: prng = require( ./-prng );
-#pragma glslify: brdfLambert = require( ./modules/brdfLambert.glsl );
-#pragma glslify: brdfSpecularGGX = require( ./modules/brdfSpecularGGX.glsl );
 #pragma glslify: importanceSampleGGX = require( ./modules/importanceSampleGGX.glsl );
+#pragma glslify: doAnalyticLighting = require( ./modules/doAnalyticLighting.glsl );
+#pragma glslify: doShadowMapping = require( ./modules/doShadowMapping.glsl );
 
 vec3 catColor( float _p ) {
   return 0.5 + 0.5 * vec3(
@@ -170,35 +170,30 @@ vec3 shadePBR( Isect isect ) {
   for ( int iLight = 0; iLight < 8; iLight ++ ) {
     if ( iLight >= lightCount ) { break; }
 
-    // calc vectors
     vec3 L = lightPos[ iLight ] - isect.position;
-    float lenL = length( L );
-    L = normalize( L );
 
-    vec3 H = normalize( V + L );
-    float NdotL = clamp( dot( isect.normal, L ), EPSILON, 1.0 );
-    float NdotH = clamp( dot( isect.normal, H ), EPSILON, 1.0 );
-    float VdotH = clamp( dot( V, H ), EPSILON, 1.0 );
-
-    float decayL = 1.0 / ( lenL * lenL );
+    // shading
+    vec3 shade = doAnalyticLighting(
+      V,
+      L,
+      isect.normal,
+      isect.color,
+      roughness,
+      metallic
+    ) * lightColor[ iLight ] * ao;
 
     // fetch shadowmap + spot lighting
     vec4 lightProj = lightPV[ iLight ] * vec4( isect.position, 1.0 );
     vec2 lightP = lightProj.xy / lightProj.w;
 
-    float shadow = mix(
-      1.0,
-      smoothstep( 1.0, 0.5, length( lightP ) ),
+    shade *= doShadowMapping(
+      L,
+      isect.normal,
+      fetchShadowMap( iLight, 0.5 + 0.5 * lightP ),
+      lightP,
+      lightNearFar[ iLight ],
       lightParams[ iLight ].x
     );
-
-    shadow *= castShadow( iLight, lightP * 0.5 + 0.5, isect, NdotL );
-
-    // do shading
-    vec3 diffuse = brdfLambert( f0, albedo, VdotH );
-    vec3 spec = brdfSpecularGGX( f0, roughness, VdotH, NdotL, NdotV, NdotH );
-
-    vec3 shade = PI * lightColor[ iLight ] * decayL * ao * shadow * NdotL * ( diffuse + spec );
 
     color += shade;
   }
@@ -208,16 +203,16 @@ vec3 shadePBR( Isect isect ) {
 
   // diffuse ibl
   vec2 uvEnvDiffuse = vec2(
-    0.5 + atan( nEnvDiffuse.x, -nEnvDiffuse.z ) / TAU,
+    0.5 + atan( nEnvDiffuse.x, nEnvDiffuse.z ) / TAU,
     0.5 + atan( nEnvDiffuse.y, length( nEnvDiffuse.zx ) ) / PI
   );
   vec3 texEnvDiffuse = sampleEnvNearest( uvEnvDiffuse, 4.0 ).rgb;
   color += ao * texEnvDiffuse * albedo;
 
   // reflective ibl
-  vec3 reflEnvReflective = reflect( V, isect.normal );
+  vec3 reflEnvReflective = reflect( -V, isect.normal );
   vec2 uvEnvReflective = vec2(
-    0.5 + atan( reflEnvReflective.x, -reflEnvReflective.z ) / TAU,
+    0.5 + atan( reflEnvReflective.x, reflEnvReflective.z ) / TAU,
     0.5 + atan( reflEnvReflective.y, length( reflEnvReflective.zx ) ) / PI
   );
   vec2 brdfEnvReflective = texture( samplerIBLLUT, vec2( NdotV, roughness ) ).xy;
@@ -245,7 +240,7 @@ void main() {
   isect.screenUv = vUv;
   isect.position = tex0.xyz;
   isect.depth = tex0.w;
-  isect.normal = tex1.xyz;
+  isect.normal = normalize( tex1.xyz );
   isect.color = tex2.rgb;
   isect.materialId = int( tex3.w + 0.5 );
   isect.materialParams = tex3.xyz;
@@ -272,9 +267,9 @@ void main() {
     color = shadePBR( isect );
 
     // really really cheap full spectrum
-    vec3 refrEnvRefractive = refract( V, isect.normal, 1.0 / 2.56 );
+    vec3 refrEnvRefractive = refract( -V, isect.normal, 1.0 / 2.56 );
     vec2 uvEnvRefractive = vec2(
-      0.5 + atan( refrEnvRefractive.x, -refrEnvRefractive.z ) / TAU,
+      0.5 + atan( refrEnvRefractive.x, refrEnvRefractive.z ) / TAU,
       0.5 + atan( refrEnvRefractive.y, length( refrEnvRefractive.zx ) ) / PI
     );
     vec3 texEnvRefractive = sampleEnvLinear( uvEnvRefractive, 0.5 ).rgb;
@@ -283,7 +278,6 @@ void main() {
 
   }
 
-  float lenV = length( cameraPos - isect.position );
   color *= exp( -0.4 * max( lenV - 3.0, 0.0 ) );
 
   // color = 0.5 + 0.5 * isect.normal;
@@ -291,7 +285,7 @@ void main() {
   // color = vec3( 0.5, 0.2, 0.9 ) * ( 1.0 - texture( samplerAo, isect.screenUv ).xyz );
   // color = mix(
   //   color,
-  //   vec3( 0.96 ) * smoothstep( 0.9, 0.1, texture( samplerAo, isect.screenUv ).xyz ),
+  //   vec3( 0.96 ) * smoothstep( 0.5, 0.9, texture( samplerAo, isect.screenUv ).xyz ),
   //   1.0
   // );
 

@@ -9,21 +9,25 @@ import { DeferredCamera } from './entities/DeferredCamera';
 import { Dog } from './heck/Dog';
 import { Entity } from './heck/Entity';
 import { EnvironmentMap } from './entities/EnvironmentMap';
-import { FlashyTerrain } from './entities/FlashyTerrain';
+import { FlashyBall } from './entities/FlashyBall';
 import { FlickyParticles } from './entities/FlickyParticles';
 import { ForwardCamera } from './entities/ForwardCamera';
 import { Glitch } from './entities/Glitch';
 import { IBLLUT } from './entities/IBLLUT';
+import { IFSAsUsual } from './entities/IFSAsUsual';
 import { Lambda } from './heck/components/Lambda';
+import { NoiseVoxels } from './entities/NoiseVoxels';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
 import { SceneBegin } from './entities/SceneBegin';
 import { SceneCrystals } from './entities/SceneCrystals';
+import { SceneDynamic } from './entities/SceneDynamic';
 import { SceneNeuro } from './entities/SceneNeuro';
 import { Serial } from './entities/Serial';
 import { SphereParticles } from './entities/SphereParticles';
 import { Swap, Vector3 } from '@fms-cat/experimental';
+import { Tetrahedron } from './entities/Tetrahedron';
 import { Trails } from './entities/Trails';
 import { arraySetDelete } from './utils/arraySetDelete';
 import { auto, automaton } from './globals/automaton';
@@ -50,12 +54,10 @@ dog.root.components.push( new Lambda( {
 
 // -- util -----------------------------------------------------------------------------------------
 class EntityReplacer<T extends Entity> {
-  private __root: Entity;
   public current!: T;
   public creator: () => T;
 
-  public constructor( root: Entity, creator: () => T, name?: string ) {
-    this.__root = root;
+  public constructor( creator: () => T, name?: string ) {
     this.creator = creator;
     this.replace();
 
@@ -73,12 +75,12 @@ class EntityReplacer<T extends Entity> {
   public replace(): void {
     if ( process.env.DEV ) {
       if ( this.current ) {
-        arraySetDelete( this.__root.children, this.current );
+        arraySetDelete( dog.root.children, this.current );
       }
     }
 
     this.current = this.creator();
-    this.__root.children.push( this.current );
+    dog.root.children.push( this.current );
 
     // not visible by default
     this.current.active = false;
@@ -95,7 +97,6 @@ const deferredRoot = new Entity();
 dog.root.children.push( deferredRoot );
 
 const replacerSphereParticles = new EntityReplacer(
-  deferredRoot,
   () => new SphereParticles(),
   'SphereParticles',
 );
@@ -105,25 +106,57 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerFlashyTerrain = new EntityReplacer(
-  deferredRoot,
-  () => new FlashyTerrain(),
-  'FlashyTerrain',
+const replacerFlashyBall = new EntityReplacer(
+  () => new FlashyBall(),
+  'FlashyBall',
 );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/FlashyTerrain', () => {
-    replacerFlashyTerrain.replace();
+  module.hot.accept( './entities/FlashyBall', () => {
+    replacerFlashyBall.replace();
   } );
 }
 
-const replacerTrails = new EntityReplacer( deferredRoot, () => new Trails(), 'Trails' );
+const replacerTetrahedron = new EntityReplacer(
+  () => new Tetrahedron(),
+  'Tetrahedron',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/Tetrahedron', () => {
+    replacerTetrahedron.replace();
+  } );
+}
+
+const replacerNoiseVoxels = new EntityReplacer(
+  () => new NoiseVoxels(),
+  'NoiseVoxels',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/NoiseVoxels', () => {
+    replacerNoiseVoxels.replace();
+  } );
+}
+
+const replacerIFSAsUsual = new EntityReplacer(
+  () => new IFSAsUsual(),
+  'IFSAsUsual',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/IFSAsUsual', () => {
+    replacerIFSAsUsual.replace();
+  } );
+}
+
+const replacerTrails = new EntityReplacer( () => new Trails(), 'Trails' );
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/Trails', () => {
     replacerTrails.replace();
   } );
 }
 
-const replacerSceneBegin = new EntityReplacer( deferredRoot, () => new SceneBegin(), 'SceneBegin' );
+const replacerSceneBegin = new EntityReplacer(
+  () => new SceneBegin( { scenes: [ dog.root ] } ),
+  'SceneBegin'
+);
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/SceneBegin', () => {
     replacerSceneBegin.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
@@ -132,7 +165,25 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerSceneNeuro = new EntityReplacer( deferredRoot, () => new SceneNeuro(), 'SceneNeuro' );
+const replacerSceneDynamic = new EntityReplacer(
+  () => new SceneDynamic( { scenes: [ dog.root ] } ),
+  'SceneDynamic',
+);
+
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SceneDynamic', () => {
+    replacerSceneDynamic.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
+    replacerSceneDynamic.replace();
+    lights.push( ...replacerSceneDynamic.current.lights );
+    replacerSceneDynamic.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
+  } );
+}
+
+const replacerSceneNeuro = new EntityReplacer(
+  () => new SceneNeuro( { scenes: [ dog.root ] } ),
+  'SceneNeuro'
+);
+
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/SceneNeuro', () => {
     replacerSceneNeuro.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
@@ -142,7 +193,10 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-const replacerSceneCrystals = new EntityReplacer( deferredRoot, () => new SceneCrystals(), 'SceneCrystals' );
+const replacerSceneCrystals = new EntityReplacer(
+  () => new SceneCrystals( { scenes: [ dog.root ] } ),
+  'SceneCrystals',
+);
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/SceneCrystals', () => {
     replacerSceneCrystals.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
@@ -157,7 +211,6 @@ const forwardRoot = new Entity();
 dog.root.children.push( forwardRoot );
 
 const replacerFlickyParticles = new EntityReplacer(
-  forwardRoot,
   () => new FlickyParticles(),
   'FlickyParticles',
 );
@@ -187,6 +240,7 @@ const swap = new Swap(
 const lights = [
   ...replacerSceneBegin.current.lights,
   ...replacerSceneNeuro.current.lights,
+  ...replacerSceneDynamic.current.lights,
   ...replacerSceneCrystals.current.lights,
 ];
 
@@ -222,6 +276,7 @@ const deferredCamera = new DeferredCamera( {
 } );
 dog.root.children.push( deferredCamera );
 replacerSceneNeuro.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
+replacerSceneDynamic.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
 replacerSceneCrystals.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
 
 const forwardCamera = new ForwardCamera( {
@@ -275,9 +330,9 @@ dog.root.components.push( new Lambda( {
       if ( shake > 0.0 ) {
         camera.transform.position = camera.transform.position.add(
           new Vector3( [
-            Math.sin( 145.0 * time ),
-            Math.sin( 2.0 + 148.0 * time ),
-            Math.sin( 4.0 + 151.0 * time )
+            Math.sin( 45.0 * time ),
+            Math.sin( 2.0 + 48.0 * time ),
+            Math.sin( 4.0 + 51.0 * time )
           ] ).scale( shake )
         );
       }

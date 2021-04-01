@@ -3,35 +3,40 @@ import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
-import { Quaternion, Vector3 } from '@fms-cat/experimental';
+import { Quaternion, Vector3, matrix3d } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genCube } from '../geometries/genCube';
 import { glCat } from '../globals/canvas';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 import { quadGeometry } from '../globals/quadGeometry';
-import cubeFrag from '../shaders/cube.frag';
-import cubeVert from '../shaders/cube.vert';
 import depthFrag from '../shaders/depth.frag';
+import noiseVoxelsFrag from '../shaders/noise-voxels.frag';
+import noiseVoxelsVert from '../shaders/noise-voxels.vert';
 
-const PRIMCOUNT = 64;
+const CUBE_PER_AXIS = 8;
+const PRIMCOUNT = CUBE_PER_AXIS * CUBE_PER_AXIS * CUBE_PER_AXIS;
 
-export class Cube extends Entity {
+export class NoiseVoxels extends Entity {
   public mesh: Mesh;
 
   public constructor() {
     super();
 
-    const rot0 = Quaternion.fromAxisAngle(
-      new Vector3( [ 1.0, 0.0, 0.0 ] ),
-      0.4,
-    ).multiply( Quaternion.fromAxisAngle(
-      new Vector3( [ 0.0, 0.0, 1.0 ] ),
-      0.4,
-    ) );
+    this.transform.scale = Vector3.one.scale( 0.7 );
 
-    this.transform.rotation = rot0;
-    this.transform.scale = this.transform.scale.scale( 0.3 );
+    // -- updater ----------------------------------------------------------------------------------
+    this.components.push( new Lambda( {
+      onUpdate: ( { time } ) => {
+        this.transform.rotation = Quaternion.fromAxisAngle(
+          new Vector3( [ 1.0, 0.5, -2.0 ] ).normalized,
+          0.4 * time,
+        ).multiply( Quaternion.fromAxisAngle(
+          new Vector3( [ 0.0, 1.0, 0.2 ] ).normalized,
+          time,
+        ) );
+      },
+    } ) );
 
     // -- geometry ---------------------------------------------------------------------------------
     const cube = genCube();
@@ -42,10 +47,10 @@ export class Cube extends Entity {
     geometry.vao.bindVertexbuffer( cube.normal, 1, 3 );
     geometry.vao.bindIndexbuffer( cube.index );
 
-    const arrayInstanceId = [ ...Array( PRIMCOUNT ).keys() ];
-    const bufferInstanceId = glCat.createBuffer();
-    bufferInstanceId.setVertexbuffer( new Float32Array( arrayInstanceId ) );
-    geometry.vao.bindVertexbuffer( bufferInstanceId, 2, 1, 1 );
+    const arrayInstancePos = matrix3d( CUBE_PER_AXIS, CUBE_PER_AXIS, CUBE_PER_AXIS );
+    const bufferInstancePos = glCat.createBuffer();
+    bufferInstancePos.setVertexbuffer( new Float32Array( arrayInstancePos ) );
+    geometry.vao.bindVertexbuffer( bufferInstancePos, 2, 3, 1 );
 
     geometry.count = cube.count;
     geometry.mode = cube.mode;
@@ -54,8 +59,8 @@ export class Cube extends Entity {
 
     // -- materials --------------------------------------------------------------------------------
     const deferred = new Material(
-      cubeVert,
-      cubeFrag,
+      noiseVoxelsVert,
+      noiseVoxelsFrag,
       {
         defines: [ 'DEFERRED 1' ],
         initOptions: { geometry: quadGeometry, target: dummyRenderTargetFourDrawBuffers },
@@ -63,7 +68,7 @@ export class Cube extends Entity {
     );
 
     const depth = new Material(
-      cubeVert,
+      noiseVoxelsVert,
       depthFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
@@ -74,40 +79,29 @@ export class Cube extends Entity {
       if ( module.hot ) {
         module.hot.accept(
           [
-            '../shaders/cube.vert',
-            '../shaders/cube.frag',
+            '../shaders/noise-voxels.vert',
+            '../shaders/noise-voxels.frag',
           ],
           () => {
-            deferred.replaceShader( cubeVert, cubeFrag );
-            depth.replaceShader( cubeVert, depthFrag );
+            deferred.replaceShader( noiseVoxelsVert, noiseVoxelsFrag );
+            depth.replaceShader( noiseVoxelsVert, depthFrag );
           },
         );
       }
     }
 
-    // -- updater ----------------------------------------------------------------------------------
-    this.components.push( new Lambda( {
-      onUpdate: ( { time } ) => {
-        this.transform.rotation = rot0.multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 1.0, 0.0 ] ), time )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 1.0, 0.0, 0.0 ] ), 1.0 )
-        ).multiply(
-          Quaternion.fromAxisAngle( new Vector3( [ 0.0, 0.0, 1.0 ] ), 1.0 )
-        );
-
-        objectValuesMap( materials, ( material ) => (
-          material.addUniform( 'clap', '1f', auto( 'Sync/first/clap' ) )
-        ) );
-      },
-      name: process.env.DEV && 'Cube/speen',
-    } ) );
+    // -- auto -------------------------------------------------------------------------------------
+    auto( 'NoiseVoxels/phase', ( { value } ) => {
+      objectValuesMap( materials, ( material ) => {
+        material.addUniform( 'phase', '1f', value );
+      } );
+    } );
 
     // -- mesh -------------------------------------------------------------------------------------
     this.mesh = new Mesh( {
       geometry: geometry,
       materials,
-      name: process.env.DEV && 'Cube/mesh',
+      name: process.env.DEV && 'NoiseVoxels/mesh',
     } );
     this.components.push( this.mesh );
   }

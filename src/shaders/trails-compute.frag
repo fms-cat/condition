@@ -15,6 +15,7 @@ layout (location = 0) out vec4 fragCompute0;
 layout (location = 1) out vec4 fragCompute1;
 
 uniform bool init;
+uniform bool shouldUpdate;
 uniform float time;
 uniform float beat;
 uniform float trails;
@@ -51,7 +52,7 @@ vec4 sampleRandom( vec2 _uv ) {
 }
 
 #pragma glslify: prng = require( ./-prng );
-#pragma glslify: noise = require( ./-simplex4d );
+#pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
 
 vec3 randomSphere( inout vec4 seed ) {
   vec3 v;
@@ -107,11 +108,16 @@ void main() {
 
   // == if it is not head of particles =============================================================
   if ( 1.0 < gl_FragCoord.x ) {
-    uv.x -= 1.0 / resolution.x;
+    if ( shouldUpdate ) {
+      uv.x -= 1.0 / resolution.x;
+    }
+
     vec4 tex0 = texture( samplerCompute0, uv );
     vec4 tex1 = texture( samplerCompute1, uv );
 
-    tex0.w = saturate( tex0.w - 1.0 / trailLength ); // decrease the life
+    if ( shouldUpdate ) {
+      tex0.w = saturate( tex0.w - 1.0 / trailLength ); // decrease the life
+    }
 
     fragCompute0 = tex0;
     fragCompute1 = tex1;
@@ -157,11 +163,7 @@ void main() {
 
   // == update particles ===========================================================================
   // noise field
-  vel += 40.0 * vec3(
-    noise( vec4( pos.xyz, 1.485 + sin( time * 0.1 ) + noisePhase ) ),
-    noise( vec4( pos.xyz, 3.485 + sin( time * 0.1 ) + noisePhase ) ),
-    noise( vec4( pos.xyz, 5.485 + sin( time * 0.1 ) + noisePhase ) )
-  ) * dt;
+  vel += 40.0 * cyclicNoise( pos ) * dt;
 
   // resistance
   vel *= exp( -10.0 * dt );

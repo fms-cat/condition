@@ -1,6 +1,7 @@
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
+import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers, dummyRenderTargetTwoDrawBuffers } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
@@ -37,6 +38,15 @@ export class Trails extends Entity {
         } );
       }
     }
+
+    // -- lambda to say update ---------------------------------------------------------------------
+    this.components.push( new Lambda( {
+      onUpdate: ( { time, deltaTime } ) => {
+        const shouldUpdate
+          = Math.floor( 60.0 * time ) !== Math.floor( 60.0 * ( time - deltaTime ) );
+        materialCompute.addUniform( 'shouldUpdate', '1i', shouldUpdate ? 1 : 0 );
+      },
+    } ) );
 
     // -- geometry render --------------------------------------------------------------------------
     const geometryRender = new InstancedGeometry();

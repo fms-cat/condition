@@ -70,8 +70,9 @@ vec3 liftGammaGain( vec3 rgb ) {
 void main() {
   vec2 uv = vUv;
 
-  if ( mosaicAmp > 1.0 ) {
-    uv = lofi( uv - 0.5, mosaicAmp / resolution ) + mosaicAmp * 0.5 / resolution + 0.5;
+  float mosaic = mosaicAmp * resolution.y;
+  if ( mosaic > 1.0 ) {
+    uv = lofi( uv - 0.5, mosaic / resolution ) + mosaic * 0.5 / resolution + 0.5;
   }
 
   vec2 p = ( uv * resolution * 2.0 - resolution ) / resolution.y;

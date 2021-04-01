@@ -4,15 +4,20 @@ import { Entity } from '../heck/Entity';
 import { LightEntity } from './LightEntity';
 import { Vector3 } from '@fms-cat/experimental';
 
+
+interface SceneBeginOptions {
+  scenes: Entity[];
+}
+
 export class SceneBegin extends Entity {
   public readonly lights: LightEntity[];
 
-  public constructor() {
+  public constructor( { scenes }: SceneBeginOptions ) {
     super();
 
     // -- lights -----------------------------------------------------------------------------------
     const light1 = new LightEntity( {
-      scenes: [ this ],
+      scenes,
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
@@ -22,7 +27,7 @@ export class SceneBegin extends Entity {
     light1.transform.lookAt( new Vector3( [ 4.0, 4.0, 4.0 ] ) );
 
     const light2 = new LightEntity( {
-      scenes: [ this ],
+      scenes,
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,

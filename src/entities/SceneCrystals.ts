@@ -10,11 +10,15 @@ import { Quaternion, Vector3, Xorshift } from '@fms-cat/experimental';
 import { Rings } from './Rings';
 import { auto } from '../globals/automaton';
 
+interface SceneCrystalsOptions {
+  scenes: Entity[];
+}
+
 export class SceneCrystals extends Entity {
   public readonly lights: LightEntity[];
   private __phantom: Phantom;
 
-  public constructor() {
+  public constructor( { scenes }: SceneCrystalsOptions ) {
     super();
 
     // -- crystals ---------------------------------------------------------------------------------
@@ -79,14 +83,18 @@ export class SceneCrystals extends Entity {
 
     // -- lights -----------------------------------------------------------------------------------
     const light1 = new LightEntity( {
-      scenes: [ this ],
+      scenes,
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightBegin1',
+      namePrefix: process.env.DEV && 'lightCrystals1',
     } );
     light1.color = [ 400.0, 400.0, 400.0 ];
     light1.transform.lookAt( new Vector3( [ 0.0, 4.0, 1.0 ] ) );
+
+    auto( 'SceneCrystals/light/amp', ( { value } ) => {
+      light1.color = [ 400.0 * value, 400.0 * value, 400.0 * value ];
+    } );
 
     this.lights = [ light1 ];
 

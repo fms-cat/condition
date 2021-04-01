@@ -2,9 +2,11 @@ import { Entity } from '../heck/Entity';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
+import { auto } from '../globals/automaton';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { genTorus } from '../geometries/genTorus';
 import { glCat } from '../globals/canvas';
+import { objectValuesMap } from '../utils/objectEntriesMap';
 import depthFrag from '../shaders/depth.frag';
 import ringsFrag from '../shaders/rings.frag';
 import ringsVert from '../shaders/rings.vert';
@@ -81,6 +83,13 @@ export class Rings extends Entity {
         );
       }
     }
+
+    // -- begin ------------------------------------------------------------------------------------
+    auto( 'Rings/begin', ( { value } ) => {
+      objectValuesMap( materials, ( material ) => {
+        material.addUniform( 'begin', '1f', value );
+      } );
+    } );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {

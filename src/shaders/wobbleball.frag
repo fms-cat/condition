@@ -7,10 +7,6 @@ precision highp float;
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
 
 const int MARCH_ITER = 90;
-const int MTL_UNLIT = 1;
-const int MTL_PBR = 2;
-const int MTL_GRADIENT = 3;
-const int MTL_IRIDESCENT = 4;
 const float PI = 3.14159265;
 const float TAU = PI * 2.0;
 
@@ -23,7 +19,7 @@ const float TAU = PI * 2.0;
 
 in vec4 vPositionWithoutModel;
 
-#ifdef SHADOW
+#ifdef DEPTH
   out vec4 fragColor;
 #endif
 
@@ -143,14 +139,14 @@ void main() {
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
     fragColor = vec4( vec3( 0.3 ), 1.0 );
-    fragWTF = vec4( vec3( 1.0, 0.1, 0.0 ), MTL_PBR );
+    fragWTF = vec4( vec3( 1.0, 0.1, 0.0 ), 2 );
   #endif
 
-  #ifdef SHADOW
+  #ifdef DEPTH
     float shadowDepth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,
-      length( cameraPos - rayPos )
+      length( cameraPos - modelPos.xyz )
     );
     fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
   #endif

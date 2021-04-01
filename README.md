@@ -1,4 +1,9 @@
-# <placeholder>
+# Condition
+
+## `#define COMPROMISE 1`
+
+I'm so embarrassed that this project contains so many dumb strategies about size / performance optimization because deadline matters.
+You totally shouldn't reference this project to do something by yourself.
 
 ## Build
 

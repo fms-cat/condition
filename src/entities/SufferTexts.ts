@@ -1,10 +1,11 @@
+import { AutomatonWithGUI } from '@fms-cat/automaton-with-gui';
 import { Entity } from '../heck/Entity';
 import { GPUParticles } from './GPUParticles';
 import { InstancedGeometry } from '../heck/InstancedGeometry';
 import { Lambda } from '../heck/components/Lambda';
 import { Material } from '../heck/Material';
 import { TRIANGLE_STRIP_QUAD } from '@fms-cat/experimental';
-import { auto } from '../globals/automaton';
+import { auto, automaton } from '../globals/automaton';
 import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
 import { quadGeometry } from '../globals/quadGeometry';
@@ -140,6 +141,20 @@ export class SufferTexts extends Entity {
       },
       name: process.env.DEV && 'SufferTexts/logic',
     } ) );
+
+    if ( process.env.DEV ) {
+      ( automaton as AutomatonWithGUI ).on( 'play', () => {
+        this.queue = [];
+      } );
+
+      ( automaton as AutomatonWithGUI ).on( 'pause', () => {
+        this.queue = [];
+      } );
+
+      ( automaton as AutomatonWithGUI ).on( 'seek', () => {
+        this.queue = [];
+      } );
+    }
 
     // -- gpu particles ----------------------------------------------------------------------------
     const gpuParticles = new GPUParticles( {

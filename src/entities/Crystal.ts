@@ -8,10 +8,9 @@ import { Material } from '../heck/Material';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
 import { Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
-import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genCube } from '../geometries/genCube';
 import { objectValuesMap } from '../utils/objectEntriesMap';
-import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import crystalFrag from '../shaders/crystal.frag';
 import raymarchObjectVert from '../shaders/raymarch-object.vert';
 
@@ -50,22 +49,23 @@ export class Crystal extends Entity {
       },
     );
 
-    const depth = new Material(
-      raymarchObjectVert,
-      crystalFrag,
-      {
-        defines: [ 'SHADOW 1' ],
-        initOptions: { geometry, target: dummyRenderTarget }
-      },
-    );
+    // I don't think we need this
+    // const depth = new Material(
+    //   raymarchObjectVert,
+    //   crystalFrag,
+    //   {
+    //     defines: [ 'DEPTH 1' ],
+    //     initOptions: { geometry, target: dummyRenderTarget }
+    //   },
+    // );
 
-    const materials = { deferred, depth };
+    const materials = { deferred };
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/crystal.frag', () => {
           deferred.replaceShader( raymarchObjectVert, crystalFrag );
-          depth.replaceShader( raymarchObjectVert, crystalFrag );
+          // depth.replaceShader( raymarchObjectVert, crystalFrag );
         } );
       }
     }
@@ -73,9 +73,6 @@ export class Crystal extends Entity {
     objectValuesMap( materials, ( material ) => {
       material.addUniform( 'size', '2f', width, height );
       material.addUniform( 'noiseOffset', '1f', noiseOffset );
-
-      material.addUniformTexture( 'samplerRandom', randomTexture.texture );
-      material.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
     } );
 
     // -- updater ----------------------------------------------------------------------------------
@@ -98,10 +95,6 @@ export class Crystal extends Entity {
               .inverse!
               .elements
           );
-
-          material.addUniform( 'deformAmp', '1f', auto( 'Music/NEURO_WUB_AMP' ) );
-          material.addUniform( 'deformFreq', '1f', auto( 'Music/NEURO_WUB_FREQ' ) + auto( 'Music/NEURO_DETUNE' ) );
-          material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         } );
       },
       name: process.env.DEV && 'Crystal/updater',
