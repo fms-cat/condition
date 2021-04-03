@@ -1,7 +1,7 @@
 # Condition
 
-"Condition" by FMS_Cat
-A 64KB WebGL Intro
+"Condition" by FMS_Cat  
+A 64KB WebGL Intro  
 Appeared in Revision 2021, PC 64KB Intro Compo
 
 [See the demo!](https://fms-cat.github.io/condition/pages)
@@ -10,7 +10,7 @@ Appeared in Revision 2021, PC 64KB Intro Compo
 
 ## `#define COMPROMISE 1`
 
-I'm so embarrassed that this project contains so many dumb strategies about size / performance optimization because deadline matters.
+I'm so embarrassed that this project contains so many dumb strategies about size / performance optimization because deadline matters.  
 You totally shouldn't reference this project to do something by yourself.
 
 ## Build
@@ -35,11 +35,11 @@ Only works in development build
 
 ## Minification
 
-[terser's](https://terser.org/docs/api-reference.html) mangler is spicy
-you'll die instantly if you access to object properties using a string identifier
+[terser's](https://terser.org/docs/api-reference.html) mangler is spicy  
+you'll die instantly if you access to object properties using a string identifier  
 see `webpack.config.js` and `src/automaton-fxs/fxDefinitions.ts` for the funny jokes
 
-jsexe is good
+jsexe is good  
 note that it cannot parse nowadays ecmascript though
 
 shader minifier is way too spicy so I made a [separate document](./shader-minifier-tips.md)
