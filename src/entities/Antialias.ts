@@ -38,7 +38,7 @@ export class Antialias extends Entity {
     this.components.push( new Quad( {
       target: options.target,
       material,
-      name: process.env.DEV && 'Antialias/quad',
+      name: process.env.DEV && 'quad',
     } ) );
   }
 }

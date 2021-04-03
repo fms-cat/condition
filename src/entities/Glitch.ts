@@ -31,11 +31,16 @@ export class Glitch extends Entity {
     entityMain.visible = false;
     this.children.push( entityMain );
 
+    if ( process.env.DEV ) {
+      entityBypass.name = 'entityBypass';
+      entityMain.name = 'entityMain';
+    }
+
     // -- bypass -----------------------------------------------------------------------------------
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'Glitch/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } ) );
 
     // -- quad -------------------------------------------------------------------------------------
@@ -55,7 +60,7 @@ export class Glitch extends Entity {
     const quad = new Quad( {
       target: options.target,
       material: this.material,
-      name: process.env.DEV && 'Glitch/quad',
+      name: process.env.DEV && 'quad',
     } );
     entityMain.components.push( quad );
 

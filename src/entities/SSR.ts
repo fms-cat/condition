@@ -33,11 +33,16 @@ export class SSR extends Entity {
     entityMain.visible = false;
     this.children.push( entityMain );
 
+    if ( process.env.DEV ) {
+      entityBypass.name = 'entityBypass';
+      entityMain.name = 'entityMain';
+    }
+
     // -- bypass -----------------------------------------------------------------------------------
     entityBypass.components.push( new Blit( {
       src: options.shaded,
       dst: options.target,
-      name: 'SSR/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } ) );
 
     // -- ha ---------------------------------------------------------------------------------------
@@ -102,7 +107,7 @@ export class SSR extends Entity {
           ...camera.transform.position.elements
         );
       },
-      name: process.env.DEV && 'SSR/shading/setCameraUniforms',
+      name: process.env.DEV && 'setCameraUniforms',
     } );
     entityMain.components.push( lambda );
 
@@ -110,7 +115,7 @@ export class SSR extends Entity {
     const quad = new Quad( {
       target: options.target,
       material,
-      name: process.env.DEV && 'SSR/quad',
+      name: process.env.DEV && 'quad',
     } );
     entityMain.components.push( quad );
 

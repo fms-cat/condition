@@ -11,6 +11,7 @@ export interface EntityUpdateEvent {
   deltaTime: number;
   globalTransform: Transform;
   parent: Entity | null;
+  path?: string;
 }
 
 export interface EntityDrawEvent {
@@ -23,6 +24,13 @@ export interface EntityDrawEvent {
   camera: Camera;
   cameraTransform: Transform;
   materialTag: MaterialTag;
+  path?: string;
+}
+
+export interface EntityOptions {
+  active?: boolean;
+  visible?: boolean;
+  name?: string;
 }
 
 export class Entity {
@@ -34,8 +42,19 @@ export class Entity {
   public active = true;
   public visible = true;
 
+  public name?: string;
+
   public children: Entity[] = [];
   public components: Component[] = [];
+
+  public constructor( options?: EntityOptions ) {
+    this.active = options?.active ?? true;
+    this.visible = options?.visible ?? true;
+
+    if ( process.env.DEV ) {
+      this.name = options?.name ?? ( this as any ).constructor.name;
+    }
+  }
 
   public update( event: EntityUpdateEvent ): void {
     if ( !this.active ) { return; }
@@ -44,13 +63,19 @@ export class Entity {
 
     const globalTransform = event.globalTransform.multiply( this.transform );
 
+    let path: string;
+    if ( process.env.DEV ) {
+      path = `${ event.path }/${ this.name }`;
+    }
+
     this.components.forEach( ( component ) => {
       component.update( {
         frameCount: event.frameCount,
         time: event.time,
         deltaTime: event.deltaTime,
         globalTransform,
-        entity: this
+        entity: this,
+        path,
       } );
     } );
 
@@ -60,7 +85,8 @@ export class Entity {
         time: event.time,
         deltaTime: event.deltaTime,
         globalTransform,
-        parent: this
+        parent: this,
+        path,
       } );
     } );
   }
@@ -69,6 +95,11 @@ export class Entity {
     if ( !this.visible ) { return; }
 
     this.globalTransformCache = event.globalTransform.multiply( this.transform );
+
+    let path: string;
+    if ( process.env.DEV ) {
+      path = `${ event.path }/${ this.name }`;
+    }
 
     this.components.forEach( ( component ) => {
       component.draw( {
@@ -82,6 +113,7 @@ export class Entity {
         projectionMatrix: event.projectionMatrix,
         entity: this,
         materialTag: event.materialTag,
+        path,
       } );
     } );
 
@@ -96,6 +128,7 @@ export class Entity {
         camera: event.camera,
         cameraTransform: event.cameraTransform,
         materialTag: event.materialTag,
+        path,
       } );
     } );
   }

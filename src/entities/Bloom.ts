@@ -40,7 +40,7 @@ export class Bloom extends Entity {
     this.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'Bloom/blitDry',
+      name: process.env.DEV && 'blitDry',
     } ) );
 
     // -- down -------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ export class Bloom extends Entity {
         target: swap.o,
         material,
         range,
-        name: `Bloom/quadDown${ i }`,
+        name: `quadDown${ i }`,
       } ) );
 
       swap.swap();
@@ -102,7 +102,7 @@ export class Bloom extends Entity {
         target: isLast ? options.target : swap.o,
         material,
         range,
-        name: `Bloom/quadUp${ i }`,
+        name: `quadUp${ i }`,
       } ) );
 
       swap.swap();

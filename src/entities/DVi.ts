@@ -24,7 +24,7 @@ export class DVi extends Entity {
     const blitBypass = new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'DVi/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } );
 
     // -- dvi --------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ export class DVi extends Entity {
     const quadDVi = new Quad( {
       target: options.target,
       material,
-      name: process.env.DEV && 'DVi/quad',
+      name: process.env.DEV && 'quad',
     } );
 
     // -- components -------------------------------------------------------------------------------

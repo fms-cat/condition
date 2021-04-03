@@ -47,6 +47,7 @@ export class Racer extends Entity {
           = Math.floor( 60.0 * time ) !== Math.floor( 60.0 * ( time - deltaTime ) );
         materialCompute.addUniform( 'shouldUpdate', '1i', shouldUpdate ? 1 : 0 );
       },
+      name: process.env.DEV && 'updateShouldUpdate',
     } ) );
 
     // -- geometry render --------------------------------------------------------------------------
@@ -138,7 +139,7 @@ export class Racer extends Entity {
       computeWidth: TRAIL_LENGTH,
       computeHeight: TRAILS,
       computeNumBuffers: 2,
-      namePrefix: process.env.DEV && 'Racer',
+      brtNamePrefix: process.env.DEV && this.name,
     } );
     gpuParticles.meshRender.depthWrite = false;
     this.children.push( gpuParticles );

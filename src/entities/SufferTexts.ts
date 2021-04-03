@@ -164,7 +164,7 @@ export class SufferTexts extends Entity {
       computeWidth: PARTICLES,
       computeHeight: 1,
       computeNumBuffers: 1,
-      namePrefix: process.env.DEV && 'SufferTexts',
+      brtNamePrefix: process.env.DEV && this.name,
     } );
     gpuParticles.meshRender.depthTest = false;
     gpuParticles.meshRender.depthWrite = false;

@@ -69,7 +69,6 @@ export class FlashyBall extends Entity {
     this.mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'FlashyBall/mesh',
     } );
     this.components.push( this.mesh );
 
@@ -86,7 +85,7 @@ export class FlashyBall extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'FlashyBall/update',
+      name: process.env.DEV && 'speen',
     } ) );
   }
 }

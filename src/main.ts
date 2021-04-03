@@ -1,5 +1,4 @@
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
-import { Component } from './heck/components/Component';
 import { MUSIC_BPM, START_POSITION } from './config';
 import { automaton } from './globals/automaton';
 import { canvas } from './globals/canvas';
@@ -59,7 +58,6 @@ if ( process.env.DEV ) {
 
 // -- wenis ----------------------------------------------------------------------------------------
 if ( process.env.DEV ) {
-  console.info( Component.nameMap );
   console.info( BufferRenderTarget.nameMap );
 }
 

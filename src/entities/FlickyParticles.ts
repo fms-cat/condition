@@ -117,7 +117,7 @@ export class FlickyParticles extends Entity {
       computeWidth: PARTICLES_SQRT,
       computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 1,
-      namePrefix: process.env.DEV && 'FlickyParticles',
+      brtNamePrefix: process.env.DEV && this.name,
     } );
     gpuParticles.meshRender.cull = MeshCull.None;
     this.children.push( gpuParticles );

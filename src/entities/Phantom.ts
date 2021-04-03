@@ -51,14 +51,13 @@ export class Phantom extends Entity {
             .elements
         );
       },
-      name: process.env.DEV && 'Phantom/updater',
+      name: process.env.DEV && 'updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry: quadGeometry,
       materials,
-      name: process.env.DEV && 'Phantom/mesh',
     } );
     mesh.depthTest = false;
     mesh.depthWrite = false;

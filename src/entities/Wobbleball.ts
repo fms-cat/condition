@@ -92,14 +92,14 @@ export class Wobbleball extends Entity {
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         } );
       },
-      name: process.env.DEV && 'Wobbleball/updater',
+      name: process.env.DEV && 'updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Wobbleball/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );

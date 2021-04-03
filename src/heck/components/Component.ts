@@ -1,4 +1,4 @@
-import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_UPDATE_BREAKPOINT } from '../../config-hot';
+import { COMPONENT_DRAW_BREAKPOINT, COMPONENT_DRAW_PATTERN, COMPONENT_UPDATE_BREAKPOINT, COMPONENT_UPDATE_PATTERN } from '../../config-hot';
 import { Camera } from './Camera';
 import { Entity } from '../Entity';
 import { GPUTimer } from '../GPUTimer';
@@ -14,6 +14,7 @@ export interface ComponentUpdateEvent {
   deltaTime: number;
   globalTransform: Transform;
   entity: Entity;
+  path: string;
 }
 
 export interface ComponentDrawEvent {
@@ -27,6 +28,7 @@ export interface ComponentDrawEvent {
   viewMatrix: Matrix4;
   projectionMatrix: Matrix4;
   entity: Entity;
+  path: string;
 }
 
 export interface ComponentOptions {
@@ -38,9 +40,8 @@ export interface ComponentOptions {
 
 export class Component {
   public static gpuTimer?: GPUTimer;
-  public static updateList?: Promise<{ name?: string; cpu: number; gpu: number; }>[];
-  public static drawList?: Promise<{ name?: string; cpu: number; gpu: number; }>[];
-  public static nameMap = new Map<string, Component>();
+  public static updateList?: Promise<{ path?: string; cpu: number; gpu: number; }>[];
+  public static drawList?: Promise<{ path?: string; cpu: number; gpu: number; }>[];
   private static __updateHaveReachedBreakpoint = false;
   private static __drawHaveReachedBreakpoint = false;
 
@@ -53,13 +54,13 @@ export class Component {
           let accumCpu = 0.0;
           let accumGpu = 0.0;
 
-          const strEach = list.map( ( { name, cpu, gpu } ) => {
+          const strEach = list.map( ( { path, cpu, gpu } ) => {
             accumCpu += cpu;
             accumGpu += gpu;
-            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ name }`;
+            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ path }`;
           } ).join( '\n' );
 
-          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - UPDATE\n`;
+          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - UPDATE (${ COMPONENT_UPDATE_PATTERN })\n`;
           divComponentsUpdate.innerHTML = strAccum + strEach;
         } );
       }
@@ -78,13 +79,13 @@ export class Component {
           let accumCpu = 0.0;
           let accumGpu = 0.0;
 
-          const strEach = list.map( ( { name, cpu, gpu } ) => {
+          const strEach = list.map( ( { path, cpu, gpu } ) => {
             accumCpu += cpu;
             accumGpu += gpu;
-            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ name }`;
+            return `${ cpu.toFixed( 3 ) }, ${ gpu.toFixed( 3 ) } - ${ path }`;
           } ).join( '\n' );
 
-          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - DRAW\n`;
+          const strAccum = `${ accumCpu.toFixed( 3 ) }, ${ accumGpu.toFixed( 3 ) } - DRAW (${ COMPONENT_DRAW_PATTERN })\n`;
           divComponentsDraw.innerHTML = strAccum + strEach;
         } );
       }
@@ -99,32 +100,7 @@ export class Component {
   public active: boolean;
   public visible: boolean;
 
-  private __name?: string;
-  public get name(): string | undefined {
-    return this.__name;
-  }
-  public set name( name: string | undefined ) {
-    if ( process.env.DEV ) {
-      // remove previous one from the nameMap
-      if ( this.__name != null ) {
-        Component.nameMap.delete( this.__name );
-      }
-
-      this.__name = name;
-
-      // set the current one to the nameMap
-      if ( name != null ) {
-        if ( Component.nameMap.has( name ) ) {
-          console.warn( `Duplicated Component name, ${ name }` );
-          return;
-        }
-
-        Component.nameMap.set( name, this );
-      } else {
-        console.warn( 'Component without name' );
-      }
-    }
-  }
+  public name?: string;
 
   public ignoreBreakpoints?: boolean;
 
@@ -133,7 +109,7 @@ export class Component {
     this.visible = options?.visible ?? true;
 
     if ( process.env.DEV ) {
-      this.name = options?.name;
+      this.name = options?.name ?? ( this as any ).constructor.name;
       this.ignoreBreakpoints = options?.ignoreBreakpoints;
 
       Component.gpuTimer = new GPUTimer();
@@ -154,13 +130,19 @@ export class Component {
     if ( process.env.DEV ) {
       let cpu: number;
 
-      Component.updateList?.push(
-        Component.gpuTimer!.measure( () => {
-          const begin = performance.now();
-          this.__updateImpl( event );
-          cpu = ( performance.now() - begin ) * 0.001;
-        } ).then( ( gpu ) => ( { name: this.name, cpu, gpu } ) )
-      );
+      const path = `${ event.path }/${ this.name }`;
+
+      if ( COMPONENT_UPDATE_PATTERN.exec( path ) ) {
+        Component.updateList?.push(
+          Component.gpuTimer!.measure( () => {
+            const begin = performance.now();
+            this.__updateImpl( event );
+            cpu = ( performance.now() - begin ) * 0.001;
+          } ).then( ( gpu ) => ( { path, cpu, gpu } ) )
+        );
+      } else {
+        this.__updateImpl( event );
+      }
     } else {
       this.__updateImpl( event );
     }
@@ -188,13 +170,19 @@ export class Component {
     if ( process.env.DEV ) {
       let cpu: number;
 
-      Component.drawList?.push(
-        Component.gpuTimer!.measure( () => {
-          const begin = performance.now();
-          this.__drawImpl( event );
-          cpu = ( performance.now() - begin ) * 0.001;
-        } ).then( ( gpu ) => ( { name: this.name, cpu, gpu } ) )
-      );
+      const path = `${ event.path }/${ this.name }`;
+
+      if ( COMPONENT_DRAW_PATTERN.exec( path ) ) {
+        Component.drawList?.push(
+          Component.gpuTimer!.measure( () => {
+            const begin = performance.now();
+            this.__drawImpl( event );
+            cpu = ( performance.now() - begin ) * 0.001;
+          } ).then( ( gpu ) => ( { path, cpu, gpu } ) )
+        );
+      } else {
+        this.__drawImpl( event );
+      }
     } else {
       this.__drawImpl( event );
     }
@@ -212,26 +200,9 @@ export class Component {
 }
 
 if ( process.env.DEV ) {
-  const checkBreakpointNames = (): void => {
-    if (
-      COMPONENT_UPDATE_BREAKPOINT != null &&
-      Component.nameMap.get( COMPONENT_UPDATE_BREAKPOINT ?? '' ) == null
-    ) {
-      console.warn( `Component: Cannot retrieve a component, COMPONENT_UPDATE_BREAKPOINT: ${ COMPONENT_UPDATE_BREAKPOINT }` );
-    }
-
-    if (
-      COMPONENT_DRAW_BREAKPOINT != null &&
-      Component.nameMap.get( COMPONENT_DRAW_BREAKPOINT ?? '' ) == null
-    ) {
-      console.warn( `Component: Cannot retrieve a component, COMPONENT_DRAW_BREAKPOINT: ${ COMPONENT_DRAW_BREAKPOINT }` );
-    }
-  };
-  checkBreakpointNames();
-
   if ( module.hot ) {
     module.hot.accept( '../../config-hot', () => {
-      checkBreakpointNames();
+      // do nothing, just want to update breakpoints, and measures
     } );
   }
 }

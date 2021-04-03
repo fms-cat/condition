@@ -29,7 +29,6 @@ export class CubemapCameraEntity extends Entity {
       renderTarget: this.target,
       near: 1.0,
       far: 20.0,
-      name: 'CubemapCameraEntity/camera',
       materialTag: 'cubemap',
     } );
     this.components.push( this.camera );

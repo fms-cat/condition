@@ -1,4 +1,4 @@
-import { Entity } from '../heck/Entity';
+import { Entity, EntityOptions } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
 import { MaterialMap } from '../heck/Material';
@@ -7,29 +7,35 @@ import { Quaternion, Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 
-interface IFSPistonOptions {
+interface IFSPistonOptions extends EntityOptions {
   group: number;
   geometry: Geometry;
   materials: MaterialMap;
 }
 
 export class IFSPiston extends Entity {
-  public constructor( { group, geometry, materials }: IFSPistonOptions ) {
-    super();
+  public constructor( options: IFSPistonOptions ) {
+    super( options );
 
-    const entityCube = new Entity();
-    entityCube.transform.position = new Vector3( [ 0.0, 10.0, 0.0 ] );
-    this.children.push( entityCube );
+    const { group, geometry, materials } = options;
+
+    const pivot = new Entity();
+    pivot.transform.position = new Vector3( [ 0.0, 10.0, 0.0 ] );
+    this.children.push( pivot );
+
+    if ( process.env.DEV ) {
+      pivot.name = 'pivot';
+    }
 
     // -- animation --------------------------------------------------------------------------------
     const up = new Vector3( [ 0, 1, 0 ] );
 
     auto( `IFSPistons/group${ group }/rot`, ( { value } ) => {
-      entityCube.transform.rotation = Quaternion.fromAxisAngle( up, 4.0 * Math.PI * value );
+      pivot.transform.rotation = Quaternion.fromAxisAngle( up, 4.0 * Math.PI * value );
     } );
 
     // -- updater ----------------------------------------------------------------------------------
-    entityCube.components.push( new Lambda( {
+    pivot.components.push( new Lambda( {
       onDraw: ( event ) => {
         objectValuesMap( materials, ( material ) => {
           if ( material == null ) { return; }
@@ -58,16 +64,16 @@ export class IFSPiston extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'IFSPiston/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'IFSPiston/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
-    entityCube.components.push( mesh );
+    pivot.components.push( mesh );
   }
 }

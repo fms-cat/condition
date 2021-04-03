@@ -64,11 +64,11 @@ export class EnvironmentMap extends Entity {
       }
     }
 
-    this.components.push( new Quad( {
+    const quadIntegrate = new Quad( {
       target: swap.o,
       material: materialIntegrate,
-      name: process.env.DEV && 'EnvironmentMap/quadIntegrate',
-    } ) );
+      name: process.env.DEV && 'quadIntegrate',
+    } );
 
     // -- merge results ----------------------------------------------------------------------------
     swap.swap();
@@ -88,11 +88,11 @@ export class EnvironmentMap extends Entity {
       }
     }
 
-    this.components.push( new Quad( {
+    const quadMerge = new Quad( {
       target: swap.o,
       material: materialMerge,
-      name: process.env.DEV && 'EnvironmentMap/quadMerge',
-    } ) );
+      name: process.env.DEV && 'quadMerge',
+    } );
 
     // -- this is the output -----------------------------------------------------------------------
     this.texture = swap.o.texture;
@@ -103,7 +103,7 @@ export class EnvironmentMap extends Entity {
     } );
 
     // -- updater ----------------------------------------------------------------------------------
-    this.components.push( new Lambda( {
+    const lambdaUpdater = new Lambda( {
       onUpdate: () => {
         materialIntegrate.addUniform(
           'uniformSeed',
@@ -114,7 +114,14 @@ export class EnvironmentMap extends Entity {
           rng.gen(),
         );
       },
-      name: process.env.DEV && 'EnvironmentMap/updater',
-    } ) );
+      name: process.env.DEV && 'lambdaUpdater',
+    } );
+
+    // -- components -------------------------------------------------------------------------------
+    this.components.push(
+      lambdaUpdater,
+      quadIntegrate,
+      quadMerge,
+    );
   }
 }

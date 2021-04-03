@@ -79,7 +79,7 @@ export class CyclicBoard extends Entity {
       onDraw: ( { frameCount } ) => {
         setLightUniforms( forward, this.lights, frameCount );
       },
-      name: process.env.DEV && 'CyclicBoard/setLightUniforms',
+      name: process.env.DEV && 'setLightUniforms',
     } ) );
 
     // -- updater ----------------------------------------------------------------------------------
@@ -104,14 +104,14 @@ export class CyclicBoard extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'CyclicBoard/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'CyclicBoard/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );

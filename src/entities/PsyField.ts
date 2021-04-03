@@ -77,7 +77,7 @@ export class PsyField extends Entity {
     //   onDraw: ( { frameCount } ) => {
     //     setLightUniforms( forward, this.lights, frameCount );
     //   },
-    //   name: process.env.DEV && 'PsyField/setLightUniforms',
+    //   name: process.env.DEV && 'setLightUniforms',
     // } ) );
 
     // -- updater ----------------------------------------------------------------------------------
@@ -102,14 +102,14 @@ export class PsyField extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'PsyField/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'PsyField/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );

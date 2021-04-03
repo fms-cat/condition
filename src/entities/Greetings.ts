@@ -111,12 +111,12 @@ const swapIntermediate = new Swap(
   new BufferRenderTarget( {
     width: SPRITE_SHEET_SIZE,
     height: SPRITE_SHEET_SIZE,
-    name: process.env.DEV && 'Greetings/intermediate0',
+    name: process.env.DEV && 'Greetings/intermediateSwap0',
   } ),
   new BufferRenderTarget( {
     width: SPRITE_SHEET_SIZE,
     height: SPRITE_SHEET_SIZE,
-    name: process.env.DEV && 'Greetings/intermediate0',
+    name: process.env.DEV && 'Greetings/intermediateSwap1',
   } ),
 );
 
@@ -283,7 +283,6 @@ export class Greetings extends Entity {
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Greetings/mesh',
     } );
     mesh.depthTest = false;
     mesh.depthWrite = false;
@@ -316,7 +315,7 @@ export class Greetings extends Entity {
         bufferParams.setVertexbuffer( arrayParams, gl.STREAM_DRAW );
         bufferParams2.setVertexbuffer( arrayParams2, gl.STREAM_DRAW );
       },
-      name: process.env.DEV && 'Greetings/spawner',
+      name: process.env.DEV && 'spawner',
     } );
 
     // -- components -------------------------------------------------------------------------------

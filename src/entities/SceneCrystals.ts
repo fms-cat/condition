@@ -87,7 +87,8 @@ export class SceneCrystals extends Entity {
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightCrystals1',
+      name: process.env.DEV && 'light1',
+      brtNamePrefix: process.env.DEV && 'SceneCrystals/light1',
     } );
     light1.color = [ 100.0, 100.0, 100.0 ];
     light1.transform.lookAt( new Vector3( [ 0.0, 4.0, 1.0 ] ) );

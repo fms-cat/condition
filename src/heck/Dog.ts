@@ -16,6 +16,10 @@ export class Dog {
     this.root = new Entity();
     this.active = true;
 
+    if ( process.env.DEV ) {
+      this.root.name = 'root';
+    }
+
     const update = (): void => {
       if ( this.active ) {
         music.update();
@@ -25,11 +29,13 @@ export class Dog {
           deltaTime: music.deltaTime,
           globalTransform: new Transform(),
           parent: null,
+          path: process.env.DEV && '',
         } );
       }
 
       if ( process.env.DEV ) {
         Component.resetUpdateBreakpoint();
+        Component.resetDrawBreakpoint();
       }
 
       requestAnimationFrame( update );

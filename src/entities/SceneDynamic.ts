@@ -48,7 +48,8 @@ export class SceneDynamic extends Entity {
       shadowMapFov: 70.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightDynamic1',
+      name: process.env.DEV && 'light1',
+      brtNamePrefix: process.env.DEV && 'SceneDynamic/light1',
     } );
     light1.color = [ 50.0, 50.0, 50.0 ];
     light1.transform.lookAt( new Vector3( [ 5.0, 5.0, 5.0 ] ) );
@@ -58,7 +59,8 @@ export class SceneDynamic extends Entity {
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightDynamic2',
+      name: process.env.DEV && 'light2',
+      brtNamePrefix: process.env.DEV && 'SceneDynamic/light2',
     } );
     light2.spotness = 0.9;
     light2.color = [ 300.0, 360.0, 400.0 ];
@@ -66,7 +68,6 @@ export class SceneDynamic extends Entity {
 
     const shaft = new LightShaft( {
       light: light2,
-      namePrefix: process.env.DEV && 'sceneDynamic/light2/Shaft',
       intensity: 0.06,
     } );
     light2.children.push( shaft );

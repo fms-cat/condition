@@ -100,14 +100,14 @@ export class Cube extends Entity {
           material.addUniform( 'clap', '1f', auto( 'Sync/first/clap' ) )
         ) );
       },
-      name: process.env.DEV && 'Cube/speen',
+      name: process.env.DEV && 'speen',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     this.mesh = new Mesh( {
       geometry: geometry,
       materials,
-      name: process.env.DEV && 'Cube/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     this.components.push( this.mesh );
   }

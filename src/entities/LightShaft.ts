@@ -1,5 +1,5 @@
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { Entity } from '../heck/Entity';
+import { Entity, EntityOptions } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
 import { LightEntity } from './LightEntity';
@@ -12,17 +12,18 @@ import { randomTexture } from '../globals/randomTexture';
 import lightShaftFrag from '../shaders/light-shaft.frag';
 import lightShaftVert from '../shaders/light-shaft.vert';
 
-interface LightShaftOptions {
+interface LightShaftOptions extends EntityOptions {
   light: LightEntity;
   intensity?: number;
-  namePrefix?: string;
 }
 
 export class LightShaft extends Entity {
   private __forward: Material;
 
-  public constructor( { light, intensity, namePrefix }: LightShaftOptions ) {
-    super();
+  public constructor( options: LightShaftOptions ) {
+    super( options );
+
+    const { light, intensity } = options;
 
     // -- geometry ---------------------------------------------------------------------------------
     const cube = genCube();
@@ -76,14 +77,14 @@ export class LightShaft extends Entity {
           event.camera.far
         );
       },
-      name: process.env.DEV && `${ namePrefix }/updater`,
+      name: process.env.DEV && 'updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && `${ namePrefix }/mesh`,
+      name: process.env.DEV && 'mesh',
     } );
     mesh.depthTest = false;
     mesh.depthWrite = false;

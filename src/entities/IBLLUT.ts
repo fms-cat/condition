@@ -13,9 +13,7 @@ import { vdc } from '../utils/vdc';
 import iblLutFrag from '../shaders/ibl-lut.frag';
 import quadVert from '../shaders/quad.vert';
 
-export class IBLLUT {
-  public entity: Entity;
-
+export class IBLLUT extends Entity {
   public swap: Swap<BufferRenderTarget>;
 
   public get texture(): GLCatTexture {
@@ -23,8 +21,7 @@ export class IBLLUT {
   }
 
   public constructor() {
-    this.entity = new Entity();
-    this.entity.visible = false;
+    super();
 
     // -- swap -------------------------------------------------------------------------------------
     this.swap = new Swap(
@@ -57,17 +54,17 @@ export class IBLLUT {
     const quad = new Quad( {
       target: this.swap.o,
       material,
-      name: process.env.DEV && 'IBLLUT/quad',
+      name: process.env.DEV && 'quad',
     } );
 
     // -- swapper ----------------------------------------------------------------------------------
-    this.entity.components.push( new Lambda( {
+    this.components.push( new Lambda( {
       onUpdate: () => {
         samples ++;
         this.swap.swap();
 
         if ( samples > IBLLUT_ITER ) {
-          this.entity.active = false;
+          this.active = false; // THE LAMBDA ITSELF WILL ALSO BE DEACTIVATED
         } else {
           material.addUniform( 'samples', '1f', samples );
           material.addUniform( 'vdc', '1f', vdc( samples, 2.0 ) );
@@ -76,9 +73,9 @@ export class IBLLUT {
           quad.target = this.swap.o;
         }
       },
-      name: process.env.DEV && 'IBLLUT/swapper',
+      name: process.env.DEV && 'swapper',
     } ) );
 
-    this.entity.components.push( quad );
+    this.components.push( quad );
   }
 }

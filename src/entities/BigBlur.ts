@@ -28,11 +28,16 @@ export class BigBlur extends Entity {
     entityMain.visible = false;
     this.children.push( entityMain );
 
+    if ( process.env.DEV ) {
+      entityBypass.name = 'entityBypass';
+      entityMain.name = 'entityMain';
+    }
+
     // -- bypass -----------------------------------------------------------------------------------
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'BigBlur/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } ) );
 
     // -- h ----------------------------------------------------------------------------------------
@@ -58,7 +63,7 @@ export class BigBlur extends Entity {
     const quadH = new Quad( {
       target: targetH,
       material: materialH,
-      name: process.env.DEV && 'BigBlur/quadH',
+      name: process.env.DEV && 'quadH',
     } );
     entityMain.components.push( quadH );
 
@@ -82,7 +87,7 @@ export class BigBlur extends Entity {
     const quadV = new Quad( {
       target: options.target,
       material: materialV,
-      name: process.env.DEV && 'BigBlur/quad',
+      name: process.env.DEV && 'quadV',
     } );
     entityMain.components.push( quadV );
 

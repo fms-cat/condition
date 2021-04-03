@@ -37,7 +37,7 @@ export class DeferredCamera extends Entity {
       width: options.target.width,
       height: options.target.height,
       numBuffers: 4,
-      name: 'DeferredCamera/cameraTarget',
+      name: process.env.DEV && 'DeferredCamera/cameraTarget',
       filter: gl.NEAREST,
     } );
 
@@ -46,7 +46,7 @@ export class DeferredCamera extends Entity {
       renderTarget: this.cameraTarget,
       near: 0.1,
       far: 20.0,
-      name: 'DeferredCamera/camera',
+      name: process.env.DEV && 'camera',
       materialTag: 'deferred',
     } );
 
@@ -54,7 +54,7 @@ export class DeferredCamera extends Entity {
     const aoTarget = new BufferRenderTarget( {
       width: AO_RESOLUTION_RATIO * options.target.width,
       height: AO_RESOLUTION_RATIO * options.target.height,
-      name: 'DeferredCamera/aoTarget',
+      name: process.env.DEV && 'DeferredCamera/aoTarget',
     } );
 
     const aoMaterial = new Material(
@@ -75,7 +75,7 @@ export class DeferredCamera extends Entity {
           ).elements
         );
       },
-      name: process.env.DEV && 'DeferredCamera/ao/setCameraUniforms',
+      name: process.env.DEV && 'aoSetCameraUniforms',
     } );
 
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
@@ -90,7 +90,7 @@ export class DeferredCamera extends Entity {
     const aoQuad = new Quad( {
       material: aoMaterial,
       target: aoTarget,
-      name: process.env.DEV && 'DeferredCamera/ao/quad',
+      name: process.env.DEV && 'aoQuad',
     } );
 
     // -- deferred ---------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ export class DeferredCamera extends Entity {
     const shadingQuad = new Quad( {
       material: shadingMaterial,
       target: options.target,
-      name: process.env.DEV && 'DeferredCamera/shading/quad',
+      name: process.env.DEV && 'shadingQuad',
     } );
     shadingQuad.clear = [];
 
@@ -142,7 +142,7 @@ export class DeferredCamera extends Entity {
 
         setLightUniforms( shadingMaterial, options.lights, frameCount );
       },
-      name: process.env.DEV && 'DeferredCamera/shading/setCameraUniforms',
+      name: process.env.DEV && 'shadingSetCameraUniforms',
     } );
 
     for ( let i = 0; i < 4; i ++ ) {

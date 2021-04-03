@@ -1,5 +1,5 @@
 import { BufferRenderTarget, BufferRenderTargetOptions } from '../heck/BufferRenderTarget';
-import { Entity } from '../heck/Entity';
+import { Entity, EntityOptions } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
 import { Material, MaterialMap } from '../heck/Material';
@@ -9,30 +9,31 @@ import { Swap } from '@fms-cat/experimental';
 import { gl } from '../globals/canvas';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 
-export interface GPUParticlesOptions {
+export interface GPUParticlesOptions extends EntityOptions {
   materialCompute: Material;
   geometryRender: Geometry;
   materialsRender: MaterialMap;
   computeWidth: number;
   computeHeight: number;
   computeNumBuffers: number;
-  namePrefix?: string;
+  brtNamePrefix?: string;
 }
 
 export class GPUParticles extends Entity {
   public meshRender: Mesh;
 
-  public constructor( {
-    materialCompute,
-    geometryRender,
-    materialsRender,
-    computeWidth,
-    computeHeight,
-    computeNumBuffers,
-    namePrefix,
-  }: GPUParticlesOptions ) {
-    super();
+  public constructor( options: GPUParticlesOptions ) {
+    super( options );
 
+    const {
+      materialCompute,
+      geometryRender,
+      materialsRender,
+      computeWidth,
+      computeHeight,
+      computeNumBuffers,
+      brtNamePrefix,
+    } = options;
 
     const brtOptions: BufferRenderTargetOptions = {
       width: computeWidth,
@@ -43,12 +44,12 @@ export class GPUParticles extends Entity {
     const swapCompute = new Swap(
       new BufferRenderTarget( {
         ...brtOptions,
-        name: process.env.DEV && `${ namePrefix }/swap0`,
+        name: process.env.DEV && `${ brtNamePrefix }/swap0`,
         filter: gl.NEAREST,
       } ),
       new BufferRenderTarget( {
         ...brtOptions,
-        name: process.env.DEV && `${ namePrefix }/swap1`,
+        name: process.env.DEV && `${ brtNamePrefix }/swap1`,
         filter: gl.NEAREST,
       } ),
     );
@@ -57,14 +58,14 @@ export class GPUParticles extends Entity {
     const quadCompute = new Quad( {
       target: swapCompute.o,
       material: materialCompute,
-      name: process.env.DEV && `${ namePrefix }/quadCompute`,
+      name: process.env.DEV && 'quadCompute',
     } );
 
     // -- render -----------------------------------------------------------------------------------
     this.meshRender = new Mesh( {
       geometry: geometryRender,
       materials: materialsRender,
-      name: process.env.DEV && `${ namePrefix }/meshRender`,
+      name: process.env.DEV && 'meshRender',
     } );
 
     objectValuesMap( materialsRender, ( material ) => {
@@ -99,7 +100,7 @@ export class GPUParticles extends Entity {
 
         quadCompute.target = swapCompute.o;
       },
-      name: process.env.DEV && `${ namePrefix }/swapper`,
+      name: process.env.DEV && 'swapper',
     } ) );
 
     // -- rest of components -----------------------------------------------------------------------

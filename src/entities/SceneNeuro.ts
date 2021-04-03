@@ -34,7 +34,8 @@ export class SceneNeuro extends Entity {
         shadowMapNear: 0.5,
         shadowMapFar: 20.0,
         shadowMapSize: isSpot ? 64 : 256,
-        namePrefix: process.env.DEV && `lightPink${ i }/light`,
+        name: process.env.DEV && `light${ i }`,
+        brtNamePrefix: process.env.DEV && `SceneNeuro/light${ i }`,
       } );
 
       light.color = color;
@@ -44,7 +45,6 @@ export class SceneNeuro extends Entity {
       if ( isSpot ) {
         const shaft = new LightShaft( {
           light,
-          namePrefix: process.env.DEV && `lightPink${ i }/Shaft`,
           intensity: 0.06,
         } );
 

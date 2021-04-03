@@ -95,7 +95,7 @@ class EntityReplacer<T extends Entity> {
 
 // -- bake -----------------------------------------------------------------------------------------
 const ibllut = new IBLLUT();
-dog.root.children.push( ibllut.entity );
+dog.root.children.push( ibllut );
 
 const replacerFlickyParticles = new EntityReplacer(
   () => new FlickyParticles(),

@@ -71,11 +71,8 @@ export abstract class Camera extends Component {
         projectionMatrix: this.projectionMatrix,
         camera: this,
         materialTag: this.materialTag,
+        path: process.env.DEV && `(${ this.materialTag }) `,
       } );
     } );
-
-    if ( process.env.DEV ) {
-      Component.resetDrawBreakpoint();
-    }
   }
 }

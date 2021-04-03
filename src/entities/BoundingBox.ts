@@ -1,16 +1,11 @@
 import { Entity } from '../heck/Entity';
-import { InstancedGeometry } from '../heck/InstancedGeometry';
+import { Geometry } from '../heck/Geometry';
 import { Material } from '../heck/Material';
 import { Mesh } from '../heck/components/Mesh';
-import { Vector3 } from '@fms-cat/experimental';
-import { auto } from '../globals/automaton';
-import { createSVGTableTexture } from '../utils/createSVGTableTexture';
-import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget } from '../globals/dummyRenderTarget';
 import { gl, glCat } from '../globals/canvas';
-import { objectValuesMap } from '../utils/objectEntriesMap';
 import boundingBoxFrag from '../shaders/bounding-box.frag';
 import boundingBoxVert from '../shaders/bounding-box.vert';
-import { Geometry } from '../heck/Geometry';
 
 export class BoundingBox extends Entity {
   public constructor() {
@@ -79,20 +74,6 @@ export class BoundingBox extends Entity {
 
     const materials = { forward, cubemap: forward, depth };
 
-    objectValuesMap( materials, ( material ) => {
-      // auto( 'BoundingBox/phaseWidth', ( { value } ) => {
-      //   material.addUniform( 'phaseWidth', '1f', value );
-      // } );
-
-      // auto( 'Sync/first/clap', ( { value } ) => {
-      //   material.addUniform( 'phaseOffset', '1f', value );
-      // } );
-
-      // auto( 'BoundingBox/hahaRatio', ( { value } ) => {
-      //   material.addUniform( 'hahaRatio', '1f', value );
-      // } );
-    } );
-
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept(
@@ -112,7 +93,7 @@ export class BoundingBox extends Entity {
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'BoundingBox/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     this.components.push( mesh );
   }

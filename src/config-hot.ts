@@ -11,4 +11,6 @@ export const
   COMPONENT_UPDATE_BREAKPOINT: string | null = null,
   // COMPONENT_UPDATE_BREAKPOINT: string | null = 'lightDynamic2/shadowMapCamera',
   // COMPONENT_UPDATE_BREAKPOINT: string | null = 'lightDynamic1/shadowMapCamera',
-  COMPONENT_DRAW_BREAKPOINT: string | null = null;
+  COMPONENT_DRAW_BREAKPOINT: string | null = null,
+  COMPONENT_UPDATE_PATTERN = /.*/,
+  COMPONENT_DRAW_PATTERN = /deferred/;

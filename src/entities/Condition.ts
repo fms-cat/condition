@@ -157,7 +157,7 @@ export class Condition extends Entity {
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Condition/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     this.components.push( mesh );
   }

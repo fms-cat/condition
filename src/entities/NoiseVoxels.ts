@@ -101,7 +101,7 @@ export class NoiseVoxels extends Entity {
     this.mesh = new Mesh( {
       geometry: geometry,
       materials,
-      name: process.env.DEV && 'NoiseVoxels/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     this.components.push( this.mesh );
   }

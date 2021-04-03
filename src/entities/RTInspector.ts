@@ -26,7 +26,9 @@ export class RTInspector extends Entity {
     super();
 
     // -- single -----------------------------------------------------------------------------------
-    this.entitySingle = new Entity();
+    this.entitySingle = new Entity( {
+      name: 'entitySingle',
+    } );
     this.children.push( this.entitySingle );
 
     this.materialSingle = new Material(
@@ -38,7 +40,7 @@ export class RTInspector extends Entity {
     this.quadSingle = new Quad( {
       target: options.target,
       material: this.materialSingle,
-      name: 'RTInspector/quadSingle',
+      name: 'quadSingle',
       ignoreBreakpoints: true,
     } );
     this.entitySingle.components.push( this.quadSingle );
@@ -53,7 +55,9 @@ export class RTInspector extends Entity {
     } );
 
     // -- multiple ---------------------------------------------------------------------------------
-    this.entityMultiple = new Entity();
+    this.entityMultiple = new Entity( {
+      name: 'entityMultiple',
+    } );
     this.children.push( this.entityMultiple );
 
     // count first?
@@ -86,7 +90,7 @@ export class RTInspector extends Entity {
           dst: options.target,
           attachment: gl.COLOR_ATTACHMENT0 + iAttachment,
           dstRect,
-          name: `RTInspector/blitsMultiple/${ src.name }/${ iAttachment }`,
+          name: `${ src.name }/${ iAttachment }`,
           ignoreBreakpoints: true,
         } );
 

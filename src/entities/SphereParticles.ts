@@ -114,7 +114,7 @@ export class SphereParticles extends Entity {
       computeWidth: PARTICLES_SQRT,
       computeHeight: PARTICLES_SQRT,
       computeNumBuffers: 2,
-      namePrefix: process.env.DEV && 'SphereParticles',
+      brtNamePrefix: process.env.DEV && this.name,
     } );
     this.children.push( gpuParticles );
   }

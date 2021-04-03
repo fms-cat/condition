@@ -72,7 +72,7 @@ export class RectTorus extends Entity {
     this.mesh = new Mesh( {
       geometry: geometry,
       materials,
-      name: process.env.DEV && 'Cube/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     this.components.push( this.mesh );
   }

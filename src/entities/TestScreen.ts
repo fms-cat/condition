@@ -39,7 +39,7 @@ export class TestScreen extends Entity {
     const quad = new Quad( {
       target: options.target,
       material,
-      name: process.env.DEV && 'TestScreen/quad',
+      name: process.env.DEV && 'quad',
     } );
     this.components.push( quad );
 

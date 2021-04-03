@@ -47,7 +47,7 @@ export class LightCube extends Entity {
       onUpdate: () => {
         this.__forward.addUniform( 'color', '4f', ...this.color, 1.0 );
       },
-      name: 'LightBar/updater',
+      name: process.env.DEV && 'updater',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------

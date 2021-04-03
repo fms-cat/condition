@@ -31,11 +31,16 @@ export class Serial extends Entity {
     entityMain.visible = false;
     this.children.push( entityMain );
 
+    if ( process.env.DEV ) {
+      entityBypass.name = 'entityBypass';
+      entityMain.name = 'entityMain';
+    }
+
     // -- bypass -----------------------------------------------------------------------------------
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'Serial/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } ) );
 
     // -- encode -----------------------------------------------------------------------------------
@@ -93,14 +98,14 @@ export class Serial extends Entity {
     entityMain.components.push( new Quad( {
       target: bufferDecode,
       material: materialDecode,
-      name: process.env.DEV && 'Serial/quadDecode',
+      name: process.env.DEV && 'quadDecode',
     } ) );
 
     // -- blit to target -----------------------------------------------------------------------------
     entityMain.components.push( new Blit( {
       src: bufferDecode,
       dst: options.target,
-      name: 'Serial/blitTarget',
+      name: process.env.DEV && 'blitTarget',
       filter: gl.LINEAR,
     } ) );
 

@@ -1,5 +1,5 @@
 import { BufferRenderTarget } from '../heck/BufferRenderTarget';
-import { Entity } from '../heck/Entity';
+import { Entity, EntityOptions } from '../heck/Entity';
 import { Material } from '../heck/Material';
 import { PerspectiveCamera } from '../heck/components/PerspectiveCamera';
 import { Quad } from '../heck/components/Quad';
@@ -9,13 +9,13 @@ import { quadGeometry } from '../globals/quadGeometry';
 import quadVert from '../shaders/quad.vert';
 import shadowBlurFrag from '../shaders/shadow-blur.frag';
 
-export interface LightEntityOptions {
+export interface LightEntityOptions extends EntityOptions {
   scenes: Entity[];
   shadowMapFov?: number;
   shadowMapNear?: number;
   shadowMapFar?: number;
   shadowMapSize?: number;
-  namePrefix?: string;
+  brtNamePrefix?: string;
 }
 
 export class LightEntity extends Entity {
@@ -37,7 +37,7 @@ export class LightEntity extends Entity {
   }
 
   public constructor( options: LightEntityOptions ) {
-    super();
+    super( options );
 
     const swapOptions = {
       width: options.shadowMapSize ?? 1024,
@@ -47,11 +47,11 @@ export class LightEntity extends Entity {
     const swap = new Swap(
       new BufferRenderTarget( {
         ...swapOptions,
-        name: process.env.DEV && `${ options.namePrefix }/swap0`,
+        name: process.env.DEV && `${ options.brtNamePrefix }/swap0`,
       } ),
       new BufferRenderTarget( {
         ...swapOptions,
-        name: process.env.DEV && `${ options.namePrefix }/swap1`,
+        name: process.env.DEV && `${ options.brtNamePrefix }/swap1`,
       } )
     );
 
@@ -66,7 +66,7 @@ export class LightEntity extends Entity {
       far,
       renderTarget: swap.o,
       scenes: options.scenes,
-      name: process.env.DEV && `${ options.namePrefix }/shadowMapCamera`,
+      name: process.env.DEV && 'shadowMapCamera',
       materialTag: 'depth',
     } );
     this.camera.clear = [ 1.0, 1.0, 1.0, 1.0 ];
@@ -87,7 +87,7 @@ export class LightEntity extends Entity {
       this.components.push( new Quad( {
         target: swap.o,
         material,
-        name: process.env.DEV && `${ options.namePrefix }/quadShadowBlur${ i }`,
+        name: process.env.DEV && `quadShadowBlur${ i }`,
       } ) );
 
       swap.swap();

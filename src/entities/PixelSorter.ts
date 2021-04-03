@@ -34,6 +34,11 @@ export class PixelSorter extends Entity {
     entityMain.visible = false;
     this.children.push( entityMain );
 
+    if ( process.env.DEV ) {
+      entityBypass.name = 'entityBypass';
+      entityMain.name = 'entityMain';
+    }
+
     this.swapBuffer = new Swap(
       new BufferRenderTarget( {
         width: options.target.width,
@@ -60,7 +65,7 @@ export class PixelSorter extends Entity {
     entityBypass.components.push( new Blit( {
       src: options.input,
       dst: options.target,
-      name: 'PixelSorter/blitBypass',
+      name: process.env.DEV && 'blitBypass',
     } ) );
 
     // -- calc index -------------------------------------------------------------------------------
@@ -89,7 +94,7 @@ export class PixelSorter extends Entity {
       entityMain.components.push( new Quad( {
         target: isLast ? bufferIndex : this.swapBuffer.i,
         material,
-        name: process.env.DEV && `PixelSorter/quadIndex-${ mul }`,
+        name: process.env.DEV && `quadIndex-${ mul }`,
       } ) );
 
       this.swapBuffer.swap();
@@ -126,7 +131,7 @@ export class PixelSorter extends Entity {
       entityMain.components.push( new Quad( {
         target: isLast ? options.target : this.swapBuffer.i,
         material,
-        name: process.env.DEV && `PixelSorter/quad-${ dir }-${ comp }`,
+        name: process.env.DEV && `quad-${ dir }-${ comp }`,
       } ) );
 
       this.swapBuffer.swap();

@@ -79,7 +79,7 @@ export class IFSAsUsual extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'IFSAsUsual/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- speen ------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ export class IFSAsUsual extends Entity {
       onUpdate: ( { time } ) => {
         this.transform.rotation = Quaternion.fromAxisAngle( axis, time );
       },
-      name: process.env.DEV && 'IFSAsUsual/updater2',
+      name: process.env.DEV && 'speen',
     } ) );
 
     // -- auto -------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ export class IFSAsUsual extends Entity {
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'IFSAsUsual/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );

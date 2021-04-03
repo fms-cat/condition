@@ -20,7 +20,7 @@ export class ForwardCamera extends Entity {
       renderTarget: options.target,
       near: 0.1,
       far: 20.0,
-      name: 'ForwardCamera/camera',
+      name: process.env.DEV && 'camera',
       materialTag: 'forward',
     } );
     this.camera.clear = false;

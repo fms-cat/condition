@@ -89,14 +89,13 @@ export class Tetrahedron extends Entity {
           material.addUniform( 'deformTime', '1f', auto( 'Music/NEURO_TIME' ) );
         } );
       },
-      name: process.env.DEV && 'Tetrahedron/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Tetrahedron/mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
@@ -114,7 +113,7 @@ export class Tetrahedron extends Entity {
           );
         } );
       },
-      name: process.env.DEV && 'Tetrahedron/update',
+      name: process.env.DEV && 'speen',
     } ) );
   }
 }

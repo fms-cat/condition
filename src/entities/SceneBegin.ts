@@ -21,7 +21,8 @@ export class SceneBegin extends Entity {
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightBegin1',
+      name: process.env.DEV && 'light1',
+      brtNamePrefix: process.env.DEV && 'SceneBegin/light1',
     } );
     light1.color = [ 200.0, 200.0, 200.0 ];
     light1.transform.lookAt( new Vector3( [ 4.0, 4.0, 4.0 ] ) );
@@ -31,7 +32,8 @@ export class SceneBegin extends Entity {
       shadowMapFov: 30.0,
       shadowMapNear: 1.0,
       shadowMapFar: 20.0,
-      namePrefix: process.env.DEV && 'lightBegin2',
+      name: process.env.DEV && 'light2',
+      brtNamePrefix: process.env.DEV && 'SceneBegin/light2',
     } );
     light2.color = [ 80.0, 90.0, 100.0 ];
     light2.transform.lookAt( new Vector3( [ -4.0, 0.0, -4.0 ] ) );

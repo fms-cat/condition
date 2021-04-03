@@ -6,7 +6,6 @@ import { Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genCube } from '../geometries/genCube';
-import { objectValuesMap } from '../utils/objectEntriesMap';
 import { quatFromUnitVectors } from '../utils/quatFromUnitVectors';
 import ifsPistonFrag from '../shaders/ifs-piston.frag';
 import raymarchObjectVert from '../shaders/raymarch-object.vert';
@@ -65,8 +64,13 @@ export class IFSPistons extends Entity {
       [ new Vector3( [ -1, -1, 0 ] ).normalized, 0 ],
       [ new Vector3( [ -1, 1, 0 ] ).normalized, 1 ],
       [ new Vector3( [ 1, -1, 0 ] ).normalized, 1 ],
-    ] as [ Vector3, number ][] ).map( ( [ v, group ] ) => {
-      const piston = new IFSPiston( { group, geometry, materials } );
+    ] as [ Vector3, number ][] ).map( ( [ v, group ], i ) => {
+      const piston = new IFSPiston( {
+        group,
+        geometry,
+        materials,
+        name: process.env.DEV && `${ i }`,
+      } );
 
       piston.transform.position = v.scale( 1.5 );
       piston.transform.rotation = quatFromUnitVectors( up, v );

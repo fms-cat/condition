@@ -59,7 +59,7 @@ export class Post extends Entity {
     const quad = new Quad( {
       target: options.target,
       material,
-      name: process.env.DEV && 'Post/quad',
+      name: process.env.DEV && 'quad',
     } );
     this.components.push( quad );
 

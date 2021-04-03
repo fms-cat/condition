@@ -7,7 +7,6 @@ import { auto } from '../globals/automaton';
 import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genOctahedron } from '../geometries/genOctahedron';
 import { objectValuesMap } from '../utils/objectEntriesMap';
-import { randomTexture, randomTextureStatic } from '../globals/randomTexture';
 import hooperballFrag from '../shaders/hooperball.frag';
 import raymarchObjectVert from '../shaders/raymarch-object.vert';
 
@@ -81,14 +80,14 @@ export class Hooperball extends Entity {
           material.addUniform( 'deformSeed', '1f', auto( 'Hooperball/deformSeed' ) );
         } );
       },
-      name: process.env.DEV && 'Hooperball/updater',
+      name: process.env.DEV && 'setCameraUniforms',
     } ) );
 
     // -- mesh -------------------------------------------------------------------------------------
     const mesh = new Mesh( {
       geometry,
       materials,
-      name: process.env.DEV && 'Hooperball/mesh',
+      name: process.env.DEV && 'mesh',
     } );
     mesh.cull = MeshCull.None;
     this.components.push( mesh );
