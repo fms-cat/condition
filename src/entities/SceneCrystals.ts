@@ -89,11 +89,11 @@ export class SceneCrystals extends Entity {
       shadowMapFar: 20.0,
       namePrefix: process.env.DEV && 'lightCrystals1',
     } );
-    light1.color = [ 400.0, 400.0, 400.0 ];
+    light1.color = [ 100.0, 100.0, 100.0 ];
     light1.transform.lookAt( new Vector3( [ 0.0, 4.0, 1.0 ] ) );
 
     auto( 'SceneCrystals/light/amp', ( { value } ) => {
-      light1.color = [ 400.0 * value, 400.0 * value, 400.0 * value ];
+      light1.color = [ 100.0 * value, 100.0 * value, 100.0 * value ];
     } );
 
     this.lights = [ light1 ];

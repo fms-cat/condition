@@ -6,6 +6,7 @@ const int MTL_NONE = 0;
 const int MTL_UNLIT = 1;
 const int MTL_PBR = 2;
 const int MTL_REFRACT = 3;
+const int MTL_PSY = 4;
 const float ENV_UV_MARGIN = 0.9375;
 const float AO_BIAS = 0.0;
 const float AO_RADIUS = 0.5;
@@ -275,6 +276,27 @@ void main() {
     vec3 texEnvRefractive = sampleEnvLinear( uvEnvRefractive, 0.5 ).rgb;
 
     color += isect.color * texEnvRefractive;
+
+  } else if ( isect.materialId == MTL_PSY ) {
+    color = 0.02 * smoothstep( 0.9, 1.0, texture( samplerAo, isect.screenUv ).xyz );
+
+    // vec2 f = ( 1.0 - 2.0 * prng( seed ) ) / resolution;
+    vec2 f = 1.0 / resolution;
+    vec4 tex0x = texture( sampler0, vUv + f );
+    vec4 tex1x = texture( sampler1, vUv + f );
+    vec4 tex3x = texture( sampler3, vUv + f );
+
+    float valid = MTL_PSY == int( tex3x.w ) ? 1.0 : 0.0;
+
+    float edge = saturate(
+      step( 0.1, abs( length( cameraPos - tex0x.xyz ) - lenV ) ) +
+      step( 0.1, length( tex1x.xyz - tex1.xyz ) )
+    ) * valid;
+
+    vec3 gradient = 0.5 + 0.5 * cos(
+      3.0 + 1.5 * exp( -0.4 * max( lenV - 3.0, 0.0 ) ) + vec3( 0.0, 2.0, 4.0 )
+    );
+    color += 0.4 * gradient * edge;
 
   }
 

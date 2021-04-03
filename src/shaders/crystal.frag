@@ -101,7 +101,7 @@ void main() {
   #endif
 
   #ifdef DEPTH
-    MARCH_ITER = 10;
+    MARCH_ITER = 30;
   #endif
 
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
@@ -128,7 +128,7 @@ void main() {
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
     fragColor = vec4( vec3( 0.5 ), 1.0 );
-    fragWTF = vec4( vec3( 0.04, 1.0, 0.0 ), 3 );
+    fragWTF = vec4( vec3( 0.08, 0.9, 0.0 ), 3 );
   #endif
 
   #ifdef DEPTH

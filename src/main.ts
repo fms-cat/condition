@@ -57,15 +57,6 @@ if ( process.env.DEV ) {
   } );
 }
 
-if ( !process.env.DEV ) {
-  window.addEventListener( 'keydown', ( event ) => {
-    if ( event.key === 'Escape' ) { // panic button
-      dog.root.active = false;
-      music.isPlaying = false;
-    }
-  } );
-}
-
 // -- wenis ----------------------------------------------------------------------------------------
 if ( process.env.DEV ) {
   console.info( Component.nameMap );
@@ -80,21 +71,31 @@ async function load(): Promise<void> {
   }
 
   if ( !process.env.DEV ) {
-    document.write( 'Wait a moment... ' );
+    document.body.innerHTML = '';
+    document.write( 'Wait a moment...' );
   }
 
   await music.prepare();
 
   if ( !process.env.DEV ) {
+    document.body.innerHTML = '';
+
     const button = document.createElement( 'a' );
-    document.body.appendChild( button );
+    document.body.prepend( button );
     button.innerHTML = 'click me!';
 
     button.onclick = () => {
-      document.body.appendChild( canvas );
+      document.body.prepend( canvas );
       music.isPlaying = true;
       document.body.requestFullscreen();
     };
+
+    window.addEventListener( 'keydown', ( event ) => {
+      if ( event.key === 'Escape' ) { // panic button
+        dog.root.active = false;
+        music.isPlaying = false;
+      }
+    } );
   }
 }
 load();

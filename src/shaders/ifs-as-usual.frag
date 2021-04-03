@@ -2,6 +2,7 @@
 
 precision highp float;
 
+#define lofi(i,j) (floor((i)/(j))*(j))
 #define fs(i) (fract(sin((i)*114.514)*1919.810))
 #define saturate(x) clamp(x,0.,1.)
 #define linearstep(a,b,x) saturate(((x)-(a))/((b)-(a)))
@@ -23,7 +24,6 @@ in vec4 vPositionWithoutModel;
   out vec4 fragColor;
 #endif
 
-uniform float time;
 uniform float ifsSeed;
 uniform vec2 resolution;
 uniform vec2 cameraNearFar;
@@ -33,9 +33,6 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 inversePVM;
-uniform sampler2D samplerRandom;
-uniform sampler2D samplerRandomStatic;
-uniform sampler2D samplerCapture;
 
 vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
@@ -82,7 +79,7 @@ float map( vec3 p ) {
 
   vec3 pt = p;
 
-  float clampbox = box( pt, vec3( 1.0, 1.0, 1.0 ) );
+  float clampbox = box( pt, vec3( 1.0 ) );
 
   vec3 r = mix(
     fs( vec3( 4.7, 3.2, 4.3 ) + floor( ifsSeed ) ),
@@ -93,7 +90,7 @@ float map( vec3 p ) {
   pt = ifs( pt, r, 0.2 * t );
   pt = ifs( pt, r.yzx, 0.1 * t.yzx );
 
-  float d = max( box( pt, vec3( 0.08 ) ), clampbox );
+  float d = max( box( pt, vec3( 0.09 ) ), clampbox );
 
   return d;
 }
@@ -119,7 +116,7 @@ void main() {
 
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
     isect = map( rayPos );
-    rayLen += 0.5 * isect;
+    rayLen += 0.8 * isect;
     rayPos = rayOri + rayDir * rayLen;
 
     if ( abs( isect ) < 1E-3 ) { break; }

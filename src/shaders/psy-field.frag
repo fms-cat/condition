@@ -55,7 +55,6 @@ vec3 divideByW( vec4 v ) {
   return v.xyz / v.w;
 }
 
-#pragma glslify: cyclicNoise = require( ./modules/cyclicNoise );
 #pragma glslify: doAnalyticLighting = require( ./modules/doAnalyticLighting.glsl );
 #pragma glslify: doShadowMapping = require( ./modules/doShadowMapping.glsl );
 
@@ -79,18 +78,53 @@ vec4 fetchShadowMap( int iLight, vec2 uv ) {
   }
 }
 
-float distFunc( vec3 p ) {
-  float d = p.y;
-  d += 0.2 * cyclicNoise( p ).x;
+#pragma glslify: orthBasis = require( ./modules/orthBasis );
+
+vec3 ifs( vec3 p, vec3 r, vec3 t ) {
+  vec3 s = t;
+  mat3 bas = orthBasis( r );
+
+  for ( int i = 0; i < 5; i ++ ) {
+    p = abs( p ) - abs( s ) * pow( 1.8, -float( i ) );
+
+    s = bas * s;
+
+    p.xy = p.x < p.y ? p.yx : p.xy;
+    p.yz = p.y < p.z ? p.zy : p.yz;
+  }
+
+  return p;
+}
+
+float box( vec3 p, vec3 s ) {
+  vec3 d = abs( p ) - s;
+  return min( 0.0, max( d.x, max( d.y, d.z ) ) ) + length( max( vec3( 0.0 ), d ) );
+}
+
+float map( vec3 p ) {
+  vec4 isect;
+
+  vec3 pt = p;
+  pt.z -= 4.0 * time;
+  pt.zx = mod( pt.zx - 5.0, 10.0 ) - 5.0;
+
+  vec3 r = vec3( 1.6, 0.5, -0.8 );
+  vec3 t = vec3( 4.8, 3.7, 2.1 );
+  pt = ifs( pt, r, t );
+  pt = ifs( pt, r.yzx, 0.4 * t.yzx );
+
+  float d = box( pt, vec3( 0.14 ) );
+  d = max( d, abs( p.y ) - 1.0 );
+
   return d;
 }
 
-vec3 normalFunc( vec3 p, float dd ) {
+vec3 nMap( vec3 p, float dd ) {
   vec2 d = vec2( 0.0, dd );
   return normalize( vec3(
-    distFunc( p + d.yxx ) - distFunc( p - d.yxx ),
-    distFunc( p + d.xyx ) - distFunc( p - d.xyx ),
-    distFunc( p + d.xxy ) - distFunc( p - d.xxy )
+    map( p + d.yxx ) - map( p - d.yxx ),
+    map( p + d.xyx ) - map( p - d.xyx ),
+    map( p + d.xxy ) - map( p - d.xxy )
   ) );
 }
 
@@ -107,11 +141,11 @@ void main() {
   int MARCH_ITER;
 
   #ifdef FORWARD
-    MARCH_ITER = 30;
+    MARCH_ITER = 10;
   #endif
 
   #ifdef DEFERRED
-    MARCH_ITER = 60;
+    MARCH_ITER = 40;
   #endif
 
   #ifdef DEPTH
@@ -119,7 +153,7 @@ void main() {
   #endif
 
   for ( int i = 0; i < MARCH_ITER; i ++ ) {
-    dist = distFunc( rayPos );
+    dist = map( rayPos );
     rayLen += 0.5 * dist;
     rayPos = rayOri + rayDir * rayLen;
 
@@ -131,7 +165,8 @@ void main() {
     discard;
   }
 
-  vec3 modelNormal = normalize( normalMatrix * vec4( normalFunc( rayPos, 1E-2 ), 1.0 ) ).xyz;
+  vec3 normal = nMap( rayPos, 1E-3 );
+  vec3 modelNormal = normalize( normalMatrix * vec4( normal, 1.0 ) ).xyz;
 
   vec4 modelPos = modelMatrix * vec4( rayPos, 1.0 );
   vec4 projPos = projectionMatrix * viewMatrix * modelPos; // terrible
@@ -174,14 +209,21 @@ void main() {
       color += shade;
     }
 
+    vec3 gradient = 0.5 + 0.5 * cos(
+      3.0 + 1.5 * exp( -0.4 * max( rayLen - 3.0, 0.0 ) ) + vec3( 0.0, 2.0, 4.0 )
+    );
+    float edge = step( 0.1, length( normal - nMap( rayPos, 1E-2 ) ) );
+
+    color += gradient * edge;
+
     fragColor = vec4( color, 1.0 );
   #endif
 
   #ifdef DEFERRED
     fragPosition = vec4( modelPos.xyz, depth );
     fragNormal = vec4( modelNormal, 1.0 );
-    fragColor = vec4( vec3( 0.6, 0.5, 0.4 ), 1.0 );
-    fragWTF = vec4( vec3( 0.5, 0.2, 0.0 ), 2 );
+    fragColor = vec4( vec3( 0.0 ), 1.0 );
+    fragWTF = vec4( vec3( 1.0, 0.0, 0.0 ), 4 );
   #endif
 
   #ifdef DEPTH

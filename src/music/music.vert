@@ -14,6 +14,7 @@ const float SECTION_WHOA = 272.0 * BEAT;
 const float SECTION_PORTER_FUCKING_ROBINSON = 336.0 * BEAT;
 const float SECTION_AAAA = 400.0 * BEAT;
 const float SECTION_PSY = 464.0 * BEAT;
+const float SECTION_END = 528.0 * BEAT;
 
 #define saturate(i) clamp(i, 0.,1.)
 #define aSaturate(i) clamp((i),-1.,1.)
@@ -41,6 +42,13 @@ in float off;
 
 out float outL;
 out float outR;
+
+float seed;
+
+float random() {
+  seed = fs( seed );
+  return 2.0 * seed - 1.0;
+}
 
 float auto( float y ) {
   return texture( samplerAutomaton, vec2( off / bufferLength, y ) ).x;
@@ -256,13 +264,22 @@ vec2 mainAudio( vec4 time ) {
     -3, 3, 7, 12, 17, 22
   );
 
-  int progB = ( time.w < SECTION_AAAA - 8.0 * BEAT )
-    ? 6 * ( int( time.z / ( 8.0 * BEAT ) ) % 8 )
+  int progB = ( time.w < SECTION_PORTER_FUCKING_ROBINSON ) ? 6 * ( int( time.z / ( 8.0 * BEAT ) ) % 8 )
+    : ( time.w < SECTION_AAAA - 8.0 * BEAT ) ? 6 * ( 4 + ( int( time.z / ( 8.0 * BEAT ) ) % 4 ) )
     : 36;
 
   float bassfreq = n2f( 0.0 );
 
   float sidechain = 1.0;
+
+  float fadeout = smoothstep( SECTION_END + 32.0 * BEAT, SECTION_END, time.w );
+
+  // -- test ---------------------------------------------------------------------------------------
+  if ( inRange( time.w, SECTION_BEGIN - 8.0 * BEAT, SECTION_BEGIN ) ) {
+    float freq = 1000.0 * ( 1.0 + step( time.y, BEAT ) );
+    float amp = inRangeSmooth( time.x, 0.0, 0.04, 1E3 );
+    dest += 0.3 * amp * sin( TAU * freq * time.x );
+  }
 
   // -- kick ---------------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_BEGIN + 64.0 * BEAT, SECTION_NEURO - 14.5 * BEAT ) ) {
@@ -327,29 +344,6 @@ vec2 mainAudio( vec4 time ) {
     }
 
     dest += 0.14 * mix( 0.3, 1.0, sidechain ) * aSaturate( sum );
-  }
-
-  // -- choir --------------------------------------------------------------------------------------
-  if ( inRange( time.w, 0.0, SECTION_PORTER_FUCKING_ROBINSON ) ) {
-    const int notes[7] = int[](
-      10, 0, 10, 7, -5, 0, -5
-    );
-
-    vec2 sum = vec2( 0.0 );
-
-    vec2 radius = vec2( 0.00002 );
-    float tb = lofi( time.z, 0.5 * BEAT );
-    float t = time.z - tb;
-
-    for ( int i = 0; i < 21; i ++ ) {
-      int note = notes[ int( time.z / ( 0.5 * BEAT ) ) % 7 ];
-      float freq = n2f( note ) * 0.25;
-      freq *= 1.0 + 0.01 * ( 0.5 - fs( float( i ) ) );
-      float phase = 2.0 * tri( time.w * freq );
-      sum += 0.1 * inRangeSmooth( t, 0.0, 0.5 * BEAT, 1E3 ) * wavetable( phase, radius, vec2( 0.3 * float( i ) ) );
-    }
-
-    //dest += 0.14 * aSaturate( sum );
   }
 
   // -- kick ---------------------------------------------------------------------------------------
@@ -500,7 +494,8 @@ vec2 mainAudio( vec4 time ) {
     : time.w < SECTION_AAAA ? 1E9
     : time.w < SECTION_AAAA + 1.0 * BEAT ? time.x + mod( lofi( time.z, BEAT ), 8.0 * BEAT )
     : time.w < SECTION_PSY ? 1E9
-    : time.x;
+    : time.w < SECTION_END ? time.x
+    : time.z;
   {
     sidechain = smoothstep( 0.0, 0.7 * BEAT, tKick );
     dest += 0.25 * kick( tKick, 1.0 );
@@ -523,7 +518,7 @@ vec2 mainAudio( vec4 time ) {
 
   if (
     inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_AAAA - 8.0 * BEAT ) ||
-    inRange( time.w, SECTION_PSY + 16.0 * BEAT, 1E9 )
+    inRange( time.w, SECTION_PSY + 16.0 * BEAT, SECTION_END )
   ) {
     float t = mod( time.x, 0.25 * BEAT );
     float decay = mix( 40.0, 100.0, fs( floor( time.z / ( 0.25 * BEAT ) ) ) );
@@ -531,40 +526,18 @@ vec2 mainAudio( vec4 time ) {
   }
 
   if (
-    inRange( time.w, SECTION_PSY + 31.5 * BEAT, 1E9 )
+    inRange( time.w, SECTION_PSY + 31.5 * BEAT, SECTION_END )
   ) {
     float t = mod( time.x - 0.5 * BEAT, BEAT );
     dest += 0.1 * mix( 0.3, 1.0, sidechain ) * hihat( t, 20.0 );
   }
 
-  // -- clap ---------------------------------------------------------------------------------------
+  // -- crash --------------------------------------------------------------------------------------
   if (
-    inRange( time.w, SECTION_PSY + 64.0 * BEAT, 1E9 )
-  ) {
-    float t = mod( time.y - 1.0 * BEAT, 2.0 * BEAT );
-    dest += 0.1 * clap( t );
-  }
-
-  // -- crash ---------------------------------------------------------------------------------------
-  if (
-    !inRange( time.w, 0.0, SECTION_PORTER_FUCKING_ROBINSON ) &&
-    !inRange( time.w, SECTION_PSY, SECTION_PSY + 16.0 * BEAT )
+    inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_PSY )
   ) {
     float t = time.z;
     dest += 0.14 * crash( t );
-  }
-
-  // -- psysaw -------------------------------------------------------------------------------------
-  if (
-    inRange( time.w, SECTION_PSY + 64.0 * BEAT, 1E9 )
-  ) {
-    float t = mod( time.z, 0.25 * BEAT );
-    float begin = time.z - t;
-    float dice = fs( begin );
-    if ( t < ( 0.25 - dice * 0.2 ) * BEAT ) {
-      float freq = 20.0 * sin( TAU * begin * 1.8 );
-      dest += 0.07 * saw( 20.0 * exp( -2.0 * fract( 10.0 * exp( -freq * t ) ) ) );
-    }
   }
 
   // -- amen ---------------------------------------------------------------------------------------
@@ -574,7 +547,7 @@ vec2 mainAudio( vec4 time ) {
   ) {
     float chunk = floor( 6.0 * fs( lofi( time.z, 0.5 * BEAT ) ) );
     // float chunk = time.y / ( 1.0 * BEAT );
-    vec2 vib = 0.003 * sin( 3.0 * time.z + vec2( 0.0, 0.2 ) );
+    vec2 vib = 0.003 * sin( 3.0 * time.z + vec2( 0.0, 1.4 ) );
     vec2 tread = 2.0 * time.x + vib;
 
     float roll = fs( 2.4 + lofi( time.z, 0.5 * BEAT ) );
@@ -591,7 +564,7 @@ vec2 mainAudio( vec4 time ) {
   }
 
   // -- psy bass -----------------------------------------------------------------------------------
-  if ( SECTION_PSY < time.w ) {
+  if ( inRange( time.w, SECTION_PSY, SECTION_END ) ) {
     // float t = mod( aTime - 0.5 beat, 1.0 beat );
     float t = mod( time.x, 0.25 * BEAT );
     float decay = exp( -50.0 * t );
@@ -601,6 +574,30 @@ vec2 mainAudio( vec4 time ) {
     float fm = -0.009 * exp( -6.0 * t ) * sin( TAU * 1.0 * freq * t );
     vec2 wave = ( 1.0 - exp( -t * 400.0 ) ) * filterSaw( vec2( t ) + fm, freq, cutoff, 0.0 );
     dest += 0.12 * sidechain * wave * exp( -max( 0.0, t - 0.22 * BEAT ) * 400.0 );
+  }
+
+  // -- pad ----------------------------------------------------------------------------------------
+  if ( SECTION_PSY < time.w ) {
+    vec2 sum = vec2( 0.0 );
+
+    float tb = lofi( time.z, 0.25 * BEAT );
+    float t = time.z - tb;
+    float rev = exp( 3.0 * fs( tb ) - 3.0 ) * exp( -20.0 * t );
+    vec2 radius = vec2( 0.02 ) * fadeout;
+
+    for ( int i = 0; i < 21; i ++ ) {
+      float freq = n2f( chordsA[ ( i % 8 ) ] ) * 0.25;
+      freq *= 1.0 + 0.001 * ( 0.5 - fs( float( i ) ) );
+      float phase = tri( time.w * freq ) * rev;
+      sum += 0.14 * wavetable( phase, radius, vec2( 0.3 * float( i ) ) );
+    }
+
+    for ( int i = 0; i < 7; i ++ ) {
+      float rate = n2r( float( chordsA[ i ] ) ) * 0.5;
+      sum += 0.1 * choir( time.z * rate * 0.5 ) * exp( -30.0 * t );
+    }
+
+    dest += 0.14 * mix( 0.3, 1.0, sidechain ) * aSaturate( sum );
   }
 
   // -- superbass ----------------------------------------------------------------------------------
@@ -658,10 +655,10 @@ vec2 mainAudio( vec4 time ) {
   // -- lead ---------------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_PORTER_FUCKING_ROBINSON, SECTION_PSY ) ) {
     const int notes[16] = int[](
-      0, 10, 12, 19,
-      0, 14, 15, 22,
+      -4, 10, 12, 19,
+      -5, 14, 15, 22,
       0, 17, 19, 26,
-      0, 14, 15, 22
+      -3, 14, 15, 22
     );
 
     vec2 sum = vec2( 0.0 );
@@ -700,6 +697,10 @@ vec2 mainAudio( vec4 time ) {
     dest += 0.3 * deepkick( mod( time.z, 8.0 * BEAT ) );
   }
 
+  if ( inRange( time.w, SECTION_END, SECTION_END + 64.0 * BEAT ) ) {
+    dest += 0.3 * deepkick( time.z );
+  }
+
   // -- buildup ------------------------------------------------------------------------------------
   if ( inRange( time.w, SECTION_AAAA + 32.0 * BEAT, SECTION_PSY ) ) {
     float ph = linearstep( SECTION_AAAA + 32.0 * BEAT, SECTION_PSY, time.w );
@@ -733,22 +734,41 @@ vec2 mainAudio( vec4 time ) {
     dest += 0.2 * kick( time.y - 3.5 * BEAT, 1.0 ) * inRangeSmooth( time.y, 3.0 * BEAT, 3.75 * BEAT, 100.0 );
   }
 
-  // -- fill, psy crashes --------------------------------------------------------------------------
-  if ( inRange( time.w, SECTION_PSY + 61.0 * BEAT, SECTION_PSY + 64.0 * BEAT ) ) {
-    dest *= 0.0;
+  // -- fadeout ------------------------------------------------------------------------------------
+  dest *= fadeout;
 
-    float stretch = time.x - lofi( time.x, 0.02 ) * 0.9;
-    float range = inRangeFloat( time.y, 0.0 * BEAT, 1.75 * BEAT );
-    dest += 0.2 * kick( stretch, 1.0 ) * range;
-    dest += 0.1 * crash( stretch ) * range;
+  // -- oidos!! ------------------------------------------------------------------------------------
+  // https://www.shadertoy.com/view/NdlGDl
+  if ( inRange( time.w, SECTION_END, 1E9 ) ) {
+    seed = 0.261;
 
-    dest += 0.2 * kick( mod( time.x - 0.25 * BEAT, 0.5 * BEAT ), 1.0 ) * inRangeFloat( time.y, 1.75 * BEAT, 2.5 * BEAT );
+    for ( int i = 0; i < 50; i ++ ) {
+      float reltone = 4.0 + random() * 45.0;
 
-    dest += 0.2 * kick( mod( time.x, 0.5 * BEAT ), 1.0 ) * inRangeFloat( time.y, 2.5 * BEAT, 1E9 );
-    dest += vec2( 0.1, 0.07 ) * crash( time.y - 2.5 * BEAT ) * inRangeSmooth( time.y, 0.0, 2.75 * BEAT, 400.0 );
-    dest += vec2( 0.07, 0.1 ) * crash( time.y - 3.0 * BEAT ) * inRangeSmooth( time.y, 0.0, 3.25 * BEAT, 400.0 );
-    dest += vec2( 0.1, 0.07 ) * crash( time.y - 3.5 * BEAT ) * inRangeSmooth( time.y, 0.0, 3.75 * BEAT, 400.0 );
+      float relfreq = pow( 2.0, reltone / 12.0 );
+      float relfreqOt = floor( relfreq + 0.5 );
+      float relfreqH = mix( relfreq, relfreqOt, 0.2 );
+      reltone = log2( relfreqH ) * 12.0;
+
+      float mtone = reltone;
+      float mfreq = 220.0 * pow( 2.0, mtone / 12.0 );
+
+      for ( int j = 0; j < 50; j ++ ) {
+        float ptone = mtone + random() * 0.5;
+
+        float freq = 220.0 * pow( 2.0, ptone / 12.0 );
+
+        float noisePhase = TAU * fract( freq * time.z * 5.0 );
+        vec2 tt = time.z + 0.002 * wavetable( noisePhase, vec2( 0.0001 ), vec2( 0.03 * float( j ) ) );
+
+        vec2 phase = TAU * fract( freq * tt ) + TAU * vec2( random(), random() );
+        dest += ( 1.0 - fadeout ) * 0.0002 * sin( phase );
+      }
+    }
   }
+
+  float realfadeout = smoothstep( SECTION_END + 48.0 * BEAT, SECTION_END + 16.0 * BEAT, time.w );
+  dest *= realfadeout;
 
   return aSaturate( dest );
 }

@@ -49,7 +49,6 @@ export class DeferredCamera extends Entity {
       name: 'DeferredCamera/camera',
       materialTag: 'deferred',
     } );
-    this.camera.clear = [];
 
     // -- ao ---------------------------------------------------------------------------------------
     const aoTarget = new BufferRenderTarget( {

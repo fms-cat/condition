@@ -20,7 +20,7 @@ import greetingsPreLainFrag from '../shaders/greetings-pre-lain.frag';
 import greetingsVert from '../shaders/greetings.vert';
 import quadVert from '../shaders/quad.vert';
 
-const INSTANCES = 256;
+const INSTANCES = 64;
 
 // -- preprocessor ---------------------------------------------------------------------------------
 const materialBlurH = new Material(
@@ -171,6 +171,8 @@ const charPosList = [
   'holon',
   'gam0022',
   'gaz',
+  'gyabo',
+  'iYOYi',
   'jetlag',
   'Jugem-T',
   'kaneta',

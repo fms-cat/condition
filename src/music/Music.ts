@@ -21,6 +21,8 @@ const sectionResets = [
   336.0,
   400.0,
   464.0,
+  528.0,
+  560.0,
   1E9,
 ].map( ( v ) => v * 60.0 / MUSIC_BPM );
 

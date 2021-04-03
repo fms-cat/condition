@@ -1,4 +1,5 @@
 import { Antialias } from './entities/Antialias';
+import { BigBlur } from './entities/BigBlur';
 import { Bloom } from './entities/Bloom';
 import { BufferRenderTarget } from './heck/BufferRenderTarget';
 import { CanvasRenderTarget } from './heck/CanvasRenderTarget';
@@ -20,15 +21,19 @@ import { NoiseVoxels } from './entities/NoiseVoxels';
 import { PixelSorter } from './entities/PixelSorter';
 import { Post } from './entities/Post';
 import { RTInspector } from './entities/RTInspector';
+import { SSR } from './entities/SSR';
 import { SceneBegin } from './entities/SceneBegin';
 import { SceneCrystals } from './entities/SceneCrystals';
 import { SceneDynamic } from './entities/SceneDynamic';
 import { SceneNeuro } from './entities/SceneNeuro';
+import { ScenePsy } from './entities/ScenePsy';
 import { Serial } from './entities/Serial';
 import { SphereParticles } from './entities/SphereParticles';
+import { SufferTexts } from './entities/SufferTexts';
 import { Swap, Vector3 } from '@fms-cat/experimental';
+import { TestScreen } from './entities/TestScreen';
 import { Tetrahedron } from './entities/Tetrahedron';
-import { Trails } from './entities/Trails';
+import { TextOverlay } from './entities/TextOverlay';
 import { arraySetDelete } from './utils/arraySetDelete';
 import { auto, automaton } from './globals/automaton';
 import { music } from './globals/music';
@@ -92,9 +97,25 @@ class EntityReplacer<T extends Entity> {
 const ibllut = new IBLLUT();
 dog.root.children.push( ibllut.entity );
 
-// -- deferred stuff -------------------------------------------------------------------------------
-const deferredRoot = new Entity();
-dog.root.children.push( deferredRoot );
+const replacerFlickyParticles = new EntityReplacer(
+  () => new FlickyParticles(),
+  'FlickyParticles',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/FlickyParticles', () => {
+    replacerFlickyParticles.replace();
+  } );
+}
+
+const replacerSufferTexts = new EntityReplacer(
+  () => new SufferTexts(),
+  'SufferTexts',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SufferTexts', () => {
+    replacerSufferTexts.replace();
+  } );
+}
 
 const replacerSphereParticles = new EntityReplacer(
   () => new SphereParticles(),
@@ -143,13 +164,6 @@ const replacerIFSAsUsual = new EntityReplacer(
 if ( process.env.DEV && module.hot ) {
   module.hot.accept( './entities/IFSAsUsual', () => {
     replacerIFSAsUsual.replace();
-  } );
-}
-
-const replacerTrails = new EntityReplacer( () => new Trails(), 'Trails' );
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/Trails', () => {
-    replacerTrails.replace();
   } );
 }
 
@@ -206,17 +220,15 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
-// -- forward stuff --------------------------------------------------------------------------------
-const forwardRoot = new Entity();
-dog.root.children.push( forwardRoot );
-
-const replacerFlickyParticles = new EntityReplacer(
-  () => new FlickyParticles(),
-  'FlickyParticles',
+const replacerScenePsy = new EntityReplacer(
+  () => new ScenePsy( { scenes: [ dog.root ] } ),
+  'ScenePsy'
 );
 if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/FlickyParticles', () => {
-    replacerFlickyParticles.replace();
+  module.hot.accept( './entities/ScenePsy', () => {
+    replacerScenePsy.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
+    replacerScenePsy.replace();
+    lights.push( ...replacerScenePsy.current.lights );
   } );
 }
 
@@ -242,6 +254,7 @@ const lights = [
   ...replacerSceneNeuro.current.lights,
   ...replacerSceneDynamic.current.lights,
   ...replacerSceneCrystals.current.lights,
+  ...replacerScenePsy.current.lights,
 ];
 
 // const light2 = new LightEntity( {
@@ -345,6 +358,14 @@ dog.root.components.push( new Lambda( {
   name: process.env.DEV && 'main/updateCamera',
 } ) );
 
+swap.swap();
+const ssr = new SSR( {
+  camera: deferredCamera,
+  shaded: swap.i,
+  target: swap.o,
+} );
+dog.root.children.push( ssr );
+
 // -- post -----------------------------------------------------------------------------------------
 swap.swap();
 const antialias = new Antialias( {
@@ -352,6 +373,18 @@ const antialias = new Antialias( {
   target: swap.o
 } );
 dog.root.children.push( antialias );
+
+swap.swap();
+const bigBlur = new BigBlur( {
+  input: swap.i,
+  target: swap.o,
+} );
+dog.root.children.push( bigBlur );
+
+const textOverlay = new TextOverlay( {
+  target: swap.o,
+} );
+dog.root.children.push( textOverlay );
 
 swap.swap();
 const bloom = new Bloom( {
@@ -394,6 +427,11 @@ const post = new Post( {
   target: canvasRenderTarget
 } );
 dog.root.children.push( post );
+
+const testScreen = new TestScreen( {
+  target: canvasRenderTarget
+} );
+dog.root.children.push( testScreen );
 
 if ( process.env.DEV ) {
   const rtInspector = new RTInspector( {

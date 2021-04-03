@@ -4,11 +4,11 @@ import { BeamShot } from './BeamShot';
 import { Entity } from '../heck/Entity';
 import { Geometry } from '../heck/Geometry';
 import { Lambda } from '../heck/components/Lambda';
-import { Material } from '../heck/Material';
+import { Material, MaterialMap } from '../heck/Material';
 import { Mesh, MeshCull } from '../heck/components/Mesh';
 import { Vector3 } from '@fms-cat/experimental';
 import { auto } from '../globals/automaton';
-import { dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
+import { dummyRenderTarget, dummyRenderTargetFourDrawBuffers } from '../globals/dummyRenderTarget';
 import { genCube } from '../geometries/genCube';
 import { objectValuesMap } from '../utils/objectEntriesMap';
 import crystalFrag from '../shaders/crystal.frag';
@@ -49,44 +49,52 @@ export class Crystal extends Entity {
       },
     );
 
-    // I don't think we need this
-    // const depth = new Material(
-    //   raymarchObjectVert,
-    //   crystalFrag,
-    //   {
-    //     defines: [ 'DEPTH 1' ],
-    //     initOptions: { geometry, target: dummyRenderTarget }
-    //   },
-    // );
+    const depth = new Material(
+      raymarchObjectVert,
+      crystalFrag,
+      {
+        defines: [ 'DEPTH 1' ],
+        initOptions: { geometry, target: dummyRenderTarget }
+      },
+    );
 
-    const materials = { deferred };
+    const materials: MaterialMap = { deferred };
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
         module.hot.accept( '../shaders/crystal.frag', () => {
           deferred.replaceShader( raymarchObjectVert, crystalFrag );
-          // depth.replaceShader( raymarchObjectVert, crystalFrag );
+          depth.replaceShader( raymarchObjectVert, crystalFrag );
         } );
       }
     }
 
     objectValuesMap( materials, ( material ) => {
-      material.addUniform( 'size', '2f', width, height );
-      material.addUniform( 'noiseOffset', '1f', noiseOffset );
+      material?.addUniform( 'size', '2f', width, height );
+      material?.addUniform( 'noiseOffset', '1f', noiseOffset );
+    } );
+
+    // haha
+    auto( 'Crystal/enableDepth', ( { uninit } ) => {
+      if ( uninit ) {
+        delete materials.depth;
+      } else {
+        materials.depth = depth;
+      }
     } );
 
     // -- updater ----------------------------------------------------------------------------------
     this.components.push( new Lambda( {
       onDraw: ( event ) => {
         objectValuesMap( materials, ( material ) => {
-          material.addUniform(
+          material?.addUniform(
             'cameraNearFar',
             '2f',
             event.camera.near,
             event.camera.far
           );
 
-          material.addUniformMatrixVector(
+          material?.addUniformMatrixVector(
             'inversePVM',
             'Matrix4fv',
             event.projectionMatrix

@@ -16,7 +16,7 @@ const terserOptions = {
     booleans_as_integers: true,
     drop_console: true,
     keep_fargs: false,
-    passes: 1,
+    passes: 2,
     unsafe_arrows: true,
     unsafe_math: true,
   },

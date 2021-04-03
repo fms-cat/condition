@@ -42,10 +42,6 @@ void main() {
   vec2 offset = ( 0.6 - 0.2 * exp( -5.0 * vTime ) ) * vec2( vCharParams.y, 0.0 );
   vPosition.xy += ( offset + shape ) * min( 500.0 / charParams2.x, 1.0 );
 
-  vPosition.xy += 1.0
-    * ( fs( vCharParams.z + vec2( 2.66, 1.79 ) ) * 2.0 - 1.0 )
-    * pow( fs( vCharParams.z + 7.8 ), 2.0 );
-
   // == send the vertex position ===================================================================
   vPosition = vPosition;
   vec4 outPos = vPosition;

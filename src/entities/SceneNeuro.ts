@@ -5,7 +5,6 @@ import { IFSPistons } from './IFSPistons';
 import { LightEntity } from './LightEntity';
 import { LightShaft } from './LightShaft';
 import { Quaternion, Vector3 } from '@fms-cat/experimental';
-import { SufferTexts } from './SufferTexts';
 import { Wobbleball } from './Wobbleball';
 
 interface SceneNeuroOptions {
@@ -69,7 +68,6 @@ export class SceneNeuro extends Entity {
       new Wobbleball(),
       new IFSPistons(),
       boundingBox,
-      new SufferTexts(),
       ...this.lights,
     );
   }
