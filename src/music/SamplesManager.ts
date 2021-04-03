@@ -1,6 +1,5 @@
 import { GLCatTexture } from '@fms-cat/glcat-ts';
 import { Music } from './Music';
-import { audio } from '../globals/music';
 import { gl, glCat } from '../globals/canvas';
 import samplesOpus from './samples.opus';
 
@@ -30,8 +29,10 @@ export class SamplesManager {
   }
 
   public async loadSamples(): Promise<void> {
+    const audioToDecode = new AudioContext( { sampleRate: 48000 } );
+
     const inputBuffer = await fetch( samplesOpus ).then( ( res ) => res.arrayBuffer() );
-    const audioBuffer = await audio.decodeAudioData( inputBuffer );
+    const audioBuffer = await audioToDecode.decodeAudioData( inputBuffer );
 
     const buffer = new Float32Array( 96000 );
 
