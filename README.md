@@ -45,3 +45,10 @@ note that it cannot parse nowadays ecmascript though
 shader minifier is way too spicy so I made a [separate document](./shader-minifier-tips.md)
 
 libopus is cheating
+
+## Links
+
+- [🔦 Pouet, Prod page](https://www.pouet.net/prod.php?which=88544)
+- [🎥 YouTube, Captured stream](https://www.youtube.com/watch?v=eZjd4aLmfus)
+- [💻 Source code (GitHub)](https://github.com/FMS-Cat/condition)
+- [🐣 Twitter (@FMS_Cat), follow me!](https://twitter.com/FMS_Cat)
