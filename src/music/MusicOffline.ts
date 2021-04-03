@@ -6,7 +6,7 @@ import { gl } from '../globals/canvas';
 const BUFFER_LENGTH = 16384;
 
 export class MusicOffline extends Music {
-  private __buffer: AudioBuffer;
+  protected __buffer: AudioBuffer;
   private __currentBufferSource?: AudioBufferSourceNode | null;
 
   public constructor() {
