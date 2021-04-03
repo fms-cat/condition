@@ -182,7 +182,7 @@ const charPosList = [
   'marcan',
   'Mercury',
   'mrdoob',
-  'nikq::cube',
+  'nikq::club',
   'Ninjadev',
   'NuSan',
   'orange',
