@@ -4,7 +4,7 @@
 A 64KB WebGL Intro
 Appeared in Revision 2021, PC 64KB Intro Compo
 
-[See the demo!](./pages/index.html)
+[See the demo!](https://fms-cat.github.io/condition/pages)
 
 ![Condition](./pages/condition.png)
 
