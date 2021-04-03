@@ -82,7 +82,7 @@ export class LightEntity extends Entity {
         { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       );
       material.addUniform( 'isVert', '1i', i );
-      material.addUniformTexture( 'sampler0', swap.i.texture );
+      material.addUniformTextures( 'sampler0', swap.i.texture );
 
       this.components.push( new Quad( {
         target: swap.o,

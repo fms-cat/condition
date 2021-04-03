@@ -49,7 +49,7 @@ export class IBLLUT extends Entity {
     );
     material.addUniform( 'samples', '1f', samples );
     material.addUniform( 'vdc', '1f', vdc( samples, 2.0 ) );
-    material.addUniformTexture( 'sampler0', this.swap.i.texture );
+    material.addUniformTextures( 'sampler0', this.swap.i.texture );
 
     const quad = new Quad( {
       target: this.swap.o,
@@ -68,7 +68,7 @@ export class IBLLUT extends Entity {
         } else {
           material.addUniform( 'samples', '1f', samples );
           material.addUniform( 'vdc', '1f', vdc( samples, 2.0 ) );
-          material.addUniformTexture( 'sampler0', this.swap.i.texture );
+          material.addUniformTextures( 'sampler0', this.swap.i.texture );
 
           quad.target = this.swap.o;
         }

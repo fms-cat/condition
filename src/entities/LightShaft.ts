@@ -49,8 +49,8 @@ export class LightShaft extends Entity {
 
     forward.addUniform( 'intensity', '1f', intensity ?? 0.01 );
 
-    forward.addUniformTexture( 'samplerRandom', randomTexture.texture );
-    forward.addUniformTexture( 'samplerShadow', light.shadowMap.texture );
+    forward.addUniformTextures( 'samplerRandom', randomTexture.texture );
+    forward.addUniformTextures( 'samplerShadow', light.shadowMap.texture );
 
     const materials = { forward };
 
@@ -95,6 +95,6 @@ export class LightShaft extends Entity {
    * どうやってフレームバッファのデプスを取るかわかりませんでした 許してほしい
    */
   public setDefferedCameraTarget( deferredCameraTarget: BufferRenderTarget ): void {
-    this.__forward.addUniformTexture( 'samplerDeferred0', deferredCameraTarget.texture );
+    this.__forward.addUniformTextures( 'samplerDeferred0', deferredCameraTarget.texture );
   }
 }

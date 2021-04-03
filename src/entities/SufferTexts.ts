@@ -94,8 +94,8 @@ export class SufferTexts extends Entity {
 
     const materialsRender = { forward };
 
-    forward.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    forward.addUniformTexture( 'samplerTinyChar', tinyCharTexture );
+    forward.addUniformTextures( 'samplerRandomStatic', randomTextureStatic.texture );
+    forward.addUniformTextures( 'samplerTinyChar', tinyCharTexture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

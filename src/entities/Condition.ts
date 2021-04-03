@@ -123,7 +123,7 @@ export class Condition extends Entity {
     const materials = { cubemap, deferred };
 
     objectValuesMap( materials, ( material ) => {
-      material.addUniformTexture( 'samplerSvg', texture );
+      material.addUniformTextures( 'samplerSvg', texture );
 
       auto( 'Condition/phaseWidth', ( { value } ) => {
         material.addUniform( 'phaseWidth', '1f', value );

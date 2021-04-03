@@ -81,11 +81,11 @@ export class PixelSorter extends Entity {
         { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
       );
       material.addUniform( 'mul', '1f', mul );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler0',
         options.input.texture,
       );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler1',
         this.swapBuffer.o.texture,
       );
@@ -118,11 +118,11 @@ export class PixelSorter extends Entity {
       );
       material.addUniform( 'dir', '1f', dir );
       material.addUniform( 'comp', '1f', comp );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler0',
         ( isFirst ? options.input : this.swapBuffer.o ).texture,
       );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler1',
         bufferIndex.texture,
       );

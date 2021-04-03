@@ -30,7 +30,7 @@ export class Racer extends Entity {
 
     materialCompute.addUniform( 'trails', '1f', TRAILS );
     materialCompute.addUniform( 'trailLength', '1f', TRAIL_LENGTH );
-    materialCompute.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    materialCompute.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

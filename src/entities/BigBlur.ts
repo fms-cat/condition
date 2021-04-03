@@ -52,7 +52,7 @@ export class BigBlur extends Entity {
       bigBlurFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    materialH.addUniformTexture( 'sampler0', options.input.texture );
+    materialH.addUniformTextures( 'sampler0', options.input.texture );
 
     if ( module.hot ) {
       module.hot.accept( '../shaders/big-blur.frag', () => {
@@ -76,7 +76,7 @@ export class BigBlur extends Entity {
         initOptions: { geometry: quadGeometry, target: dummyRenderTarget }
       },
     );
-    materialV.addUniformTexture( 'sampler0', targetH.texture );
+    materialV.addUniformTextures( 'sampler0', targetH.texture );
 
     if ( module.hot ) {
       module.hot.accept( '../shaders/big-blur.frag', () => {

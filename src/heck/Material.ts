@@ -1,4 +1,4 @@
-import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformMatrixVectorType, GLCatProgramUniformType, GLCatProgramUniformVectorType, GLCatTexture, GLCatTextureCubemap } from '@fms-cat/glcat-ts';
+import { GLCatProgram, GLCatProgramLinkOptions, GLCatProgramUniformMatrixVectorType, GLCatProgramUniformType, GLCatProgramUniformVectorType, GLCatTexture } from '@fms-cat/glcat-ts';
 import { Geometry } from './Geometry';
 import { RenderTarget } from './RenderTarget';
 import { SHADERPOOL } from './ShaderPool';
@@ -47,19 +47,7 @@ export class Material {
 
   protected __uniformTextures: {
     [ name: string ]: {
-      texture: GLCatTexture | null;
-    };
-  } = {};
-
-  protected __uniformTextureArrays: {
-    [ name: string ]: {
       textures: GLCatTexture[];
-    };
-  } = {};
-
-  protected __uniformCubemaps: {
-    [ name: string ]: {
-      texture: GLCatTextureCubemap | null;
     };
   } = {};
 
@@ -138,16 +126,8 @@ export class Material {
     this.__uniformMatrixVectors[ name ] = { type, value };
   }
 
-  public addUniformTexture( name: string, texture: GLCatTexture | null ): void {
-    this.__uniformTextures[ name ] = { texture };
-  }
-
-  public addUniformTextureArray( name: string, textures: GLCatTexture[] ): void {
-    this.__uniformTextureArrays[ name ] = { textures };
-  }
-
-  public addUniformCubemap( name: string, texture: GLCatTextureCubemap | null ): void {
-    this.__uniformCubemaps[ name ] = { texture };
+  public addUniformTextures( name: string, ...textures: GLCatTexture[] ): void {
+    this.__uniformTextures[ name ] = { textures };
   }
 
   public setUniforms(): void {
@@ -167,16 +147,8 @@ export class Material {
       }
     );
 
-    Object.entries( this.__uniformTextures ).forEach( ( [ name, { texture } ] ) => {
-      program.uniformTexture( name, texture );
-    } );
-
-    Object.entries( this.__uniformTextureArrays ).forEach( ( [ name, { textures } ] ) => {
-      program.uniformTextures( name, textures );
-    } );
-
-    Object.entries( this.__uniformCubemaps ).forEach( ( [ name, { texture } ] ) => {
-      program.uniformCubemap( name, texture );
+    Object.entries( this.__uniformTextures ).forEach( ( [ name, { textures } ] ) => {
+      program.uniformTexture( name, ...textures );
     } );
   }
 

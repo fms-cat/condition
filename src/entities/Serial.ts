@@ -55,8 +55,8 @@ export class Serial extends Entity {
       serialEncodeFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    materialEncode.addUniformTexture( 'sampler0', options.input.texture );
-    materialEncode.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    materialEncode.addUniformTextures( 'sampler0', options.input.texture );
+    materialEncode.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -84,8 +84,8 @@ export class Serial extends Entity {
       serialDecodeFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    materialDecode.addUniformTexture( 'sampler0', bufferEncode.texture );
-    materialDecode.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    materialDecode.addUniformTextures( 'sampler0', bufferEncode.texture );
+    materialDecode.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

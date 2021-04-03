@@ -25,7 +25,7 @@ export class Antialias extends Entity {
       fxaaFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    material.addUniformTexture( 'sampler0', options.input.texture );
+    material.addUniformTextures( 'sampler0', options.input.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

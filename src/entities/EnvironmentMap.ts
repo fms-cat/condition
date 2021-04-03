@@ -53,8 +53,8 @@ export class EnvironmentMap extends Entity {
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
     materialIntegrate.addUniform( 'uniformSeed', '4f', rng.gen(), rng.gen(), rng.gen(), rng.gen() );
-    materialIntegrate.addUniformTexture( 'sampler0', swap.i.texture );
-    materialIntegrate.addUniformCubemap( 'samplerCubemap', cubemap.texture );
+    materialIntegrate.addUniformTextures( 'sampler0', swap.i.texture );
+    materialIntegrate.addUniformTextures( 'samplerCubemap', cubemap.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -78,7 +78,7 @@ export class EnvironmentMap extends Entity {
       environmentMapMergeFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    materialMerge.addUniformTexture( 'sampler0', swap.i.texture );
+    materialMerge.addUniformTextures( 'sampler0', swap.i.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

@@ -85,15 +85,15 @@ export class GPUParticles extends Entity {
         for ( let i = 0; i < computeNumBuffers; i ++ ) {
           const attachment = gl.COLOR_ATTACHMENT0 + i;
 
-          materialCompute.addUniformTexture(
+          materialCompute.addUniformTextures(
             `samplerCompute${ i }`,
-            swapCompute.i.getTexture( attachment )
+            swapCompute.i.getTexture( attachment )!
           );
 
           objectValuesMap( materialsRender, ( material ) => {
-            material?.addUniformTexture(
+            material?.addUniformTextures(
               `samplerCompute${ i }`,
-              swapCompute.o.getTexture( attachment )
+              swapCompute.o.getTexture( attachment )!
             );
           } );
         }

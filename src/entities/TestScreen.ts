@@ -26,7 +26,7 @@ export class TestScreen extends Entity {
       },
     );
 
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    material.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

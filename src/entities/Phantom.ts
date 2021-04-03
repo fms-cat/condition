@@ -28,7 +28,7 @@ export class Phantom extends Entity {
     );
 
     forward.addUniform( 'range', '4f', -1.0, -1.0, 1.0, 1.0 );
-    forward.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    forward.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV && module.hot ) {
       module.hot.accept( [ '../shaders/phantom.frag' ], () => {
@@ -76,6 +76,6 @@ export class Phantom extends Entity {
    * どうやってフレームバッファのデプスを取るかわかりませんでした 許してほしい
    */
   public setDefferedCameraTarget( deferredCameraTarget: BufferRenderTarget ): void {
-    this.__forward.addUniformTexture( 'samplerDeferred0', deferredCameraTarget.texture );
+    this.__forward.addUniformTextures( 'samplerDeferred0', deferredCameraTarget.texture );
   }
 }

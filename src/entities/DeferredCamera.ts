@@ -79,13 +79,13 @@ export class DeferredCamera extends Entity {
     } );
 
     for ( let i = 0; i < 2; i ++ ) { // it doesn't need 2 and 3
-      aoMaterial.addUniformTexture(
+      aoMaterial.addUniformTextures(
         'sampler' + i,
-        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )!,
       );
     }
 
-    aoMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    aoMaterial.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     const aoQuad = new Quad( {
       material: aoMaterial,
@@ -146,16 +146,16 @@ export class DeferredCamera extends Entity {
     } );
 
     for ( let i = 0; i < 4; i ++ ) {
-      shadingMaterial.addUniformTexture(
+      shadingMaterial.addUniformTextures(
         'sampler' + i,
-        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+        this.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )!,
       );
     }
 
-    shadingMaterial.addUniformTexture( 'samplerAo', aoTarget.texture );
-    shadingMaterial.addUniformTexture( 'samplerIBLLUT', options.textureIBLLUT );
-    shadingMaterial.addUniformTexture( 'samplerEnv', options.textureEnv );
-    shadingMaterial.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    shadingMaterial.addUniformTextures( 'samplerAo', aoTarget.texture );
+    shadingMaterial.addUniformTextures( 'samplerIBLLUT', options.textureIBLLUT );
+    shadingMaterial.addUniformTextures( 'samplerEnv', options.textureEnv );
+    shadingMaterial.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     this.components.push(
       this.camera,

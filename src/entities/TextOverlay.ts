@@ -79,7 +79,7 @@ export class TextOverlay extends Entity {
         blend: [ gl.ONE, gl.ONE ],
       },
     );
-    material.addUniformTexture( 'sampler0', textures[ 0 ] );
+    material.addUniformTextures( 'sampler0', textures[ 0 ] );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -98,7 +98,7 @@ export class TextOverlay extends Entity {
 
     // -- auto -------------------------------------------------------------------------------------
     auto( 'TextOverlay/texture', ( { value } ) => {
-      material.addUniformTexture( 'sampler0', textures[ value ] );
+      material.addUniformTextures( 'sampler0', textures[ value ] );
     } );
 
     auto( 'TextOverlay/amp', ( { value } ) => {

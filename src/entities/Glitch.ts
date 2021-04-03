@@ -49,7 +49,7 @@ export class Glitch extends Entity {
       glitchFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    this.material.addUniformTexture( 'sampler0', options.input.texture );
+    this.material.addUniformTextures( 'sampler0', options.input.texture );
 
     if ( module.hot ) {
       module.hot.accept( '../shaders/glitch.frag', () => {

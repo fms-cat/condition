@@ -56,16 +56,16 @@ export class SSR extends Entity {
       },
     );
 
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    material.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     for ( let i = 0; i < 4; i ++ ) {
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler' + i,
-        options.camera.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )
+        options.camera.cameraTarget.getTexture( gl.COLOR_ATTACHMENT0 + i )!,
       );
     }
 
-    material.addUniformTexture( 'samplerShaded', options.shaded.texture );
+    material.addUniformTextures( 'samplerShaded', options.shaded.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

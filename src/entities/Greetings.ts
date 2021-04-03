@@ -125,7 +125,7 @@ const spritesheets = styles.map( ( style, iStyle ) => {
   let texture: GLCatTexture = textureSpriteSheet;
 
   ( style.preprocessorMaterials ?? [] ).map( ( material, i ) => {
-    material.addUniformTexture(
+    material.addUniformTextures(
       'sampler0',
       i === 0 ? textureSpriteSheet : swapIntermediate.o.texture,
     );
@@ -144,7 +144,7 @@ const spritesheets = styles.map( ( style, iStyle ) => {
     name: process.env.DEV && `Greetings/spriteSheet${ iStyle }`,
   } );
 
-  materialBlurH.addUniformTexture( 'sampler0', texture );
+  materialBlurH.addUniformTextures( 'sampler0', texture );
 
   quadPreprocessor.material = materialBlurH;
   quadPreprocessor.target = dest;
@@ -263,7 +263,7 @@ export class Greetings extends Entity {
 
     const materials = { forward };
 
-    forward.addUniformTextureArray( 'samplerSpriteSheets', spritesheets );
+    forward.addUniformTextures( 'samplerSpriteSheets', ...spritesheets );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

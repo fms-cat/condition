@@ -50,8 +50,8 @@ export function setLightUniforms(
     ) ).flat(),
   );
 
-  material.addUniformTextureArray(
+  material.addUniformTextures(
     'samplerShadow',
-    activeLights.map( ( light ) => light.shadowMap.texture ),
+    ...activeLights.map( ( light ) => light.shadowMap.texture ),
   );
 }

@@ -54,7 +54,7 @@ export class Bloom extends Entity {
       );
 
       material.addUniform( 'level', '1f', i );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler0',
         isFirst ? options.input.texture : swap.i.texture,
       );
@@ -88,7 +88,7 @@ export class Bloom extends Entity {
       );
 
       material.addUniform( 'level', '1f', i );
-      material.addUniformTexture(
+      material.addUniformTextures(
         'sampler0',
         swap.i.texture,
       );

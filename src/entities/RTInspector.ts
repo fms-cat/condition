@@ -133,8 +133,8 @@ export class RTInspector extends Entity {
         return;
       }
 
-      const texture = target.getTexture( attachment );
-      this.materialSingle.addUniformTexture( 'sampler0', texture );
+      const texture = target.getTexture( attachment )!;
+      this.materialSingle.addUniformTextures( 'sampler0', texture );
 
       this.entitySingle.active = true;
     } else {

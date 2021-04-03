@@ -29,7 +29,7 @@ export class SphereParticles extends Entity {
 
     materialCompute.addUniform( 'particlesSqrt', '1f', PARTICLES_SQRT );
     materialCompute.addUniform( 'particles', '1f', PARTICLES );
-    materialCompute.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    materialCompute.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
@@ -88,8 +88,8 @@ export class SphereParticles extends Entity {
 
     const materialsRender = { deferred, depth };
 
-    deferred.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
-    depth.addUniformTexture( 'samplerRandomStatic', randomTextureStatic.texture );
+    deferred.addUniformTextures( 'samplerRandomStatic', randomTextureStatic.texture );
+    depth.addUniformTextures( 'samplerRandomStatic', randomTextureStatic.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {

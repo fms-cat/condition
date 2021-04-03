@@ -45,8 +45,8 @@ export class Post extends Entity {
       postFrag,
       { initOptions: { geometry: quadGeometry, target: dummyRenderTarget } },
     );
-    material.addUniformTexture( 'sampler0', options.input.texture );
-    material.addUniformTexture( 'samplerRandom', randomTexture.texture );
+    material.addUniformTextures( 'sampler0', options.input.texture );
+    material.addUniformTextures( 'samplerRandom', randomTexture.texture );
 
     if ( process.env.DEV ) {
       if ( module.hot ) {
