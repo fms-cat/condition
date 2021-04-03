@@ -135,7 +135,7 @@ void main() {
     float shadowDepth = linearstep(
       cameraNearFar.x,
       cameraNearFar.y,
-      length( cameraPos - rayPos )
+      length( cameraPos - modelPos.xyz )
     );
     fragColor = vec4( shadowDepth, shadowDepth * shadowDepth, shadowDepth, 1.0 );
   #endif

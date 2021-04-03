@@ -69,11 +69,6 @@ export class Crystal extends Entity {
       }
     }
 
-    objectValuesMap( materials, ( material ) => {
-      material?.addUniform( 'size', '2f', width, height );
-      material?.addUniform( 'noiseOffset', '1f', noiseOffset );
-    } );
-
     // haha
     auto( 'Crystal/enableDepth', ( { uninit } ) => {
       if ( uninit ) {
@@ -103,6 +98,9 @@ export class Crystal extends Entity {
               .inverse!
               .elements
           );
+
+          material?.addUniform( 'size', '2f', width, height );
+          material?.addUniform( 'noiseOffset', '1f', noiseOffset );
         } );
       },
       name: process.env.DEV && 'Crystal/updater',

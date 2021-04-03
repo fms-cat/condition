@@ -179,6 +179,19 @@ if ( process.env.DEV && module.hot ) {
   } );
 }
 
+const replacerSceneCrystals = new EntityReplacer(
+  () => new SceneCrystals( { scenes: [ dog.root ] } ),
+  'SceneCrystals',
+);
+if ( process.env.DEV && module.hot ) {
+  module.hot.accept( './entities/SceneCrystals', () => {
+    replacerSceneCrystals.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
+    replacerSceneCrystals.replace();
+    lights.push( ...replacerSceneCrystals.current.lights );
+    replacerSceneCrystals.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
+  } );
+}
+
 const replacerSceneDynamic = new EntityReplacer(
   () => new SceneDynamic( { scenes: [ dog.root ] } ),
   'SceneDynamic',
@@ -204,19 +217,6 @@ if ( process.env.DEV && module.hot ) {
     replacerSceneNeuro.replace();
     lights.push( ...replacerSceneNeuro.current.lights );
     replacerSceneNeuro.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
-  } );
-}
-
-const replacerSceneCrystals = new EntityReplacer(
-  () => new SceneCrystals( { scenes: [ dog.root ] } ),
-  'SceneCrystals',
-);
-if ( process.env.DEV && module.hot ) {
-  module.hot.accept( './entities/SceneCrystals', () => {
-    replacerSceneCrystals.current.lights.map( ( light ) => arraySetDelete( lights, light ) );
-    replacerSceneCrystals.replace();
-    lights.push( ...replacerSceneCrystals.current.lights );
-    replacerSceneCrystals.current.setDefferedCameraTarget( deferredCamera.cameraTarget );
   } );
 }
 
