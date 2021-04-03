@@ -13,11 +13,11 @@
     "lint-fix": "eslint --fix \"src/**/*.{ts,tsx}\""
   },
   "devDependencies": {
-    "@fms-cat/automaton": "^4.1.0",
-    "@fms-cat/automaton-fxs": "^4.1.0",
-    "@fms-cat/automaton-with-gui": "^4.1.1",
-    "@fms-cat/experimental": "^0.5.0",
-    "@fms-cat/glcat-ts": "^0.14.2",
+    "@fms-cat/automaton": "^4.2.0-beta.0",
+    "@fms-cat/automaton-fxs": "^4.2.0-beta.0",
+    "@fms-cat/automaton-with-gui": "^4.2.0-beta.0",
+    "@fms-cat/experimental": "^0.6.1",
+    "@fms-cat/glcat-ts": "^0.15.0",
     "@types/audiobuffer-to-wav": "^1.0.0",
     "@types/webpack-env": "^1.16.0",
     "@typescript-eslint/eslint-plugin": "^4.17.0",

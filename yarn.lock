@@ -50,34 +50,34 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@fms-cat/automaton-fxs@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@fms-cat/automaton-fxs/-/automaton-fxs-4.1.0.tgz#a2fd15795954c352bf430106a3ac1847ef47760d"
-  integrity sha512-zJQvK20b5mvXfbrc1PqFiIt5DUJmPRdwdP9IHUpoLplMwM4lZf5yefyO9Gt9HZAm/ct4n+Y+D6cN77QYlm8VEQ==
+"@fms-cat/automaton-fxs@^4.2.0-beta.0":
+  version "4.2.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@fms-cat/automaton-fxs/-/automaton-fxs-4.2.0-beta.0.tgz#6ef97022466720a55719d04e3b587d234a1ddd0e"
+  integrity sha512-sJuF+qdjqH4nMAtqjI/qTFYHo9IZLAMmEvzGkBpM7YKfy/p9p4tjLeOKD8CEhqnWibYDsIuXr0Q4ythS7m+BTw==
   dependencies:
-    "@fms-cat/automaton" "^4.1.0"
+    "@fms-cat/automaton" "^4.2.0-beta.0"
 
-"@fms-cat/automaton-with-gui@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@fms-cat/automaton-with-gui/-/automaton-with-gui-4.1.1.tgz#a86e5d7a96d29cd3249f1a546024302cfe7f4247"
-  integrity sha512-OlwZzO9fnbuE8kLQuXP6glLRGDIbNFj7e5HsDVdO4hjKYX5AsO5faOhnzYr3I78MusurRUoBCQDQ83tEVU4FBg==
+"@fms-cat/automaton-with-gui@^4.2.0-beta.0":
+  version "4.2.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@fms-cat/automaton-with-gui/-/automaton-with-gui-4.2.0-beta.0.tgz#95dbd32370e100164add649bc95bdcaee3882605"
+  integrity sha512-baWEwEbqPbGSi98LQsAgy5fh4kRr8LYY6ZueJIZUOtu+MgaBsRfuW7vTO+ALxfZPxyMS/RsYIdbBNCZLpqepAA==
   dependencies:
-    "@fms-cat/automaton" "^4.1.0"
+    "@fms-cat/automaton" "^4.2.0-beta.0"
 
-"@fms-cat/automaton@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@fms-cat/automaton/-/automaton-4.1.0.tgz#d04bb994a4b33e64f2fcc45655f2b68eae9da3eb"
-  integrity sha512-zN3nOSQUAttC1SfmxiCwBw3yi4VFW1HoJbSpSei1p1xSGUsJ+4hTIuaYt9o5COJmq0aCrwglsoPPTSjvko242A==
+"@fms-cat/automaton@^4.2.0-beta.0":
+  version "4.2.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@fms-cat/automaton/-/automaton-4.2.0-beta.0.tgz#ea45190b9b9592981a3d95d21a391c37a352ccb7"
+  integrity sha512-2shfqT4zo/LDV0mpBkLG8lZfgLSHsljXjXC0p/it4YfRZagZmZKEPDxmFpHgb6DfAmmO9o4sX5iWB0tcib9qfg==
 
-"@fms-cat/experimental@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@fms-cat/experimental/-/experimental-0.5.0.tgz#41ebe9ce2b4bfca7b194f3a5c8aad951264a4ac0"
-  integrity sha512-01vnWv6fCrwvR0hsEhmDKhrQ/k0NjAsbV4+lDJJ8xCOdHDjbtHxSjv92Px2WxDMpv2JYfIpw2d8iqGZzVAvcAg==
+"@fms-cat/experimental@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@fms-cat/experimental/-/experimental-0.6.1.tgz#c13e69db4d7faca3fed3cc29e75cbe3ac465f6c0"
+  integrity sha512-qgpn2ITe2hR79BUPVnU3w9JqGGcmmKAvknYLK+yqPfCAIhPy5Gh+LKpT20Jx3Vp/jmbRhDghHfRbFIA9S4NrmA==
 
-"@fms-cat/glcat-ts@^0.14.2":
-  version "0.14.2"
-  resolved "https://registry.yarnpkg.com/@fms-cat/glcat-ts/-/glcat-ts-0.14.2.tgz#548019d8b31ccf9d5aa6e1bfd01d73bd1ad2e4de"
-  integrity sha512-Pv32IeyZXJiFaf8mhAzOkoef4gaaVWYITuwENrtKi+4rwkebLcx9SEqoG8qDAFeWmm0ANKFYsYCRyhns4VSnRA==
+"@fms-cat/glcat-ts@^0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@fms-cat/glcat-ts/-/glcat-ts-0.15.0.tgz#6540ea16d6c5e36dea1a87bc1ccc7c4f7a5a21ac"
+  integrity sha512-qdBgZfDLJWomZewadhhdZ1Aq81quYQSVSy6cim/czhbfAzf+468dqt9q1mV0v71J3B29Qyxg1omu+i12BLseeA==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
